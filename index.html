@@ -149,6 +149,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .pdot.done{background:linear-gradient(90deg,#2d5a1b,#f4a100)}
 .pdot.tod2{background:#fff3b0;box-shadow:0 0 0 1.5px #f4a100}
 .pdot.tod2.done{background:linear-gradient(90deg,#f4a100,#ffe066);box-shadow:0 0 0 1.5px #c47a00}
+.pdot.missed{background:linear-gradient(90deg,#c9a96e,#b8935a);opacity:.6}
 .pdot.offday{background:#e8e8e8;cursor:default}
 .mlbl{font-size:10px;font-weight:800;color:#7a5a00;text-transform:uppercase;letter-spacing:.4px;padding:0 12px 5px}
 .mrow{display:flex;gap:4px;padding:0 12px 10px}
@@ -903,6 +904,31 @@ function last7(){return Array.from({length:7},(_,i)=>{const d=new Date();d.setDa
 function isSchd(h,d){if(h.freq==='daily')return true;if(h.freq==='custom')return(h.dow||[0,1,2,3,4,5,6]).includes(d.dow);return true;}
 function getStreak(h){let s=0,d=new Date();for(let i=0;i<365;i++){const dow=d.getDay(),k=d.toISOString().slice(0,10),sc=h.freq==='custom'?(h.dow||[0,1,2,3,4,5,6]).includes(dow):true;if(!sc){d.setDate(d.getDate()-1);continue;}if(h.vacation?.[k]){s++;d.setDate(d.getDate()-1);continue;}if(h.done?.[k]){s++;d.setDate(d.getDate()-1);}else break;}return s;}
 
+// ── SVG HOA HÉO (bỏ sót ngày) ──
+function witheredSVG(){
+  const W=36,H=54;
+  return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <!-- Thân cong héo -->
+    <path d="M18 52 Q14 42 16 34 Q17 28 18 26" stroke="#8b7355" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <!-- Lá héo rũ xuống -->
+    <ellipse cx="11" cy="44" rx="6" ry="2.5" fill="#a0896a" opacity="0.7" transform="rotate(20 11 44)"/>
+    <ellipse cx="23" cy="46" rx="5.5" ry="2.2" fill="#8b7355" opacity="0.6" transform="rotate(-15 23 46)"/>
+    <!-- Cánh hoa héo rũ -->
+    <ellipse cx="12" cy="22" rx="3" ry="6" fill="#c9a96e" opacity="0.6" transform="rotate(40 12 22)"/>
+    <ellipse cx="24" cy="22" rx="3" ry="6" fill="#c9a96e" opacity="0.6" transform="rotate(-40 24 22)"/>
+    <ellipse cx="10" cy="28" rx="3" ry="5.5" fill="#b8935a" opacity="0.55" transform="rotate(70 10 28)"/>
+    <ellipse cx="26" cy="28" rx="3" ry="5.5" fill="#b8935a" opacity="0.55" transform="rotate(-70 26 28)"/>
+    <ellipse cx="14" cy="17" rx="2.5" ry="5" fill="#c9a96e" opacity="0.5" transform="rotate(15 14 17)"/>
+    <ellipse cx="22" cy="17" rx="2.5" ry="5" fill="#c9a96e" opacity="0.5" transform="rotate(-15 22 17)"/>
+    <!-- Nhụy tối -->
+    <circle cx="18" cy="26" r="5" fill="#6b4f2a" opacity="0.8"/>
+    <circle cx="18" cy="26" r="3.2" fill="#4a3318" opacity="0.9"/>
+    <!-- Vết nứt héo -->
+    <line x1="16" y1="24" x2="20" y2="28" stroke="#3a2810" stroke-width="0.7" opacity="0.6"/>
+    <line x1="20" y1="24" x2="16" y2="28" stroke="#3a2810" stroke-width="0.7" opacity="0.6"/>
+  </svg>`;
+}
+
 // ── SVG HOA ──
 function sunSVG(b,s){
   const W=36,H=54;
@@ -941,12 +967,19 @@ function render(){
     const s=getStreak(h),onV=h.vacation?.[t],mood=h.moods?.[t],note=h.notes?.[t];
     const flowers=days.map(d=>{
       const sc=isSchd(h,d),bl=!!h.done?.[d.key],ov=h.vacation?.[d.key];
+      // Ngày bỏ sót = có lịch + chưa tick + không nghỉ phép + không phải hôm nay
+      const missed = sc && !bl && !ov && !d.isToday;
       let sAt=0,dd=new Date(d.key);for(let i=0;i<60;i++){const k=dd.toISOString().slice(0,10);if(h.done?.[k]){sAt++;dd.setDate(dd.getDate()-1);}else break;}
       if(!sc&&!bl)return`<div class="fcol skp">${sunSVG(false,0)}<div class="dlbl off">${d.label}</div></div>`;
       if(ov)return`<div class="fcol"><div style="font-size:28px;height:54px;display:flex;align-items:center">🏖</div><div class="dlbl${d.isToday?' tod':''}">${d.label}</div></div>`;
+      if(missed)return`<div class="fcol skp" title="Bỏ sót ngày này 😢">${witheredSVG()}<div class="dlbl" style="color:#b8935a">${d.label}</div></div>`;
       return`<div class="fcol" onclick="toggleDay('${h.id}','${d.key}')">${sunSVG(bl,sAt)}<div class="dlbl${d.isToday?' tod':''}">${d.label}${d.isToday?'●':''}</div></div>`;
     }).join('');
-    const dots=days.map(d=>{if(!isSchd(h,d))return`<div class="pdot offday"></div>`;return`<div class="pdot${d.isToday?' tod2':''}${h.done?.[d.key]?' done':''}" onclick="toggleDay('${h.id}','${d.key}')"></div>`;}).join('');
+    const dots=days.map(d=>{
+      if(!isSchd(h,d))return`<div class="pdot offday"></div>`;
+      const missed2=!h.done?.[d.key]&&!h.vacation?.[d.key]&&!d.isToday;
+      return`<div class="pdot${d.isToday?' tod2':''}${h.done?.[d.key]?' done':''}${missed2?' missed':''}" onclick="toggleDay('${h.id}','${d.key}')"></div>`;
+    }).join('');
     const tags=[h.cat?`<span class="tp tcat">${h.cat}</span>`:'',h.freq&&h.freq!=='daily'?`<span class="tp tfrq">${h.freq==='weekly'?h.weeklyN+'x/tuần':'Chọn ngày'}</span>`:'',h.goal>0?`<span class="tp tgl">🎯 ${h.goal} ${h.goalUnit||''}</span>`:'',onV?`<span class="tp tvac">🏖 Nghỉ phép</span>`:''].filter(Boolean).join('');
     const moodRow=`<div class="mlbl">Tâm trạng hôm nay</div><div class="mrow">${MOODS.map(m=>`<div class="mbtn${mood===m?' on':''}" onclick="pickMoodD('${h.id}','${t}','${m}')">${m}</div>`).join('')}</div>`;
     return`<div class="hcard">
