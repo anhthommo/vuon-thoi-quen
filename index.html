@@ -6,12 +6,9 @@
 <meta name="theme-color" content="#f4a100">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Vườn Thói Quen">
+<meta name="apple-mobile-web-app-title" content="Vườn Hoa">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <title>Vườn Thói Quen 🌻</title>
 
 <!-- OneSignal Push Notification -->
@@ -40,6 +37,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 
 /* ── AUTH ── */
 .auth-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 18px;background:linear-gradient(135deg,#1a3a1a,#2d5a1b 40%,#4a8c1c 70%,#f4a100)}
+.auth-tools{position:fixed;top:14px;right:14px;display:flex;gap:8px;z-index:5}
+.auth-tool{min-width:42px;height:34px;padding:0 12px;border-radius:18px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.18);color:#fff;font-family:inherit;font-size:12px;font-weight:900;cursor:pointer;backdrop-filter:blur(10px);box-shadow:0 4px 16px rgba(0,0,0,.12)}
+.auth-tool:hover{background:rgba(255,255,255,.28)}
 .auth-logo{font-size:68px;animation:bob 3s ease-in-out infinite;margin-bottom:14px}
 .auth-appname{font-size:26px;font-weight:900;color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.4);margin-bottom:5px}
 .auth-tagline{font-size:13px;color:rgba(255,255,255,.8);text-align:center;line-height:1.6;margin-bottom:26px}
@@ -259,6 +259,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .empty-ico{font-size:55px;animation:bob 3s ease-in-out infinite;margin-bottom:12px}
 .empty-txt{font-size:17px;font-weight:900;color:#9a7a00}
 .empty-sub{font-size:12px;color:#c47a00;margin-top:5px;font-weight:600}
+
+/* ── DARK MODE ── */
+html.dark{color-scheme:dark}
+html.dark body{background:#111827;color:#f8fafc}
+html.dark .auth-tool{background:rgba(15,23,42,.58);border-color:rgba(148,163,184,.45);color:#f8fafc}
+html.dark .auth-card,html.dark .xpwrap,html.dark .tabs,html.dark .hcard,html.dark .scard,html.dark .fcard,html.dark .dcard,html.dark .modal{background:#182235;border-color:#334155;box-shadow:0 14px 40px rgba(0,0,0,.35)}
+html.dark .atab,html.dark .sc,html.dark .hemo,html.dark .ibtn,html.dark .mbtn,html.dark .abtn,html.dark .ntime,html.dark .field input,html.dark .field textarea,html.dark .afield input,html.dark .eopt,html.dark .dowopt,html.dark .mcancel{background:#0f172a;border-color:#334155;color:#f8fafc}
+html.dark .atab.on,html.dark .fopt.on,html.dark .copt.on,html.dark .dowopt.on,html.dark .eopt.on,html.dark .mbtn.on{background:#2b3a20;border-color:#f4a100;color:#ffe8a3}
+html.dark .tabs{border-bottom-color:#334155}
+html.dark .tab{color:#cbd5e1}
+html.dark .tab.on,html.dark .fhed,html.dark .sechead,html.dark .scard-title,html.dark .sec-title,html.dark .mhed,html.dark .ddate{color:#fbbf24;border-left-color:#f4a100}
+html.dark .hname,html.dark .dname,html.dark .slbl,html.dark .bgname{color:#f8fafc}
+html.dark .hdesc,html.dark .ssub,html.dark .field label,html.dark .afield label,html.dark .dlbl,html.dark .mlbl,html.dark .rwtitle,html.dark .rwtxt,html.dark .dnote,html.dark .empty-sub{color:#cbd5e1}
+html.dark .empty-txt,html.dark .lvname,html.dark .xptxt,html.dark .sc span{color:#fde68a}
+html.dark .scrow,html.dark .ditem,html.dark .divln{border-bottom-color:#334155;background-color:transparent}
+html.dark .pdot,html.dark .xpbar,html.dark .rwprog{background:#334155}
+html.dark .pdot.offday{background:#263244}
+html.dark .notebox,html.dark .ios-guide{background:#1f2937;border-color:#475569;color:#e2e8f0}
+html.dark .auth-err{background:#3b1620;border-color:#7f1d1d;color:#fecaca}
+html.dark .auth-ok{background:#123524;border-color:#166534;color:#bbf7d0}
+html.dark .bgitem{background:#182235;border-color:#334155}
+html.dark .rwlk{background:#1c2536;border-color:#475569}
+html.dark .rwnr{background:#3a2f12;border-color:#a16207}
+html.dark .rwdn{background:linear-gradient(135deg,#123524,#164e32);border-color:#22c55e}
+html.dark .msbox{background:linear-gradient(135deg,#1f2937,#111827);border-color:#f4a100}
+html.dark .msrw{background:#0f172a;color:#bbf7d0;border-color:#166534}
+html.dark .overlay{background:rgba(2,6,23,.76)}
 </style>
 </head>
 <body>
@@ -268,6 +295,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 
 <!-- AUTH -->
 <div id="authWrap" class="auth-wrap" style="display:none">
+  <div class="auth-tools">
+    <button class="auth-tool" id="authThemeBtn" onclick="toggleTheme()" title="Dark mode">🌙</button>
+    <button class="auth-tool" id="authLangBtn" onclick="toggleLang()">EN</button>
+  </div>
   <div class="auth-logo">🌻</div>
   <div class="auth-appname">Vườn Thói Quen</div>
   <div class="auth-tagline">Đăng nhập một lần — dữ liệu có mặt<br>trên mọi thiết bị của bạn ✨</div>
@@ -407,6 +438,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
     <!-- ACCOUNT INFO -->
     <div class="scard">
       <div class="scard-title">👤 Tài khoản & Đồng bộ</div>
+      <div class="scrow">
+        <div><div class="slbl" id="themeLabel">Dark mode</div><div class="ssub" id="themeSub">Đổi giao diện tối để dùng dễ hơn ban đêm</div></div>
+        <div class="toggle" id="themeTog" onclick="toggleTheme()"></div>
+      </div>
+      <div class="scrow">
+        <div><div class="slbl" id="langLabel">Language</div><div class="ssub" id="langSub">Chuyển giao diện sang English cho người nước ngoài</div></div>
+        <button class="abtn" id="langBtn" onclick="toggleLang()">English</button>
+      </div>
       <div class="scrow">
         <div>
           <div class="slbl" id="setName">Người dùng</div>
@@ -576,15 +615,17 @@ const db    = getFirestore(fbApp);
 
 // ── CONSTANTS ──
 const EMOJIS=['📚','🏃','🧘','💪','🎨','🎸','🍎','💧','📝','🌿','🎯','🌙','☕','🎵','🧠','✍️'];
-const DOWS=['CN','T2','T3','T4','T5','T6','T7'];
+const DOWS_VI=['CN','T2','T3','T4','T5','T6','T7'];
+const DOWS_EN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+let DOWS=DOWS_VI;
 const MOODS=['😊','😄','😐','😔','😤'];
 const LEVELS=[
-  {name:'Mầm Non 🌱',min:0,max:100,b:'Lv.1'},
-  {name:'Học Sinh 📚',min:100,max:300,b:'Lv.2'},
-  {name:'Chiến Binh ⚔️',min:300,max:600,b:'Lv.3'},
-  {name:'Anh Hùng 🦸',min:600,max:1000,b:'Lv.4'},
-  {name:'Huyền Thoại 🏆',min:1000,max:2000,b:'Lv.5'},
-  {name:'Bất Tử ⭐',min:2000,max:99999,b:'Lv.6'}
+  {key:'seedling',name:'Mầm Non 🌱',min:0,max:100,b:'Lv.1'},
+  {key:'student',name:'Học Sinh 📚',min:100,max:300,b:'Lv.2'},
+  {key:'warrior',name:'Chiến Binh ⚔️',min:300,max:600,b:'Lv.3'},
+  {key:'hero',name:'Anh Hùng 🦸',min:600,max:1000,b:'Lv.4'},
+  {key:'legend',name:'Huyền Thoại 🏆',min:1000,max:2000,b:'Lv.5'},
+  {key:'immortal',name:'Bất Tử ⭐',min:2000,max:99999,b:'Lv.6'}
 ];
 const BADGES=[
   {id:'first',ico:'🌱',name:'Bước Đầu',      desc:'Hoàn thành ngày đầu tiên',    ok:(s,h)=>s.done>=1},
@@ -601,18 +642,140 @@ const BADGES=[
   {id:'lv5',  ico:'⭐',name:'Đỉnh Cao',        desc:'Đạt Huyền Thoại',            ok:(s,h)=>s.xp>=1000}
 ];
 
+const I18N={
+  vi:{
+    app:'Vườn Thói Quen',loading:'Đang tải vườn hoa của bạn...',tagline:'Đăng nhập một lần — dữ liệu có mặt<br>trên mọi thiết bị của bạn ✨',
+    login:'🌻 Đăng nhập',register:'🌱 Tạo tài khoản',loggingIn:'Đang đăng nhập...',registering:'Đang tạo tài khoản...',forgot:'Quên mật khẩu? Gửi email đặt lại',
+    installTitle:'🌻 Cài Vườn Thói Quen như app thật!',installSub:'Dữ liệu đồng bộ qua tài khoản — dùng offline — không cần internet',later:'Để sau',install:'📲 Cài ngay',
+    notifOn:'🔔 Thông báo',notifOff:'🔕 Tắt thông báo',logout:'Đăng xuất',brand:'🌻 Vườn Thói Quen',hello:'Xin chào,',friend:'bạn',
+    statHabits:'Thói quen',statToday:'Hôm nay',statStreak:'Streak cao',statXP:'Tổng XP',tabGarden:'🌻 Vườn',tabAdd:'＋ Thêm',tabBadges:'🏅 Huy Hiệu',tabDiary:'📓 Nhật Ký',tabSettings:'⚙️ Cài Đặt',
+    addTitle:'🌻 Trồng thói quen mới',icon:'Biểu tượng',habitName:'Tên thói quen *',habitDesc:'Mô tả ngắn',category:'📂 Danh mục',frequency:'📅 Tần suất',
+    daily:'Mỗi ngày',weekly:'N lần/tuần',custom:'Chọn ngày',weeklyCount:'Số lần mỗi tuần',chooseDays:'Chọn ngày trong tuần',goal:'🎯 Mục tiêu số lượng (tùy chọn)',rewards:'🏆 Phần quà mốc streak',
+    r5:'Quà sau 5 ngày',r7:'Quà sau 7 ngày',r15:'Quà sau 15 ngày',start:'🌻 Bắt đầu hành trình!',badges:'🏅 Bộ sưu tập huy hiệu',
+    account:'👤 Tài khoản & Đồng bộ',themeLabel:'Dark mode',themeSub:'Đổi giao diện tối để dùng dễ hơn ban đêm',langLabel:'Language',langSub:'Chuyển giao diện sang English cho người nước ngoài',langBtn:'English',
+    user:'Người dùng',cloud:'☁️ Dữ liệu tự đồng bộ qua Firebase',syncNow:'Đồng bộ ngay',syncNowSub:'Lưu dữ liệu lên cloud ngay lập tức',sync:'☁️ Sync',
+    reminders:'🔔 Nhắc nhở (OneSignal)',enableNotif:'Bật thông báo',enableNotifSub:'Nhắc kể cả khi đóng app, hỗ trợ iOS',notifTime:'Giờ nhắc nhở',notifTimeSub:'Nhắc vào lúc mấy giờ mỗi ngày',
+    mysql:'💾 Backup MySQL (tùy chọn)',mysqlNow:'Backup lên MySQL ngay',mysqlSub:'Lưu bản sao sang server riêng',autoBk:'Tự động backup',autoBkSub:'Backup mỗi khi tick thói quen',
+    exportImport:'📁 Xuất & Nhập dữ liệu',exportCSV:'Xuất CSV',excel:'Mở bằng Excel',exportJSON:'Xuất JSON',jsonSub:'Backup toàn bộ dữ liệu',importJSON:'Nhập JSON',importSub:'Khôi phục từ file backup',deleteAll:'Xóa toàn bộ',deleteSub:'Không thể hoàn tác!',exportBtn:'📥 Xuất',downloadBtn:'💾 Tải về',importBtn:'📤 Nhập',deleteBtn:'🗑 Xóa',
+    iosTitle:'📱 Cài app trên iPhone/iPad',iosGuide:'1. Mở trang web trong <b>Safari</b> (bắt buộc)<br>2. Nhấn nút <b>Chia sẻ</b> 📤 ở thanh dưới<br>3. Chọn <b>"Thêm vào Màn hình chính"</b><br>4. Nhấn <b>Thêm</b> — xong! ✅<br><br><b>Lưu ý:</b> Sau khi cài, đăng nhập cùng email → dữ liệu tự đồng bộ ngay.',
+    editTitle:'✏️ Chỉnh sửa thói quen',name:'Tên *',desc:'Mô tả',cancel:'Hủy',save:'Lưu lại',moodTitle:'📓 Ghi chú hôm nay',moodToday:'Tâm trạng hôm nay',note:'Ghi chú',skip:'Bỏ qua',saveShort:'Lưu',continue:'🌻 Tiếp tục cố gắng!',
+    pName:'VD: Học 10 câu tiếng Anh mỗi ngày',pDesc:'VD: Dùng Duolingo, 10 phút',pGoal:'VD: 8',pUnit:'VD: cốc nước, km...',pR5:'VD: Uống trà sữa yêu thích',pR7:'VD: Xem 1 tập phim',pR15:'VD: Mua thứ mình muốn',pMood:'Hôm nay bạn cảm thấy thế nào?',
+    authName:'Tên hiển thị',authPass:'Mật khẩu',authConfirm:'Xác nhận mật khẩu',pAuthName:'Tên của bạn',pAuthPass:'Ít nhất 6 ký tự',pAuthConfirm:'Nhập lại mật khẩu',
+    catHealth:'💪 Sức khỏe',catStudy:'📚 Học tập',catPersonal:'🌟 Cá nhân',catWork:'💼 Công việc',catCreative:'🎨 Sáng tạo',
+    noHabitsTitle:'Vườn hoa đang trống!',noHabitsSub:'Nhấn ＋ Thêm để trồng thói quen đầu tiên ✨',firstHabit:'Thêm thói quen đầu tiên để bắt đầu ✨',allDone:'Tuyệt vời! Hoàn thành hết hôm nay! 🎉',left:n=>`Còn ${n} thói quen chưa tick hôm nay 💪`,
+    moodRow:'Tâm trạng hôm nay',rewardMilestone:'🌟 Mốc phần thưởng',days:n=>`${n} ngày`,oneLeft:'Còn 1 ngày!',vacation:'🏖 Nghỉ phép',vacToday:'🏖 Nghỉ phép hôm nay — streak được bảo toàn!',streak:n=>`🌻 ${n} ngày liên tiếp`,missed:'Bỏ sót ngày này 😢',
+    noDiaryTitle:'Chưa có nhật ký nào',noDiarySub:'Tick thói quen để bắt đầu ghi chép ✨',unlocked:'✅ Đã mở',locked:'🔒 Chưa mở',newBadge:'🏅 Huy hiệu mới!',
+    levels:{seedling:'Mầm Non 🌱',student:'Học Sinh 📚',warrior:'Chiến Binh ⚔️',hero:'Anh Hùng 🦸',legend:'Huyền Thoại 🏆',immortal:'Bất Tử ⭐'},
+    badgeText:{first:['Bước Đầu','Hoàn thành ngày đầu tiên'],s7:['Tuần Hoàn Hảo','Streak 7 ngày liên tiếp'],s30:['30 Ngày Vàng','Streak 30 ngày liên tiếp'],x100:['Tích Lũy','Đạt 100 XP'],x500:['Giàu Kinh Nghiệm','Đạt 500 XP'],h3:['Đa Nhiệm','Có 3 thói quen cùng lúc'],h5:['Vườn Hoa','Có 5 thói quen cùng lúc'],d10:['Chăm Chỉ','10 ngày hoàn thành (tổng)'],d50:['Kiên Trì','50 ngày hoàn thành (tổng)'],d100:['Truyền Thuyết','100 ngày hoàn thành (tổng)'],lv3:['Cấp Cao','Đạt Chiến Binh'],lv5:['Đỉnh Cao','Đạt Huyền Thoại']},
+    alerts:{needLogin:'Vui lòng nhập đầy đủ email và mật khẩu!',needName:'Vui lòng nhập tên!',needEmail:'Vui lòng nhập email!',weak:'Mật khẩu ít nhất 6 ký tự!',mismatch:'Mật khẩu xác nhận không khớp!',forgotEmail:'Nhập email vào ô trên trước!',resetSent:'✅ Email đặt lại mật khẩu đã được gửi! Kiểm tra hộp thư.',notFound:'Không tìm thấy tài khoản với email này.',logout:'Đăng xuất khỏi tài khoản?',ios:'Cài trên iOS: Safari → Chia sẻ 📤 → Thêm vào Màn hình chính',nameHabit:'Vui lòng nhập tên thói quen!',editName:'Nhập tên nhé!',deleteHabit:(n)=>`Xóa "${n}"?\nDữ liệu sẽ mất vĩnh viễn.`,mysqlMissing:'Chưa cấu hình MYSQL_URL trong code!',oneSignal:'OneSignal chưa cấu hình. Thay YOUR_ONESIGNAL_APP_ID trong code!',notifUnsupported:'Trình duyệt không hỗ trợ thông báo!',importConfirm:'Nhập sẽ THAY THẾ dữ liệu hiện tại bằng dữ liệu từ file.\nTiếp tục?',importOk:'✅ Nhập dữ liệu thành công!\n\nDữ liệu đã được lưu lên cloud — đăng nhập trên thiết bị khác sẽ thấy ngay.',invalidFile:'❌ File không hợp lệ!',clearAll:'Xóa TOÀN BỘ dữ liệu? Không thể hoàn tác!'},
+    syncLoad:'☁️ Đang tải dữ liệu...',syncLoaded:'✅ Dữ liệu đã đồng bộ!',syncing:'☁️ Đang đồng bộ...',synced:'✅ Đã đồng bộ!',syncLoadErr:'❌ Lỗi tải dữ liệu: ',syncErr:'❌ Lỗi đồng bộ. Kiểm tra Firebase!',
+    csv:['Thói quen','Ngày','Hoàn thành','Tâm trạng','Ghi chú'],yes:'Có',no:'Không',backuping:'⏳ Đang backup...',backupOk:'✅ Backup thành công! ',backupFail:'❌ Không kết nối được. Kiểm tra MYSQL_URL!',notifBody:n=>`Còn ${n} thói quen chưa tick! Đừng phá streak 💪`,
+    milestone:(d,h)=>[`${d} ngày liên tiếp! 🎊`,`"${h.emoji} ${h.name}" đạt streak ${d} ngày!`],addXp:'thêm thói quen mới',streakXp:d=>`streak ${d} ngày`
+  },
+  en:{
+    app:'Habit Garden',loading:'Loading your habit garden...',tagline:'Sign in once — your data follows you<br>across every device ✨',
+    login:'🌻 Log in',register:'🌱 Create account',loggingIn:'Logging in...',registering:'Creating account...',forgot:'Forgot password? Send reset email',
+    installTitle:'🌻 Install Habit Garden like a real app!',installSub:'Account sync — offline use — no internet required',later:'Later',install:'📲 Install',
+    notifOn:'🔔 Notifications',notifOff:'🔕 Notifications off',logout:'Log out',brand:'🌻 Habit Garden',hello:'Hello,',friend:'friend',
+    statHabits:'Habits',statToday:'Today',statStreak:'Best streak',statXP:'Total XP',tabGarden:'🌻 Garden',tabAdd:'＋ Add',tabBadges:'🏅 Badges',tabDiary:'📓 Diary',tabSettings:'⚙️ Settings',
+    addTitle:'🌻 Plant a new habit',icon:'Icon',habitName:'Habit name *',habitDesc:'Short description',category:'📂 Category',frequency:'📅 Frequency',
+    daily:'Every day',weekly:'Times/week',custom:'Pick days',weeklyCount:'Times per week',chooseDays:'Choose weekdays',goal:'🎯 Quantity goal (optional)',rewards:'🏆 Streak rewards',
+    r5:'Reward after 5 days',r7:'Reward after 7 days',r15:'Reward after 15 days',start:'🌻 Start growing!',badges:'🏅 Badge collection',
+    account:'👤 Account & Sync',themeLabel:'Dark mode',themeSub:'Switch to a darker interface for night use',langLabel:'Language',langSub:'Use the English interface',langBtn:'Tiếng Việt',
+    user:'User',cloud:'☁️ Data syncs automatically via Firebase',syncNow:'Sync now',syncNowSub:'Save data to the cloud immediately',sync:'☁️ Sync',
+    reminders:'🔔 Reminders (OneSignal)',enableNotif:'Enable notifications',enableNotifSub:'Remind even when the app is closed; supports iOS',notifTime:'Reminder time',notifTimeSub:'When to remind you each day',
+    mysql:'💾 MySQL backup (optional)',mysqlNow:'Back up to MySQL now',mysqlSub:'Save a copy to your own server',autoBk:'Automatic backup',autoBkSub:'Back up whenever you tick a habit',
+    exportImport:'📁 Export & Import data',exportCSV:'Export CSV',excel:'Open with Excel',exportJSON:'Export JSON',jsonSub:'Full data backup',importJSON:'Import JSON',importSub:'Restore from a backup file',deleteAll:'Delete everything',deleteSub:'This cannot be undone!',exportBtn:'📥 Export',downloadBtn:'💾 Download',importBtn:'📤 Import',deleteBtn:'🗑 Delete',
+    iosTitle:'📱 Install on iPhone/iPad',iosGuide:'1. Open this website in <b>Safari</b> (required)<br>2. Tap the <b>Share</b> 📤 button at the bottom<br>3. Choose <b>"Add to Home Screen"</b><br>4. Tap <b>Add</b> — done! ✅<br><br><b>Note:</b> After installing, sign in with the same email and your data will sync automatically.',
+    editTitle:'✏️ Edit habit',name:'Name *',desc:'Description',cancel:'Cancel',save:'Save changes',moodTitle:'📓 Today’s note',moodToday:'Today’s mood',note:'Note',skip:'Skip',saveShort:'Save',continue:'🌻 Keep going!',
+    pName:'E.g. Learn 10 English words daily',pDesc:'E.g. Duolingo, 10 minutes',pGoal:'E.g. 8',pUnit:'E.g. glasses of water, km...',pR5:'E.g. Favorite milk tea',pR7:'E.g. Watch one episode',pR15:'E.g. Buy something you want',pMood:'How do you feel today?',
+    authName:'Display name',authPass:'Password',authConfirm:'Confirm password',pAuthName:'Your name',pAuthPass:'At least 6 characters',pAuthConfirm:'Enter password again',
+    catHealth:'💪 Health',catStudy:'📚 Learning',catPersonal:'🌟 Personal',catWork:'💼 Work',catCreative:'🎨 Creative',
+    noHabitsTitle:'Your garden is empty!',noHabitsSub:'Tap ＋ Add to plant your first habit ✨',firstHabit:'Add your first habit to begin ✨',allDone:'Wonderful! Everything is done today! 🎉',left:n=>`${n} habits left today 💪`,
+    moodRow:'Today’s mood',rewardMilestone:'🌟 Reward milestones',days:n=>`${n} days`,oneLeft:'1 day left!',vacation:'🏖 Break',vacToday:'🏖 Break today — your streak is protected!',streak:n=>`🌻 ${n} day streak`,missed:'Missed this day 😢',
+    noDiaryTitle:'No diary entries yet',noDiarySub:'Tick a habit to start journaling ✨',unlocked:'✅ Unlocked',locked:'🔒 Locked',newBadge:'🏅 New badge!',
+    levels:{seedling:'Seedling 🌱',student:'Student 📚',warrior:'Warrior ⚔️',hero:'Hero 🦸',legend:'Legend 🏆',immortal:'Immortal ⭐'},
+    badgeText:{first:['First Step','Complete your first day'],s7:['Perfect Week','7-day streak'],s30:['Golden 30','30-day streak'],x100:['Collector','Reach 100 XP'],x500:['Experienced','Reach 500 XP'],h3:['Multitasker','Keep 3 habits at once'],h5:['Flower Garden','Keep 5 habits at once'],d10:['Diligent','10 total completed days'],d50:['Persistent','50 total completed days'],d100:['Mythic','100 total completed days'],lv3:['Advanced','Reach Warrior'],lv5:['Peak','Reach Legend']},
+    alerts:{needLogin:'Please enter both email and password!',needName:'Please enter your name!',needEmail:'Please enter your email!',weak:'Password must be at least 6 characters!',mismatch:'Password confirmation does not match!',forgotEmail:'Enter your email above first!',resetSent:'✅ Password reset email sent! Check your inbox.',notFound:'No account found with this email.',logout:'Log out of this account?',ios:'Install on iOS: Safari → Share 📤 → Add to Home Screen',nameHabit:'Please enter a habit name!',editName:'Please enter a name!',deleteHabit:(n)=>`Delete "${n}"?\nThis data will be lost permanently.`,mysqlMissing:'MYSQL_URL is not configured in code!',oneSignal:'OneSignal is not configured. Replace YOUR_ONESIGNAL_APP_ID in code!',notifUnsupported:'This browser does not support notifications!',importConfirm:'Import will REPLACE your current data with the file data.\nContinue?',importOk:'✅ Data imported successfully!\n\nYour data was saved to the cloud — sign in on another device to see it.',invalidFile:'❌ Invalid file!',clearAll:'Delete ALL data? This cannot be undone!'},
+    syncLoad:'☁️ Loading data...',syncLoaded:'✅ Data synced!',syncing:'☁️ Syncing...',synced:'✅ Synced!',syncLoadErr:'❌ Failed to load data: ',syncErr:'❌ Sync failed. Check Firebase!',
+    csv:['Habit','Date','Completed','Mood','Note'],yes:'Yes',no:'No',backuping:'⏳ Backing up...',backupOk:'✅ Backup successful! ',backupFail:'❌ Could not connect. Check MYSQL_URL!',notifBody:n=>`${n} habits still need a tick today! Keep your streak 💪`,
+    milestone:(d,h)=>[`${d} days in a row! 🎊`,`"${h.emoji} ${h.name}" reached a ${d}-day streak!`],addXp:'new habit added',streakXp:d=>`${d}-day streak`
+  }
+};
+
 // ── STATE ──
 let habits=[], stats={xp:0,done:0,ms:0,badges:[],notif:false,ntime:'21:00',autoBk:false};
 let selE='📚',selCat='Sức khỏe',selFreq='daily',selDow=[0,1,2,3,4,5,6];
 let editId=null,editE='📚',editCat='Sức khỏe';
 let moodId=null,moodDay=null,selMood='😊';
 let cu=null, saveTimer=null, dPr=null;
+let lang=localStorage.getItem('vh_lang')||'vi';
+let theme=localStorage.getItem('vh_theme')||'light';
+
+function tt(k,...args){const v=I18N[lang][k];return typeof v==='function'?v(...args):v;}
+function setTxt(sel,val){const el=document.querySelector(sel);if(el)el.textContent=val;}
+function setHTML(sel,val){const el=document.querySelector(sel);if(el)el.innerHTML=val;}
+function setPH(sel,val){const el=document.querySelector(sel);if(el)el.placeholder=val;}
+function catLabel(c){
+  const map={'Sức khỏe':'catHealth','Học tập':'catStudy','Cá nhân':'catPersonal','Công việc':'catWork','Sáng tạo':'catCreative'};
+  return map[c]?tt(map[c]):c;
+}
+function applyTheme(){
+  document.documentElement.classList.toggle('dark',theme==='dark');
+  const meta=document.querySelector('meta[name="theme-color"]');
+  if(meta)meta.content=theme==='dark'?'#111827':'#f4a100';
+  document.getElementById('themeTog')?.classList.toggle('on',theme==='dark');
+  const authThemeBtn=document.getElementById('authThemeBtn');
+  if(authThemeBtn){authThemeBtn.textContent=theme==='dark'?'☀️':'🌙';authThemeBtn.title=theme==='dark'?'Light mode':'Dark mode';}
+}
+function applyLang(){
+  document.documentElement.lang=lang;
+  DOWS=lang==='en'?DOWS_EN:DOWS_VI;
+  setTxt('title',tt('app')+' 🌻');
+  setTxt('#loadingScreen p',tt('loading'));
+  setTxt('.auth-appname',tt('app'));
+  setHTML('.auth-tagline',tt('tagline'));
+  setTxt('#tab-login',lang==='en'?'Login':'Đăng nhập');setTxt('#tab-reg',lang==='en'?'Register':'Đăng ký');
+  setTxt('#btnLogin',tt('login'));setTxt('#btnReg',tt('register'));setTxt('.forgot-link',tt('forgot'));
+  document.querySelectorAll('#fLogin .afield label').forEach((el,i)=>el.textContent=['Email',tt('authPass')][i]);
+  document.querySelectorAll('#fReg .afield label').forEach((el,i)=>el.textContent=[tt('authName'),'Email',tt('authPass'),tt('authConfirm')][i]);
+  setPH('#rName',tt('pAuthName'));setPH('#rPass',tt('pAuthPass'));setPH('#rPass2',tt('pAuthConfirm'));
+  setTxt('#installBanner p',tt('installTitle'));setTxt('#installBanner small',tt('installSub'));setTxt('.ibbtn-n',tt('later'));setTxt('.ibbtn-y',tt('install'));
+  setTxt('#notifBtn',stats.notif?tt('notifOff'):tt('notifOn'));document.querySelectorAll('.bbtns .bbtn')[1].textContent=tt('logout');
+  setTxt('.btag',tt('brand'));setHTML('.btitle',`${tt('hello')} <span class="hi" id="bname">${cu?(cu.displayName||cu.email?.split('@')[0]||tt('friend')):tt('friend')}</span>! ✨`);
+  document.querySelectorAll('.sc span').forEach((el,i)=>el.textContent=[tt('statHabits'),tt('statToday'),tt('statStreak'),tt('statXP')][i]||el.textContent);
+  document.querySelectorAll('.tab').forEach((el,i)=>el.textContent=[tt('tabGarden'),tt('tabAdd'),tt('tabBadges'),tt('tabDiary'),tt('tabSettings')][i]);
+  setTxt('.fhed',tt('addTitle'));document.querySelectorAll('#pg-add .field label').forEach((el,i)=>el.textContent=[tt('icon'),tt('habitName'),tt('habitDesc')][i]||el.textContent);
+  document.querySelectorAll('#pg-add .sec-title').forEach((el,i)=>el.textContent=[tt('category'),tt('frequency'),tt('goal'),tt('rewards')][i]);
+  document.querySelectorAll('#freqOpts .fopt').forEach((el,i)=>el.textContent=[tt('daily'),tt('weekly'),tt('custom')][i]);
+  setTxt('#wkWrap label',tt('weeklyCount'));setTxt('#cdWrap label',tt('chooseDays'));
+  document.querySelectorAll('#catOpts .copt,#catOptsE .copt').forEach(el=>el.textContent=catLabel(el.dataset.c));
+  document.querySelectorAll('#pg-add .field label').forEach(el=>{if(el.textContent==='Quà sau 5 ngày'||el.textContent==='Reward after 5 days')el.textContent=tt('r5');if(el.textContent==='Quà sau 7 ngày'||el.textContent==='Reward after 7 days')el.textContent=tt('r7');if(el.textContent==='Quà sau 15 ngày'||el.textContent==='Reward after 15 days')el.textContent=tt('r15');});
+  setTxt('.subbtn',tt('start'));setTxt('#pg-badges .sechead',tt('badges'));
+  const scTitles=document.querySelectorAll('#pg-settings .scard-title');[tt('account'),tt('reminders'),tt('mysql'),tt('exportImport'),tt('iosTitle')].forEach((v,i)=>{if(scTitles[i])scTitles[i].textContent=v;});
+  setTxt('#themeLabel',tt('themeLabel'));setTxt('#themeSub',tt('themeSub'));setTxt('#langLabel',tt('langLabel'));setTxt('#langSub',tt('langSub'));setTxt('#langBtn',tt('langBtn'));
+  setTxt('#authLangBtn',lang==='en'?'VI':'EN');
+  const settingsRows=document.querySelectorAll('#pg-settings .scrow .slbl');
+  [null,null,null,tt('syncNow'),tt('enableNotif'),tt('notifTime'),tt('mysqlNow'),tt('autoBk'),tt('exportCSV'),tt('exportJSON'),tt('importJSON'),tt('deleteAll')].forEach((v,i)=>{if(v&&settingsRows[i])settingsRows[i].textContent=v;});
+  const settingsSubs=document.querySelectorAll('#pg-settings .scrow .ssub');
+  [null,null,null,tt('cloud'),tt('syncNowSub'),tt('enableNotifSub'),tt('notifTimeSub'),tt('mysqlSub'),tt('autoBkSub'),tt('excel'),tt('jsonSub'),tt('importSub'),tt('deleteSub')].forEach((v,i)=>{if(v&&settingsSubs[i])settingsSubs[i].textContent=v;});
+  document.querySelectorAll('#pg-settings .abtn').forEach(btn=>{const fn=btn.getAttribute('onclick')||'';if(fn.includes('doLogout'))btn.textContent=tt('logout');if(fn.includes('saveData'))btn.textContent=tt('sync');if(fn.includes('exportCSV'))btn.textContent=tt('exportBtn');if(fn.includes('exportJSON'))btn.textContent=tt('downloadBtn');if(fn.includes('rf'))btn.textContent=tt('importBtn');if(fn.includes('clearAll'))btn.textContent=tt('deleteBtn');});
+  setHTML('.ios-guide',tt('iosGuide'));
+  setTxt('#editModal .mhed',tt('editTitle'));document.querySelectorAll('#editModal .field label').forEach((el,i)=>el.textContent=[tt('icon'),tt('name'),tt('desc'),lang==='en'?'Category':'Danh mục',tt('r5'),tt('r7'),tt('r15')][i]);
+  setTxt('#editModal .mcancel',tt('cancel'));setTxt('#editModal .msave',tt('save'));
+  setTxt('#moodHed',tt('moodTitle'));document.querySelectorAll('#moodModal .field label').forEach((el,i)=>el.textContent=[tt('moodToday'),tt('note')][i]);setTxt('#moodModal .mcancel',tt('skip'));setTxt('#moodModal .msave',tt('saveShort'));setTxt('.msclose',tt('continue'));
+  setPH('#iName',tt('pName'));setPH('#iDesc',tt('pDesc'));setPH('#iGN',tt('pGoal'));setPH('#iGU',tt('pUnit'));setPH('#iR5',tt('pR5'));setPH('#iR7',tt('pR7'));setPH('#iR15',tt('pR15'));setPH('#moodNote',tt('pMood'));
+  render();renderBadges();updateXP();applyTheme();
+}
+window.toggleTheme=()=>{theme=theme==='dark'?'light':'dark';localStorage.setItem('vh_theme',theme);applyTheme();};
+window.toggleLang=()=>{lang=lang==='vi'?'en':'vi';localStorage.setItem('vh_lang',lang);applyLang();};
 
 // ── PWA ──
+applyTheme();
 if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dPr=e;document.getElementById('installBanner').classList.add('on');});
 window.addEventListener('appinstalled',()=>document.getElementById('installBanner').classList.remove('on'));
-window.doInstall=()=>{if(dPr){dPr.prompt();dPr.userChoice.then(()=>{dPr=null;document.getElementById('installBanner').classList.remove('on');});}else alert('Cài trên iOS: Safari → Chia sẻ 📤 → Thêm vào Màn hình chính');};
+window.doInstall=()=>{if(dPr){dPr.prompt();dPr.userChoice.then(()=>{dPr=null;document.getElementById('installBanner').classList.remove('on');});}else alert(tt('alerts').ios);};
 
 // ── AUTH FORMS ──
 window.switchTab=t=>{
@@ -631,6 +794,17 @@ const ERR_MAP={
   'auth/weak-password':'Mật khẩu quá yếu (tối thiểu 6 ký tự).',
   'auth/network-request-failed':'Lỗi mạng. Kiểm tra kết nối internet.',
 };
+const ERR_MAP_EN={
+  'auth/user-not-found':'This email is not registered.',
+  'auth/wrong-password':'Incorrect password.',
+  'auth/invalid-email':'Invalid email.',
+  'auth/invalid-credential':'Email or password is incorrect.',
+  'auth/too-many-requests':'Too many attempts. Try again later.',
+  'auth/email-already-in-use':'This email is already registered!',
+  'auth/weak-password':'Password is too weak (minimum 6 characters).',
+  'auth/network-request-failed':'Network error. Check your internet connection.',
+};
+function authErr(e){return (lang==='en'?ERR_MAP_EN:ERR_MAP)[e.code]||(lang==='en'?'Error: ':'Lỗi: ')+e.message;}
 function showErr(id,msg){const e=document.getElementById(id);e.textContent=msg;e.classList.add('on');}
 function hideMsg(id){document.getElementById(id).classList.remove('on');}
 
@@ -638,11 +812,11 @@ window.doLogin=async()=>{
   hideMsg('loginErr');hideMsg('loginOk');
   const email=document.getElementById('lEmail').value.trim();
   const pass=document.getElementById('lPass').value;
-  if(!email||!pass){showErr('loginErr','Vui lòng nhập đầy đủ email và mật khẩu!');return;}
-  const btn=document.getElementById('btnLogin');btn.disabled=true;btn.textContent='Đang đăng nhập...';
+  if(!email||!pass){showErr('loginErr',tt('alerts').needLogin);return;}
+  const btn=document.getElementById('btnLogin');btn.disabled=true;btn.textContent=tt('loggingIn');
   try{await signInWithEmailAndPassword(auth,email,pass);}
-  catch(e){showErr('loginErr',ERR_MAP[e.code]||'Lỗi: '+e.message);}
-  btn.disabled=false;btn.textContent='🌻 Đăng nhập';
+  catch(e){showErr('loginErr',authErr(e));}
+  btn.disabled=false;btn.textContent=tt('login');
 };
 window.doRegister=async()=>{
   hideMsg('regErr');
@@ -650,24 +824,24 @@ window.doRegister=async()=>{
   const email=document.getElementById('rEmail').value.trim();
   const pass=document.getElementById('rPass').value;
   const pass2=document.getElementById('rPass2').value;
-  if(!name){showErr('regErr','Vui lòng nhập tên!');return;}
-  if(!email){showErr('regErr','Vui lòng nhập email!');return;}
-  if(pass.length<6){showErr('regErr','Mật khẩu ít nhất 6 ký tự!');return;}
-  if(pass!==pass2){showErr('regErr','Mật khẩu xác nhận không khớp!');return;}
-  const btn=document.getElementById('btnReg');btn.disabled=true;btn.textContent='Đang tạo tài khoản...';
+  if(!name){showErr('regErr',tt('alerts').needName);return;}
+  if(!email){showErr('regErr',tt('alerts').needEmail);return;}
+  if(pass.length<6){showErr('regErr',tt('alerts').weak);return;}
+  if(pass!==pass2){showErr('regErr',tt('alerts').mismatch);return;}
+  const btn=document.getElementById('btnReg');btn.disabled=true;btn.textContent=tt('registering');
   try{const c=await createUserWithEmailAndPassword(auth,email,pass);await updateProfile(c.user,{displayName:name});}
-  catch(e){showErr('regErr',ERR_MAP[e.code]||'Lỗi: '+e.message);}
-  btn.disabled=false;btn.textContent='🌱 Tạo tài khoản';
+  catch(e){showErr('regErr',authErr(e));}
+  btn.disabled=false;btn.textContent=tt('register');
 };
 window.doForgot=async()=>{
   const email=document.getElementById('lEmail').value.trim();
-  if(!email){showErr('loginErr','Nhập email vào ô trên trước!');return;}
+  if(!email){showErr('loginErr',tt('alerts').forgotEmail);return;}
   try{
     await sendPasswordResetEmail(auth,email);
-    const ok=document.getElementById('loginOk');ok.textContent='✅ Email đặt lại mật khẩu đã được gửi! Kiểm tra hộp thư.';ok.classList.add('on');
-  }catch(e){showErr('loginErr','Không tìm thấy tài khoản với email này.');}
+    const ok=document.getElementById('loginOk');ok.textContent=tt('alerts').resetSent;ok.classList.add('on');
+  }catch(e){showErr('loginErr',tt('alerts').notFound);}
 };
-window.doLogout=async()=>{if(confirm('Đăng xuất khỏi tài khoản?'))await signOut(auth);};
+window.doLogout=async()=>{if(confirm(tt('alerts').logout))await signOut(auth);};
 
 // ── AUTH STATE ──
 onAuthStateChanged(auth,async user=>{
@@ -680,32 +854,34 @@ onAuthStateChanged(auth,async user=>{
     const av=document.getElementById('avatarEl');
     if(user.photoURL)av.innerHTML=`<img src="${user.photoURL}">`;
     else av.textContent=(user.displayName?.[0]||user.email?.[0]||'?').toUpperCase();
-    const name=user.displayName||user.email?.split('@')[0]||'bạn';
+    const name=user.displayName||user.email?.split('@')[0]||tt('friend');
     document.getElementById('bname').textContent=name;
-    document.getElementById('setName').textContent=user.displayName||'Người dùng';
+    document.getElementById('setName').textContent=user.displayName||tt('user');
     document.getElementById('setEmail').textContent=user.email||'';
     await loadData(user.uid);
+    applyLang();
     startNotifCheck();
   }else{
     cu=null;habits=[];stats={xp:0,done:0,ms:0,badges:[],notif:false,ntime:'21:00',autoBk:false};
     document.getElementById('authWrap').style.display='flex';
     document.getElementById('app').classList.remove('on');
+    applyLang();
   }
 });
 
 // ── FIRESTORE ──
 async function loadData(uid){
   try{
-    showSync('saving','☁️ Đang tải dữ liệu...');
+    showSync('saving',tt('syncLoad'));
     const snap=await getDoc(doc(db,'users',uid));
     if(snap.exists()){const d=snap.data();habits=d.habits||[];stats={...stats,...(d.stats||{})};}
-    showSync('ok','✅ Dữ liệu đã đồng bộ!');setTimeout(hideSync,2000);
+    showSync('ok',tt('syncLoaded'));setTimeout(hideSync,2000);
     render();renderBadges();updateXP();
     document.getElementById('notifTog').classList.toggle('on',!!stats.notif);
     document.getElementById('notifTime').value=stats.ntime||'21:00';
     document.getElementById('autoBkTog').classList.toggle('on',!!stats.autoBk);
-    document.getElementById('notifBtn').textContent=stats.notif?'🔕 Tắt thông báo':'🔔 Thông báo';
-  }catch(e){showSync('err','❌ Lỗi tải dữ liệu: '+e.message);}
+    document.getElementById('notifBtn').textContent=stats.notif?tt('notifOff'):tt('notifOn');
+  }catch(e){showSync('err',tt('syncLoadErr')+e.message);}
 }
 
 window.saveData=function(force=false){
@@ -713,12 +889,12 @@ window.saveData=function(force=false){
   clearTimeout(saveTimer);
   const delay=force?0:1200;
   saveTimer=setTimeout(async()=>{
-    showSync('saving','☁️ Đang đồng bộ...');
+    showSync('saving',tt('syncing'));
     try{
       await setDoc(doc(db,'users',cu.uid),{habits,stats,updatedAt:serverTimestamp()});
-      showSync('ok','✅ Đã đồng bộ!');setTimeout(hideSync,2000);
+      showSync('ok',tt('synced'));setTimeout(hideSync,2000);
       if(stats.autoBk&&MYSQL_URL)silentMySQLBackup();
-    }catch(e){showSync('err','❌ Lỗi đồng bộ. Kiểm tra Firebase!');}
+    }catch(e){showSync('err',tt('syncErr'));}
   },delay);
 };
 
@@ -738,15 +914,15 @@ async function buildPayload(){
   return{uid:cu.uid,email:cu.email||'',habits,stats,logs};
 }
 window.doMySQLBackup=async()=>{
-  if(!MYSQL_URL){alert('Chưa cấu hình MYSQL_URL trong code!');return;}
+  if(!MYSQL_URL){alert(tt('alerts').mysqlMissing);return;}
   const el=document.getElementById('bkStatus');
-  el.textContent='⏳ Đang backup...';el.className='bkstatus ing';
+  el.textContent=tt('backuping');el.className='bkstatus ing';
   try{
     const r=await fetch(MYSQL_URL,{method:'POST',headers:{'Content-Type':'application/json','X-API-Key':MYSQL_KEY},body:JSON.stringify(await buildPayload())});
     const d=await r.json();
-    if(d.ok){el.textContent='✅ Backup thành công! '+new Date().toLocaleTimeString('vi-VN');el.className='bkstatus ok';}
+    if(d.ok){el.textContent=tt('backupOk')+new Date().toLocaleTimeString(lang==='en'?'en-US':'vi-VN');el.className='bkstatus ok';}
     else{el.textContent='❌ '+d.error;el.className='bkstatus err';}
-  }catch(e){el.textContent='❌ Không kết nối được. Kiểm tra MYSQL_URL!';el.className='bkstatus err';}
+  }catch(e){el.textContent=tt('backupFail');el.className='bkstatus err';}
 };
 async function silentMySQLBackup(){
   try{await fetch(MYSQL_URL,{method:'POST',headers:{'Content-Type':'application/json','X-API-Key':MYSQL_KEY},body:JSON.stringify(await buildPayload())});}catch(e){}
@@ -757,16 +933,16 @@ window.saveNTime=()=>{stats.ntime=document.getElementById('notifTime').value;sav
 // ── ONESIGNAL NOTIF ──
 window.toggleNotif=async()=>{
   try{
-    if(typeof OneSignalDeferred==='undefined'){alert('OneSignal chưa cấu hình. Thay YOUR_ONESIGNAL_APP_ID trong code!');return;}
+    if(typeof OneSignalDeferred==='undefined'){alert(tt('alerts').oneSignal);return;}
     const sub=await new Promise(r=>OneSignalDeferred.push(async o=>r(await o.User.PushSubscription.optedIn)));
     await new Promise(r=>OneSignalDeferred.push(async o=>{sub?await o.User.PushSubscription.optOut():await o.User.PushSubscription.optIn();r();}));
     stats.notif=!sub;
     document.getElementById('notifTog').classList.toggle('on',stats.notif);
-    document.getElementById('notifBtn').textContent=stats.notif?'🔕 Tắt thông báo':'🔔 Thông báo';
+    document.getElementById('notifBtn').textContent=stats.notif?tt('notifOff'):tt('notifOn');
     saveData();
   }catch(e){
     // Fallback: native browser notification
-    if(!('Notification' in window)){alert('Trình duyệt không hỗ trợ thông báo!');return;}
+    if(!('Notification' in window)){alert(tt('alerts').notifUnsupported);return;}
     const p=await Notification.requestPermission();
     if(p==='granted'){stats.notif=!stats.notif;document.getElementById('notifTog').classList.toggle('on',stats.notif);saveData();}
   }
@@ -777,15 +953,15 @@ function startNotifCheck(){
     const now=new Date(),[h,m]=(stats.ntime||'21:00').split(':').map(Number);
     if(now.getHours()===h&&now.getMinutes()===m){
       const t=today(),nd=habits.filter(hb=>!hb.done?.[t]&&!hb.vacation?.[t]);
-      if(nd.length>0)new Notification('🌻 Vườn Thói Quen',{body:`Còn ${nd.length} thói quen chưa tick! Đừng phá streak 💪`,icon:'./icons/icon-192.png',tag:'daily'});
+      if(nd.length>0)new Notification('🌻 '+tt('app'),{body:tt('notifBody',nd.length),icon:'./icons/icon-192.png',tag:'daily'});
     }
   },60000);
 }
 
 // ── EXPORT / IMPORT ──
 window.exportCSV=()=>{
-  const rows=[['Thói quen','Ngày','Hoàn thành','Tâm trạng','Ghi chú']];
-  habits.forEach(h=>new Set([...Object.keys(h.done||{}),...Object.keys(h.moods||{})]).forEach(day=>rows.push([h.name,day,h.done?.[day]?'Có':'Không',h.moods?.[day]||'',(h.notes?.[day]||'').replace(/,/g,'；')])));
+  const rows=[tt('csv')];
+  habits.forEach(h=>new Set([...Object.keys(h.done||{}),...Object.keys(h.moods||{})]).forEach(day=>rows.push([h.name,day,h.done?.[day]?tt('yes'):tt('no'),h.moods?.[day]||'',(h.notes?.[day]||'').replace(/,/g,'；')])));
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n')],{type:'text/csv;charset=utf-8'}));
   a.download=`VuonThoiQuen_${new Date().toISOString().slice(0,10)}.csv`;a.click();
 };
@@ -798,14 +974,14 @@ window.importJSON=e=>{
   const f=e.target.files[0];if(!f)return;
   const r=new FileReader();r.onload=ev=>{
     try{const d=JSON.parse(ev.target.result);
-    if(!confirm(`Nhập sẽ THAY THẾ dữ liệu hiện tại bằng dữ liệu từ file.\nTiếp tục?`))return;
+    if(!confirm(tt('alerts').importConfirm))return;
     habits=d.habits||[];stats={...stats,...(d.stats||{})};saveData();render();renderBadges();updateXP();
-    alert('✅ Nhập dữ liệu thành công!\n\nDữ liệu đã được lưu lên cloud — đăng nhập trên thiết bị khác sẽ thấy ngay.');}
-    catch{alert('❌ File không hợp lệ!');}
+    alert(tt('alerts').importOk);}
+    catch{alert(tt('alerts').invalidFile);}
   };r.readAsText(f);
 };
 window.clearAll=()=>{
-  if(!confirm('Xóa TOÀN BỘ dữ liệu? Không thể hoàn tác!'))return;
+  if(!confirm(tt('alerts').clearAll))return;
   habits=[];stats={xp:0,done:0,ms:0,badges:[],notif:stats.notif,ntime:stats.ntime,autoBk:stats.autoBk};
   saveData();render();renderBadges();updateXP();
 };
@@ -814,7 +990,7 @@ window.clearAll=()=>{
 function getLv(xp){for(let i=LEVELS.length-1;i>=0;i--)if(xp>=LEVELS[i].min)return LEVELS[i];return LEVELS[0];}
 function updateXP(){
   const xp=stats.xp||0,lv=getLv(xp);
-  document.getElementById('lvBadge').textContent=lv.b;document.getElementById('lvName').textContent=lv.name;
+  document.getElementById('lvBadge').textContent=lv.b;document.getElementById('lvName').textContent=tt('levels')[lv.key]||lv.name;
   document.getElementById('xpTxt').textContent=`${xp} / ${lv.max} XP`;document.getElementById('sXP').textContent=xp;
   document.getElementById('xpFill').style.width=Math.min(100,((xp-lv.min)/(lv.max-lv.min))*100)+'%';
 }
@@ -827,11 +1003,11 @@ function addXP(n,lbl){
 // ── BADGES ──
 function checkBadges(){
   const s={xp:stats.xp||0,done:stats.done||0,ms:stats.ms||0},ul=stats.badges||[];
-  BADGES.forEach(b=>{if(!ul.includes(b.id)&&b.ok(s,habits)){ul.push(b.id);stats.badges=ul;setTimeout(()=>showMsp('🏅 Huy hiệu mới!',`${b.ico} ${b.name}\n${b.desc}`,'',50,b.ico),500);}});
+  BADGES.forEach(b=>{if(!ul.includes(b.id)&&b.ok(s,habits)){ul.push(b.id);stats.badges=ul;const bt=tt('badgeText')[b.id]||[b.name,b.desc];setTimeout(()=>showMsp(tt('newBadge'),`${b.ico} ${bt[0]}\n${bt[1]}`,'',50,b.ico),500);}});
 }
 function renderBadges(){
   const ul=stats.badges||[];
-  document.getElementById('badgesGrid').innerHTML=BADGES.map(b=>{const on=ul.includes(b.id);return`<div class="bgitem ${on?'unlocked':'locked'}"><div class="bgico">${b.ico}</div><div class="bgname">${b.name}</div><div class="bgdesc">${b.desc}</div><div style="margin-top:5px;font-size:10px;font-weight:800;color:${on?'#2e7d32':'#9e9e9e'}">${on?'✅ Đã mở':'🔒 Chưa mở'}</div></div>`;}).join('');
+  document.getElementById('badgesGrid').innerHTML=BADGES.map(b=>{const on=ul.includes(b.id),bt=tt('badgeText')[b.id]||[b.name,b.desc];return`<div class="bgitem ${on?'unlocked':'locked'}"><div class="bgico">${b.ico}</div><div class="bgname">${bt[0]}</div><div class="bgdesc">${bt[1]}</div><div style="margin-top:5px;font-size:10px;font-weight:800;color:${on?'#2e7d32':'#9e9e9e'}">${on?tt('unlocked'):tt('locked')}</div></div>`;}).join('');
 }
 
 // ── MILESTONE ──
@@ -859,9 +1035,9 @@ window.goTab=t=>{
 
 // ── HABIT CRUD ──
 window.addHabit=()=>{
-  const name=document.getElementById('iName').value.trim();if(!name){alert('Vui lòng nhập tên thói quen!');return;}
-  habits.push({id:Date.now()+'',emoji:selE,name,cat:selCat,desc:document.getElementById('iDesc').value.trim(),freq:selFreq,weeklyN:selFreq==='weekly'?parseInt(document.getElementById('iWN').value)||3:0,dow:selFreq==='custom'?[...selDow]:[0,1,2,3,4,5,6],goal:parseInt(document.getElementById('iGN').value)||0,goalUnit:document.getElementById('iGU').value.trim(),r5:document.getElementById('iR5').value.trim()||'Tự thưởng bản thân!',r7:document.getElementById('iR7').value.trim()||'Xem phim thoải mái!',r15:document.getElementById('iR15').value.trim()||'Mua thứ bạn muốn!',done:{},vacation:{},moods:{},notes:{}});
-  addXP(10,'thêm thói quen mới');saveData();
+  const name=document.getElementById('iName').value.trim();if(!name){alert(tt('alerts').nameHabit);return;}
+  habits.push({id:Date.now()+'',emoji:selE,name,cat:selCat,desc:document.getElementById('iDesc').value.trim(),freq:selFreq,weeklyN:selFreq==='weekly'?parseInt(document.getElementById('iWN').value)||3:0,dow:selFreq==='custom'?[...selDow]:[0,1,2,3,4,5,6],goal:parseInt(document.getElementById('iGN').value)||0,goalUnit:document.getElementById('iGU').value.trim(),r5:document.getElementById('iR5').value.trim()||(lang==='en'?'Reward yourself!':'Tự thưởng bản thân!'),r7:document.getElementById('iR7').value.trim()||(lang==='en'?'Enjoy a movie!':'Xem phim thoải mái!'),r15:document.getElementById('iR15').value.trim()||(lang==='en'?'Buy something you want!':'Mua thứ bạn muốn!'),done:{},vacation:{},moods:{},notes:{}});
+  addXP(10,tt('addXp'));saveData();
   ['iName','iDesc','iR5','iR7','iR15','iGN','iGU'].forEach(id=>document.getElementById(id).value='');
   goTab('garden');
 };
@@ -871,17 +1047,18 @@ window.openEdit=id=>{
   document.getElementById('eR5').value=h.r5||'';document.getElementById('eR7').value=h.r7||'';document.getElementById('eR15').value=h.r15||'';
   document.getElementById('epickE').innerHTML=EMOJIS.map(e=>`<div class="eopt${e===h.emoji?' on':''}" data-e="${e}" onclick="pickEE(this)">${e}</div>`).join('');
   document.querySelectorAll('#catOptsE .copt').forEach(el=>el.classList.toggle('on',el.dataset.c===editCat));
+  applyLang();
   document.getElementById('editModal').classList.add('on');
 };
 window.closeEdit=()=>{document.getElementById('editModal').classList.remove('on');editId=null;};
 window.saveEdit=()=>{
   if(!editId)return;const h=habits.find(x=>x.id==editId);if(!h)return;
-  const name=document.getElementById('eName').value.trim();if(!name){alert('Nhập tên nhé!');return;}
+  const name=document.getElementById('eName').value.trim();if(!name){alert(tt('alerts').editName);return;}
   h.emoji=editE;h.name=name;h.cat=editCat;h.desc=document.getElementById('eDesc').value.trim();
   h.r5=document.getElementById('eR5').value.trim()||h.r5;h.r7=document.getElementById('eR7').value.trim()||h.r7;h.r15=document.getElementById('eR15').value.trim()||h.r15;
   saveData();closeEdit();render();
 };
-window.delHabit=id=>{const h=habits.find(x=>x.id==id);if(!confirm(`Xóa "${h?.name}"?\nDữ liệu sẽ mất vĩnh viễn.`))return;habits=habits.filter(x=>x.id!=id);saveData();render();};
+window.delHabit=id=>{const h=habits.find(x=>x.id==id);if(!confirm(tt('alerts').deleteHabit(h?.name)))return;habits=habits.filter(x=>x.id!=id);saveData();render();};
 window.togVac=id=>{const h=habits.find(x=>x.id==id);if(!h)return;const t=today();if(!h.vacation)h.vacation={};h.vacation[t]=!h.vacation[t];saveData();render();};
 
 window.toggleDay=(id,key)=>{
@@ -893,10 +1070,10 @@ window.toggleDay=(id,key)=>{
 };
 function checkMilestone(h,s){
   [{d:5,ico:'🌻',xp:50,r:h.r5},{d:7,ico:'🎉',xp:80,r:h.r7},{d:15,ico:'🏆',xp:200,r:h.r15},{d:30,ico:'⭐',xp:500,r:'30 ngày phi thường!'}].forEach(m=>{
-    if(s===m.d){addXP(m.xp,`streak ${m.d} ngày`);setTimeout(()=>showMsp(`${m.d} ngày liên tiếp! 🎊`,`"${h.emoji} ${h.name}" đạt streak ${m.d} ngày!`,m.r,m.xp,m.ico),300);}
+    if(s===m.d){addXP(m.xp,tt('streakXp',m.d));const ms=tt('milestone',m.d,h);setTimeout(()=>showMsp(ms[0],ms[1],m.r,m.xp,m.ico),300);}
   });
 }
-window.openMood=(id,key)=>{moodId=id;moodDay=key;selMood='😊';const h=habits.find(x=>x.id==id);document.getElementById('moodHed').textContent=(h?.emoji||'🌻')+' '+h?.name+' — Ghi chú';document.querySelectorAll('#moodPicker .mbtn').forEach(el=>el.classList.toggle('on',el.dataset.m===(h?.moods?.[key]||'😊')));selMood=h?.moods?.[key]||'😊';document.getElementById('moodNote').value=h?.notes?.[key]||'';document.getElementById('moodModal').classList.add('on');};
+window.openMood=(id,key)=>{moodId=id;moodDay=key;selMood='😊';const h=habits.find(x=>x.id==id);document.getElementById('moodHed').textContent=(h?.emoji||'🌻')+' '+h?.name+' — '+tt('note');document.querySelectorAll('#moodPicker .mbtn').forEach(el=>el.classList.toggle('on',el.dataset.m===(h?.moods?.[key]||'😊')));selMood=h?.moods?.[key]||'😊';document.getElementById('moodNote').value=h?.notes?.[key]||'';document.getElementById('moodModal').classList.add('on');};
 window.closeMood=()=>{document.getElementById('moodModal').classList.remove('on');moodId=null;};
 window.saveMood=()=>{if(!moodId)return;const h=habits.find(x=>x.id==moodId);if(!h)return;if(!h.moods)h.moods={};if(!h.notes)h.notes={};h.moods[moodDay]=selMood;h.notes[moodDay]=document.getElementById('moodNote').value.trim();saveData();closeMood();render();};
 window.pickMoodD=(id,key,m)=>{if(key!==today())return;const h=habits.find(x=>x.id==id);if(!h)return;if(!h.moods)h.moods={};h.moods[key]=m;saveData();render();};
@@ -953,9 +1130,9 @@ function sunSVG(b,s){
 }
 
 function rwBlock(h,s){
-  return`<div class="rwsec"><div class="rwtitle">🌟 Mốc phần thưởng</div><div class="rwrow">${[{d:5,ico:'🎁',r:h.r5},{d:7,ico:'🎉',r:h.r7},{d:15,ico:'🏆',r:h.r15}].map(m=>{
+  return`<div class="rwsec"><div class="rwtitle">${tt('rewardMilestone')}</div><div class="rwrow">${[{d:5,ico:'🎁',r:h.r5},{d:7,ico:'🎉',r:h.r7},{d:15,ico:'🏆',r:h.r15}].map(m=>{
     const dn=s>=m.d,nr=s===m.d-1,cl=dn?'rwdn':nr?'rwnr':'rwlk',dc=dn?'rwdays-dn':nr?'rwdays-nr':'rwdays-lk';
-    return`<div class="rwitem ${cl}">${dn?'<div class="rwchk">✅</div>':''}<div class="rwico">${m.ico}</div><div class="rwdays ${dc}">${m.d} ngày</div><div class="rwtxt">${dn?`<b>${m.r}</b>`:nr?'<b style="color:#c47a00">Còn 1 ngày!</b>':m.r}</div>${!dn?`<div class="rwprog"><div class="rwprogf" style="width:${Math.min(100,Math.round(s/m.d*100))}%"></div></div>`:''}</div>`;
+    return`<div class="rwitem ${cl}">${dn?'<div class="rwchk">✅</div>':''}<div class="rwico">${m.ico}</div><div class="rwdays ${dc}">${tt('days',m.d)}</div><div class="rwtxt">${dn?`<b>${m.r}</b>`:nr?`<b style="color:#c47a00">${tt('oneLeft')}</b>`:m.r}</div>${!dn?`<div class="rwprog"><div class="rwprogf" style="width:${Math.min(100,Math.round(s/m.d*100))}%"></div></div>`:''}</div>`;
   }).join('')}</div></div>`;
 }
 
@@ -964,8 +1141,8 @@ function render(){
   const list=document.getElementById('hlist'),t=today(),days=last7();
   const td=habits.filter(h=>h.done?.[t]).length,ms=habits.reduce((m,h)=>Math.max(m,getStreak(h)),0);
   document.getElementById('sH').textContent=habits.length;document.getElementById('sD').textContent=td;document.getElementById('sS').textContent=ms;
-  document.getElementById('bsub').textContent=habits.length===0?'Thêm thói quen đầu tiên để bắt đầu ✨':td===habits.length&&habits.length>0?'Tuyệt vời! Hoàn thành hết hôm nay! 🎉':`Còn ${habits.length-td} thói quen chưa tick hôm nay 💪`;
-  if(!habits.length){list.innerHTML=`<div class="empty-box"><div class="empty-ico">🌻</div><div class="empty-txt">Vườn hoa đang trống!</div><div class="empty-sub">Nhấn ＋ Thêm để trồng thói quen đầu tiên ✨</div></div>`;return;}
+  document.getElementById('bsub').textContent=habits.length===0?tt('firstHabit'):td===habits.length&&habits.length>0?tt('allDone'):tt('left',habits.length-td);
+  if(!habits.length){list.innerHTML=`<div class="empty-box"><div class="empty-ico">🌻</div><div class="empty-txt">${tt('noHabitsTitle')}</div><div class="empty-sub">${tt('noHabitsSub')}</div></div>`;return;}
   list.innerHTML=habits.map(h=>{
     const s=getStreak(h),onV=h.vacation?.[t],mood=h.moods?.[t],note=h.notes?.[t];
     const flowers=days.map(d=>{
@@ -975,7 +1152,7 @@ function render(){
       let sAt=0,dd=new Date(d.key);for(let i=0;i<60;i++){const k=dd.toISOString().slice(0,10);if(h.done?.[k]){sAt++;dd.setDate(dd.getDate()-1);}else break;}
       if(!sc&&!bl)return`<div class="fcol skp">${sunSVG(false,0)}<div class="dlbl off">${d.label}</div></div>`;
       if(ov)return`<div class="fcol"><div style="font-size:28px;height:54px;display:flex;align-items:center">🏖</div><div class="dlbl${d.isToday?' tod':''}">${d.label}</div></div>`;
-      if(missed)return`<div class="fcol skp" title="Bỏ sót ngày này 😢">${witheredSVG()}<div class="dlbl" style="color:#b8935a">${d.label}</div></div>`;
+      if(missed)return`<div class="fcol skp" title="${tt('missed')}">${witheredSVG()}<div class="dlbl" style="color:#b8935a">${d.label}</div></div>`;
       return`<div class="fcol" onclick="toggleDay('${h.id}','${d.key}')">${sunSVG(bl,sAt)}<div class="dlbl${d.isToday?' tod':''}">${d.label}${d.isToday?'●':''}</div></div>`;
     }).join('');
     const dots=days.map(d=>{
@@ -983,18 +1160,18 @@ function render(){
       const missed2=!h.done?.[d.key]&&!h.vacation?.[d.key]&&!d.isToday;
       return`<div class="pdot${d.isToday?' tod2':''}${h.done?.[d.key]?' done':''}${missed2?' missed':''}" onclick="toggleDay('${h.id}','${d.key}')"></div>`;
     }).join('');
-    const tags=[h.cat?`<span class="tp tcat">${h.cat}</span>`:'',h.freq&&h.freq!=='daily'?`<span class="tp tfrq">${h.freq==='weekly'?h.weeklyN+'x/tuần':'Chọn ngày'}</span>`:'',h.goal>0?`<span class="tp tgl">🎯 ${h.goal} ${h.goalUnit||''}</span>`:'',onV?`<span class="tp tvac">🏖 Nghỉ phép</span>`:''].filter(Boolean).join('');
-    const moodRow=`<div class="mlbl">Tâm trạng hôm nay</div><div class="mrow">${MOODS.map(m=>`<div class="mbtn${mood===m?' on':''}" onclick="pickMoodD('${h.id}','${t}','${m}')">${m}</div>`).join('')}</div>`;
+    const tags=[h.cat?`<span class="tp tcat">${catLabel(h.cat)}</span>`:'',h.freq&&h.freq!=='daily'?`<span class="tp tfrq">${h.freq==='weekly'?h.weeklyN+'x/'+(lang==='en'?'week':'tuần'):tt('custom')}</span>`:'',h.goal>0?`<span class="tp tgl">🎯 ${h.goal} ${h.goalUnit||''}</span>`:'',onV?`<span class="tp tvac">${tt('vacation')}</span>`:''].filter(Boolean).join('');
+    const moodRow=`<div class="mlbl">${tt('moodRow')}</div><div class="mrow">${MOODS.map(m=>`<div class="mbtn${mood===m?' on':''}" onclick="pickMoodD('${h.id}','${t}','${m}')">${m}</div>`).join('')}</div>`;
     return`<div class="hcard">
       <div class="hstrip"></div>
-      ${onV?`<div class="vacbanner">🏖 Nghỉ phép hôm nay — streak được bảo toàn!</div>`:''}
+      ${onV?`<div class="vacbanner">${tt('vacToday')}</div>`:''}
       <div class="htop">
         <div class="hemo">${h.emoji}</div>
         <div class="hmeta">
           <div class="hname">${h.name}</div>
           ${h.desc?`<div class="hdesc">${h.desc}</div>`:''}
           <div class="htags">${tags}</div>
-          <div class="hstreak">🌻 ${s} ngày liên tiếp</div>
+          <div class="hstreak">${tt('streak',s)}</div>
         </div>
         <div class="hacts">
           <button class="ibtn vac${onV?' on':''}" onclick="togVac('${h.id}')" title="Nghỉ phép">🏖</button>
@@ -1016,7 +1193,7 @@ function render(){
 function renderDiary(){
   const dc=document.getElementById('diary-content'),entries=[];
   habits.forEach(h=>Object.keys(h.done||{}).forEach(day=>{if(h.done[day])entries.push({day,h,mood:h.moods?.[day],note:h.notes?.[day]});}));
-  if(!entries.length){dc.innerHTML=`<div class="empty-box"><div class="empty-ico">📓</div><div class="empty-txt">Chưa có nhật ký nào</div><div class="empty-sub">Tick thói quen để bắt đầu ghi chép ✨</div></div>`;return;}
+  if(!entries.length){dc.innerHTML=`<div class="empty-box"><div class="empty-ico">📓</div><div class="empty-txt">${tt('noDiaryTitle')}</div><div class="empty-sub">${tt('noDiarySub')}</div></div>`;return;}
   const byD={};entries.forEach(e=>{if(!byD[e.day])byD[e.day]=[];byD[e.day].push(e);});
   dc.innerHTML=Object.keys(byD).sort((a,b)=>b.localeCompare(a)).slice(0,30).map(day=>{
     const d=new Date(day),ds=`${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()} — ${DOWS[d.getDay()]}`;
@@ -1027,6 +1204,7 @@ function renderDiary(){
 // INIT
 document.getElementById('epick').innerHTML=EMOJIS.map(e=>`<div class="eopt${e===selE?' on':''}" data-e="${e}" onclick="pickE(this)">${e}</div>`).join('');
 (()=>{const bs=document.getElementById('bstars');for(let i=0;i<22;i++){const s=document.createElement('div');s.className='bstar';const sz=Math.random()*2.2+0.8;s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${(Math.random()*2+1.2).toFixed(1)}s;animation-delay:${(Math.random()*2).toFixed(1)}s`;bs.appendChild(s);}})();
+applyLang();
 </script>
 </body>
 </html>
