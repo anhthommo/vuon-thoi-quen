@@ -1,5 +1,5 @@
 // 🌻 Vườn Thói Quen — Service Worker
-const CACHE = 'vuon-v2';
+const CACHE = 'vuon-v3';
 const ASSETS = ['./', './index.html', './manifest.json',
   './icons/icon-72.png', './icons/icon-96.png',
   './icons/icon-128.png', './icons/icon-192.png', './icons/icon-512.png'];
