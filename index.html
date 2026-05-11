@@ -913,7 +913,7 @@ function hideSync(){document.getElementById('syncBar').className='';}
 async function buildPayload(){
   const logs=[];
   habits.forEach(h=>Object.entries(h.done||{}).forEach(([date,done])=>{
-    if(done){let sAt=0,d=new Date(date);for(let i=0;i<60;i++){const k=d.toISOString().slice(0,10);if(h.done?.[k]){sAt++;d.setDate(d.getDate()-1);}else break;}
+    if(done){const sAt=getStreakUntil(h,parseLocalDateKey(date),60);
     logs.push({habit_id:h.id,habit_name:h.name,date,mood:h.moods?.[date]||null,note:h.notes?.[date]||null,streak:sAt});}
   }));
   return{uid:cu.uid,email:cu.email||'',habits,stats,logs};
@@ -978,12 +978,12 @@ window.exportCSV=()=>{
   const rows=[tt('csv')];
   habits.forEach(h=>new Set([...Object.keys(h.done||{}),...Object.keys(h.moods||{})]).forEach(day=>rows.push([h.name,day,h.done?.[day]?tt('yes'):tt('no'),h.moods?.[day]||'',(h.notes?.[day]||'').replace(/,/g,'；')])));
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n')],{type:'text/csv;charset=utf-8'}));
-  a.download=`VuonThoiQuen_${new Date().toISOString().slice(0,10)}.csv`;a.click();
+  a.download=`VuonThoiQuen_${today()}.csv`;a.click();
 };
 window.exportJSON=()=>{
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([JSON.stringify({habits,stats,exportedAt:new Date().toISOString(),uid:cu?.uid,email:cu?.email},null,2)],{type:'application/json'}));
-  a.download=`VuonThoiQuen_backup_${new Date().toISOString().slice(0,10)}.json`;a.click();
+  a.download=`VuonThoiQuen_backup_${today()}.json`;a.click();
 };
 window.importJSON=e=>{
   const f=e.target.files[0];if(!f)return;
@@ -1097,10 +1097,32 @@ window.saveMood=()=>{if(!moodId)return;const h=habits.find(x=>x.id==moodId);if(!
 window.pickMoodD=(id,key,m)=>{if(key!==today())return;const h=habits.find(x=>x.id==id);if(!h)return;if(!h.moods)h.moods={};h.moods[key]=m;saveData();render();};
 
 // ── HELPERS ──
-function today(){return new Date().toISOString().slice(0,10);}
-function last7(){return Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(6-i));return{key:d.toISOString().slice(0,10),dow:d.getDay(),label:DOWS[d.getDay()],isToday:i===6};});}
+function dateKeyLocal(d=new Date()){
+  return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function parseLocalDateKey(key){
+  const [y,m,d]=String(key).split('-').map(Number);
+  return new Date(y,m-1,d);
+}
+function addLocalDays(date,days){
+  const d=new Date(date.getFullYear(),date.getMonth(),date.getDate());
+  d.setDate(d.getDate()+days);
+  return d;
+}
+function today(){return dateKeyLocal();}
+function last7(){const now=new Date();return Array.from({length:7},(_,i)=>{const d=addLocalDays(now,i-6);return{key:dateKeyLocal(d),dow:d.getDay(),label:DOWS[d.getDay()],isToday:i===6};});}
 function isSchd(h,d){if(h.freq==='daily')return true;if(h.freq==='custom')return(h.dow||[0,1,2,3,4,5,6]).includes(d.dow);return true;}
-function getStreak(h){let s=0,d=new Date();for(let i=0;i<365;i++){const dow=d.getDay(),k=d.toISOString().slice(0,10),sc=h.freq==='custom'?(h.dow||[0,1,2,3,4,5,6]).includes(dow):true;if(!sc){d.setDate(d.getDate()-1);continue;}if(h.vacation?.[k]){s++;d.setDate(d.getDate()-1);continue;}if(h.done?.[k]){s++;d.setDate(d.getDate()-1);}else break;}return s;}
+function getStreakUntil(h,start=new Date(),limit=365){
+  let s=0,d=new Date(start.getFullYear(),start.getMonth(),start.getDate());
+  for(let i=0;i<limit;i++){
+    const k=dateKeyLocal(d),sc=isSchd(h,{dow:d.getDay()});
+    if(!sc){d=addLocalDays(d,-1);continue;}
+    if(h.vacation?.[k]||h.done?.[k]){s++;d=addLocalDays(d,-1);continue;}
+    break;
+  }
+  return s;
+}
+function getStreak(h){return getStreakUntil(h,new Date(),365);}
 
 // ── SVG HOA HÉO (bỏ sót ngày) ──
 function witheredSVG(){
@@ -1167,7 +1189,7 @@ function render(){
       const sc=isSchd(h,d),bl=!!h.done?.[d.key],ov=h.vacation?.[d.key];
       // Ngày bỏ sót = có lịch + chưa tick + không nghỉ phép + không phải hôm nay
       const missed = sc && !bl && !ov && !d.isToday;
-      let sAt=0,dd=new Date(d.key);for(let i=0;i<60;i++){const k=dd.toISOString().slice(0,10);if(h.done?.[k]){sAt++;dd.setDate(dd.getDate()-1);}else break;}
+      const sAt=getStreakUntil(h,parseLocalDateKey(d.key),60);
       if(!sc&&!bl)return`<div class="fcol skp">${sunSVG(false,0)}<div class="dlbl off">${d.label}</div></div>`;
       if(ov)return`<div class="fcol"><div style="font-size:28px;height:54px;display:flex;align-items:center">🏖</div><div class="dlbl${d.isToday?' tod':''}">${d.label}</div></div>`;
       if(missed)return`<div class="fcol skp" title="${tt('missed')}">${witheredSVG()}<div class="dlbl" style="color:#b8935a">${d.label}</div></div>`;
@@ -1214,7 +1236,7 @@ function renderDiary(){
   if(!entries.length){dc.innerHTML=`<div class="empty-box"><div class="empty-ico">📓</div><div class="empty-txt">${tt('noDiaryTitle')}</div><div class="empty-sub">${tt('noDiarySub')}</div></div>`;return;}
   const byD={};entries.forEach(e=>{if(!byD[e.day])byD[e.day]=[];byD[e.day].push(e);});
   dc.innerHTML=Object.keys(byD).sort((a,b)=>b.localeCompare(a)).slice(0,30).map(day=>{
-    const d=new Date(day),ds=`${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()} — ${DOWS[d.getDay()]}`;
+    const d=parseLocalDateKey(day),ds=`${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()} — ${DOWS[d.getDay()]}`;
     return`<div class="dcard"><div class="ddate">📅 ${ds}</div>${byD[day].map(e=>`<div class="ditem"><div class="dico">${e.h.emoji}</div><div><div class="dname">${e.h.name} ${e.mood||''}</div>${e.note?`<div class="dnote">"${e.note}"</div>`:''}</div></div>`).join('')}</div>`;
   }).join('');
 }
