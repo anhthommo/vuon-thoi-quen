@@ -261,6 +261,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .empty-txt{font-size:17px;font-weight:900;color:#9a7a00}
 .empty-sub{font-size:12px;color:#c47a00;margin-top:5px;font-weight:600}
 
+/* ── SMART REMINDER MODAL ── */
+.rem-overlay{display:none;position:fixed;inset:0;background:rgba(28,18,0,.6);z-index:110;align-items:center;justify-content:center;backdrop-filter:blur(5px);padding:14px}
+.rem-overlay.on{display:flex}
+.rem-box{background:#fff;border-radius:22px;padding:22px;width:100%;max-width:370px;box-shadow:0 24px 80px rgba(28,18,0,.3);animation:pin .3s cubic-bezier(.34,1.56,.64,1)}
+.rem-box .mhed{font-size:16px;font-weight:900;color:#c47a00;margin-bottom:4px}
+.rem-sub{font-size:12px;color:#7a5a00;margin-bottom:16px;font-weight:600}
+.rem-time{width:100%;padding:13px;border:2px solid #f0d060;border-radius:14px;font-family:inherit;font-size:26px;font-weight:900;color:#2c1a00;background:#fffbf0;outline:none;text-align:center;transition:border-color .2s,box-shadow .2s}
+.rem-time:focus{border-color:#f4a100;box-shadow:0 0 0 3px rgba(244,161,0,.15)}
+.rem-dow-lbl{font-size:11px;font-weight:800;color:#7a5a00;text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px}
+.rem-days{display:flex;gap:6px;flex-wrap:wrap}
+.rday{min-width:38px;height:38px;padding:0 5px;border-radius:50%;border:1.5px solid #f0d060;background:#fffbf0;font-size:10px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#7a5a00;transition:all .15s;user-select:none}
+.rday.on{background:#fff3b0;border-color:#f4a100;color:#c47a00;box-shadow:0 0 0 2px rgba(244,161,0,.2)}
+.rem-hint{font-size:11px;color:#9a7a00;margin-top:12px;line-height:1.6;background:#fffde7;border-radius:9px;padding:8px 11px;border-left:3px solid #f4a100}
+.rem-btns{display:flex;gap:8px;margin-top:16px}
+.rem-clear{flex:1;padding:11px;border-radius:10px;border:1.5px solid #ffcdd2;background:#fff5f5;font-family:inherit;font-size:12px;font-weight:700;color:#c62828;cursor:pointer}
+/* tag nhắc bấm được */
+.tp.trem{cursor:pointer;transition:all .2s}
+.tp.trem:hover{background:#fff3b0;border-color:#f4a100;color:#c47a00}
+html.dark .rem-box{background:#182235}
+html.dark .rem-time{background:#0f172a;border-color:#334155;color:#f8fafc}
+html.dark .rday{background:#0f172a;border-color:#334155;color:#cbd5e1}
+html.dark .rday.on{background:#2b3a20;border-color:#f4a100;color:#ffe8a3}
+html.dark .rem-hint{background:#1f2937;border-left-color:#f4a100;color:#e2e8f0}
+html.dark .rem-clear{background:#3b1620;border-color:#7f1d1d;color:#fecaca}
+
 /* ── DARK MODE ── */
 html.dark{color-scheme:dark}
 html.dark body{background:#111827;color:#f8fafc}
@@ -524,6 +549,24 @@ html.dark .overlay{background:rgba(2,6,23,.76)}
         4. Nhấn <b>Thêm</b> — xong! ✅<br><br>
         <b>Lưu ý:</b> Sau khi cài, đăng nhập cùng email → dữ liệu tự đồng bộ ngay.
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Smart Reminder Modal -->
+<div class="rem-overlay" id="reminderModal">
+  <div class="rem-box">
+    <div class="mhed">⏰ Nhắc nhở thông minh</div>
+    <div class="rem-sub" id="remHabitName">Đặt giờ nhắc riêng cho thói quen này</div>
+    <label style="font-size:11px;font-weight:800;color:#7a5a00;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px">Nhắc lúc mấy giờ?</label>
+    <input type="time" class="rem-time" id="remTimeInput" value="21:00">
+    <div class="rem-dow-lbl">Nhắc vào các ngày trong tuần</div>
+    <div class="rem-days" id="remDays"></div>
+    <div class="rem-hint">💡 Giờ nhắc riêng cho thói quen này. Thói quen chưa tick đúng giờ sẽ nhận thông báo ngay.</div>
+    <div class="rem-btns">
+      <button class="mcancel" onclick="closeReminderModal()" style="flex:1">Hủy</button>
+      <button class="rem-clear" onclick="clearReminderModal()">🗑 Xóa nhắc</button>
+      <button class="msave" style="flex:2" onclick="saveReminderModal()">💾 Lưu</button>
     </div>
   </div>
 </div>
@@ -961,7 +1004,14 @@ function startNotifCheck(){
   setInterval(()=>{
     if(!stats.notif||!('Notification' in window)||Notification.permission!=='granted')return;
     const now=new Date(),hm=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`,t=today();
-    const due=habits.filter(hb=>!hb.done?.[t]&&!hb.vacation?.[t]&&isSchd(hb,{dow:now.getDay()})&&((hb.reminderTime||stats.ntime||'21:00')===hm));
+    const due=habits.filter(hb=>{
+      if(hb.done?.[t]||hb.vacation?.[t])return false;
+      if(!isSchd(hb,{dow:now.getDay()}))return false;
+      const hbTime=hb.reminderTime||stats.ntime||'21:00';
+      if(hbTime!==hm)return false;
+      const rdow=Array.isArray(hb.reminderDow)?hb.reminderDow:[0,1,2,3,4,5,6];
+      return rdow.includes(now.getDay());
+    });
     const key=t+'-'+hm;
     if(due.length>0&&notifSent[key]!==due.map(hb=>hb.id).join(',')){
       notifSent[key]=due.map(hb=>hb.id).join(',');
@@ -1200,7 +1250,7 @@ function render(){
       const missed2=!h.done?.[d.key]&&!h.vacation?.[d.key]&&!d.isToday;
       return`<div class="pdot${d.isToday?' tod2':''}${h.done?.[d.key]?' done':''}${missed2?' missed':''}" onclick="toggleDay('${h.id}','${d.key}')"></div>`;
     }).join('');
-    const tags=[h.cat?`<span class="tp tcat">${catLabel(h.cat)}</span>`:'',h.freq&&h.freq!=='daily'?`<span class="tp tfrq">${h.freq==='weekly'?h.weeklyN+'x/'+(lang==='en'?'week':'tuần'):tt('custom')}</span>`:'',`<span class="tp trem">🔔 ${h.reminderTime||stats.ntime||'21:00'}</span>`,h.goal>0?`<span class="tp tgl">🎯 ${h.goal} ${h.goalUnit||''}</span>`:'',onV?`<span class="tp tvac">${tt('vacation')}</span>`:''].filter(Boolean).join('');
+    const tags=[h.cat?`<span class="tp tcat">${catLabel(h.cat)}</span>`:'',h.freq&&h.freq!=='daily'?`<span class="tp tfrq">${h.freq==='weekly'?h.weeklyN+'x/'+(lang==='en'?'week':'tuần'):tt('custom')}</span>`:'',`<span class="tp trem" onclick="openReminderModal('${h.id}')" title="Đặt giờ nhắc riêng">⏰ ${h.reminderTime||stats.ntime||'21:00'}</span>`,h.goal>0?`<span class="tp tgl">🎯 ${h.goal} ${h.goalUnit||''}</span>`:'',onV?`<span class="tp tvac">${tt('vacation')}</span>`:''].filter(Boolean).join('');
     const moodRow=`<div class="mlbl">${tt('moodRow')}</div><div class="mrow">${MOODS.map(m=>`<div class="mbtn${mood===m?' on':''}" onclick="pickMoodD('${h.id}','${t}','${m}')">${m}</div>`).join('')}</div>`;
     return`<div class="hcard">
       <div class="hstrip"></div>
@@ -1240,6 +1290,37 @@ function renderDiary(){
     return`<div class="dcard"><div class="ddate">📅 ${ds}</div>${byD[day].map(e=>`<div class="ditem"><div class="dico">${e.h.emoji}</div><div><div class="dname">${e.h.name} ${e.mood||''}</div>${e.note?`<div class="dnote">"${e.note}"</div>`:''}</div></div>`).join('')}</div>`;
   }).join('');
 }
+
+// ── SMART REMINDER MODAL ──
+let _remId=null;
+window.openReminderModal=id=>{
+  const h=habits.find(x=>x.id==id);if(!h)return;
+  _remId=id;
+  document.getElementById('remHabitName').textContent=`${h.emoji} ${h.name}`;
+  document.getElementById('remTimeInput').value=h.reminderTime||stats.ntime||'21:00';
+  const rdow=Array.isArray(h.reminderDow)?h.reminderDow:[0,1,2,3,4,5,6];
+  const labels=lang==='en'?DOWS_EN:DOWS_VI;
+  document.getElementById('remDays').innerHTML=labels.map((lb,i)=>
+    `<div class="rday${rdow.includes(i)?' on':''}" data-d="${i}" onclick="this.classList.toggle('on')">${lb}</div>`
+  ).join('');
+  document.getElementById('reminderModal').classList.add('on');
+};
+window.closeReminderModal=()=>{document.getElementById('reminderModal').classList.remove('on');_remId=null;};
+window.clearReminderModal=()=>{
+  if(!_remId)return;
+  const h=habits.find(x=>x.id==_remId);if(!h)return;
+  h.reminderTime='';h.reminderDow=[0,1,2,3,4,5,6];
+  saveData();render();closeReminderModal();
+};
+window.saveReminderModal=()=>{
+  if(!_remId)return;
+  const h=habits.find(x=>x.id==_remId);if(!h)return;
+  h.reminderTime=document.getElementById('remTimeInput').value||stats.ntime||'21:00';
+  const sel=[...document.querySelectorAll('#remDays .rday.on')].map(el=>+el.dataset.d);
+  h.reminderDow=sel.length>0?sel:[0,1,2,3,4,5,6];
+  saveData();render();closeReminderModal();
+  if(Notification.permission==='default')Notification.requestPermission();
+};
 
 // INIT
 document.getElementById('epick').innerHTML=EMOJIS.map(e=>`<div class="eopt${e===selE?' on':''}" data-e="${e}" onclick="pickE(this)">${e}</div>`).join('');
