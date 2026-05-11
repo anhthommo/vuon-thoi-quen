@@ -1,5 +1,9 @@
 # 🌻 Vườn Thói Quen — Phiên bản Hợp nhất (Web + PWA)
 
+## ✨ Tính năng giao diện
+- Hỗ trợ **Dark mode** trong phần Cài đặt, tự lưu lựa chọn trên thiết bị.
+- Hỗ trợ chuyển **Tiếng Việt / English** để người nước ngoài dùng app dễ hơn.
+
 ## ✅ Tính năng đồng bộ dữ liệu
 Đăng nhập cùng email → dữ liệu có ngay trên mọi thiết bị:
 - Mở trên máy tính (web)          → có dữ liệu ✅
