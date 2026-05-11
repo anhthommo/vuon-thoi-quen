@@ -133,6 +133,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .tcat{background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7}
 .tfrq{background:#e3f2fd;color:#1565c0;border:1px solid #90caf9}
 .tgl{background:#fce4ec;color:#880e4f;border:1px solid #f48fb1}
+.trem{background:#fff8e1;color:#7a4f00;border:1px solid #ffe082}
 .tvac{background:#fff3e0;color:#e65100;border:1px solid #ffcc80}
 .hstreak{display:inline-flex;align-items:center;gap:3px;background:linear-gradient(135deg,#2d5a1b,#4a8c1c);color:#fff;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;margin-top:5px}
 .hacts{display:flex;gap:4px;flex-shrink:0}
@@ -394,6 +395,7 @@ html.dark .overlay{background:rgba(2,6,23,.76)}
       <div class="field"><label>Biểu tượng</label><div class="egrid" id="epick"></div></div>
       <div class="field"><label>Tên thói quen *</label><input id="iName" placeholder="VD: Học 10 câu tiếng Anh mỗi ngày" maxlength="50"></div>
       <div class="field"><label>Mô tả ngắn</label><input id="iDesc" placeholder="VD: Dùng Duolingo, 10 phút" maxlength="60"></div>
+      <div class="field"><label>Giờ nhắc riêng</label><input id="iReminderTime" type="time" value="21:00"></div>
       <div class="sec-title">📂 Danh mục</div>
       <div class="field"><div class="copts" id="catOpts">
         <div class="copt on" data-c="Sức khỏe" onclick="pickCat(this)">💪 Sức khỏe</div>
@@ -533,6 +535,7 @@ html.dark .overlay{background:rgba(2,6,23,.76)}
     <div class="field"><label>Biểu tượng</label><div class="egrid" id="epickE"></div></div>
     <div class="field"><label>Tên *</label><input id="eName" maxlength="50"></div>
     <div class="field"><label>Mô tả</label><input id="eDesc" maxlength="60"></div>
+    <div class="field"><label>Giờ nhắc riêng</label><input id="eReminderTime" type="time"></div>
     <div class="field"><label>Danh mục</label><div class="copts" id="catOptsE">
       <div class="copt" data-c="Sức khỏe" onclick="pickCatE(this)">💪 Sức khỏe</div>
       <div class="copt" data-c="Học tập" onclick="pickCatE(this)">📚 Học tập</div>
@@ -649,12 +652,12 @@ const I18N={
     installTitle:'🌻 Cài Vườn Thói Quen như app thật!',installSub:'Dữ liệu đồng bộ qua tài khoản — dùng offline — không cần internet',later:'Để sau',install:'📲 Cài ngay',
     notifOn:'🔔 Thông báo',notifOff:'🔕 Tắt thông báo',logout:'Đăng xuất',brand:'🌻 Vườn Thói Quen',hello:'Xin chào,',friend:'bạn',
     statHabits:'Thói quen',statToday:'Hôm nay',statStreak:'Streak cao',statXP:'Tổng XP',tabGarden:'🌻 Vườn',tabAdd:'＋ Thêm',tabBadges:'🏅 Huy Hiệu',tabDiary:'📓 Nhật Ký',tabSettings:'⚙️ Cài Đặt',
-    addTitle:'🌻 Trồng thói quen mới',icon:'Biểu tượng',habitName:'Tên thói quen *',habitDesc:'Mô tả ngắn',category:'📂 Danh mục',frequency:'📅 Tần suất',
+    addTitle:'🌻 Trồng thói quen mới',icon:'Biểu tượng',habitName:'Tên thói quen *',habitDesc:'Mô tả ngắn',habitReminder:'Giờ nhắc riêng',category:'📂 Danh mục',frequency:'📅 Tần suất',
     daily:'Mỗi ngày',weekly:'N lần/tuần',custom:'Chọn ngày',weeklyCount:'Số lần mỗi tuần',chooseDays:'Chọn ngày trong tuần',goal:'🎯 Mục tiêu số lượng (tùy chọn)',rewards:'🏆 Phần quà mốc streak',
     r5:'Quà sau 5 ngày',r7:'Quà sau 7 ngày',r15:'Quà sau 15 ngày',start:'🌻 Bắt đầu hành trình!',badges:'🏅 Bộ sưu tập huy hiệu',
     account:'👤 Tài khoản & Đồng bộ',themeLabel:'Dark mode',themeSub:'Đổi giao diện tối để dùng dễ hơn ban đêm',langLabel:'Language',langSub:'Chuyển giao diện sang English cho người nước ngoài',langBtn:'English',
     user:'Người dùng',cloud:'☁️ Dữ liệu tự đồng bộ qua Firebase',syncNow:'Đồng bộ ngay',syncNowSub:'Lưu dữ liệu lên cloud ngay lập tức',sync:'☁️ Sync',
-    reminders:'🔔 Nhắc nhở (OneSignal)',enableNotif:'Bật thông báo',enableNotifSub:'Nhắc kể cả khi đóng app, hỗ trợ iOS',notifTime:'Giờ nhắc nhở',notifTimeSub:'Nhắc vào lúc mấy giờ mỗi ngày',
+    reminders:'🔔 Nhắc nhở thông minh',enableNotif:'Bật thông báo',enableNotifSub:'Nhắc từng thói quen theo giờ riêng đã đặt',notifTime:'Giờ nhắc mặc định',notifTimeSub:'Dùng cho thói quen chưa đặt giờ riêng',
     mysql:'💾 Backup MySQL (tùy chọn)',mysqlNow:'Backup lên MySQL ngay',mysqlSub:'Lưu bản sao sang server riêng',autoBk:'Tự động backup',autoBkSub:'Backup mỗi khi tick thói quen',
     exportImport:'📁 Xuất & Nhập dữ liệu',exportCSV:'Xuất CSV',excel:'Mở bằng Excel',exportJSON:'Xuất JSON',jsonSub:'Backup toàn bộ dữ liệu',importJSON:'Nhập JSON',importSub:'Khôi phục từ file backup',deleteAll:'Xóa toàn bộ',deleteSub:'Không thể hoàn tác!',exportBtn:'📥 Xuất',downloadBtn:'💾 Tải về',importBtn:'📤 Nhập',deleteBtn:'🗑 Xóa',
     iosTitle:'📱 Cài app trên iPhone/iPad',iosGuide:'1. Mở trang web trong <b>Safari</b> (bắt buộc)<br>2. Nhấn nút <b>Chia sẻ</b> 📤 ở thanh dưới<br>3. Chọn <b>"Thêm vào Màn hình chính"</b><br>4. Nhấn <b>Thêm</b> — xong! ✅<br><br><b>Lưu ý:</b> Sau khi cài, đăng nhập cùng email → dữ liệu tự đồng bộ ngay.',
@@ -669,7 +672,7 @@ const I18N={
     badgeText:{first:['Bước Đầu','Hoàn thành ngày đầu tiên'],s7:['Tuần Hoàn Hảo','Streak 7 ngày liên tiếp'],s30:['30 Ngày Vàng','Streak 30 ngày liên tiếp'],x100:['Tích Lũy','Đạt 100 XP'],x500:['Giàu Kinh Nghiệm','Đạt 500 XP'],h3:['Đa Nhiệm','Có 3 thói quen cùng lúc'],h5:['Vườn Hoa','Có 5 thói quen cùng lúc'],d10:['Chăm Chỉ','10 ngày hoàn thành (tổng)'],d50:['Kiên Trì','50 ngày hoàn thành (tổng)'],d100:['Truyền Thuyết','100 ngày hoàn thành (tổng)'],lv3:['Cấp Cao','Đạt Chiến Binh'],lv5:['Đỉnh Cao','Đạt Huyền Thoại']},
     alerts:{needLogin:'Vui lòng nhập đầy đủ email và mật khẩu!',needName:'Vui lòng nhập tên!',needEmail:'Vui lòng nhập email!',weak:'Mật khẩu ít nhất 6 ký tự!',mismatch:'Mật khẩu xác nhận không khớp!',forgotEmail:'Nhập email vào ô trên trước!',resetSent:'✅ Email đặt lại mật khẩu đã được gửi! Kiểm tra hộp thư.',notFound:'Không tìm thấy tài khoản với email này.',logout:'Đăng xuất khỏi tài khoản?',ios:'Cài trên iOS: Safari → Chia sẻ 📤 → Thêm vào Màn hình chính',nameHabit:'Vui lòng nhập tên thói quen!',editName:'Nhập tên nhé!',deleteHabit:(n)=>`Xóa "${n}"?\nDữ liệu sẽ mất vĩnh viễn.`,mysqlMissing:'Chưa cấu hình MYSQL_URL trong code!',oneSignal:'OneSignal chưa cấu hình. Thay YOUR_ONESIGNAL_APP_ID trong code!',notifUnsupported:'Trình duyệt không hỗ trợ thông báo!',importConfirm:'Nhập sẽ THAY THẾ dữ liệu hiện tại bằng dữ liệu từ file.\nTiếp tục?',importOk:'✅ Nhập dữ liệu thành công!\n\nDữ liệu đã được lưu lên cloud — đăng nhập trên thiết bị khác sẽ thấy ngay.',invalidFile:'❌ File không hợp lệ!',clearAll:'Xóa TOÀN BỘ dữ liệu? Không thể hoàn tác!'},
     syncLoad:'☁️ Đang tải dữ liệu...',syncLoaded:'✅ Dữ liệu đã đồng bộ!',syncing:'☁️ Đang đồng bộ...',synced:'✅ Đã đồng bộ!',syncLoadErr:'❌ Lỗi tải dữ liệu: ',syncErr:'❌ Lỗi đồng bộ. Kiểm tra Firebase!',
-    csv:['Thói quen','Ngày','Hoàn thành','Tâm trạng','Ghi chú'],yes:'Có',no:'Không',backuping:'⏳ Đang backup...',backupOk:'✅ Backup thành công! ',backupFail:'❌ Không kết nối được. Kiểm tra MYSQL_URL!',notifBody:n=>`Còn ${n} thói quen chưa tick! Đừng phá streak 💪`,
+    csv:['Thói quen','Ngày','Hoàn thành','Tâm trạng','Ghi chú'],yes:'Có',no:'Không',backuping:'⏳ Đang backup...',backupOk:'✅ Backup thành công! ',backupFail:'❌ Không kết nối được. Kiểm tra MYSQL_URL!',notifBody:n=>`Còn ${n} thói quen chưa tick! Đừng phá streak 💪`,habitNotifBody:n=>`Đến giờ ${n} rồi. Tick ngay để giữ streak nhé! 💪`,habitNotifGroup:n=>`${n} thói quen đến giờ cần tick!`,
     milestone:(d,h)=>[`${d} ngày liên tiếp! 🎊`,`"${h.emoji} ${h.name}" đạt streak ${d} ngày!`],addXp:'thêm thói quen mới',streakXp:d=>`streak ${d} ngày`
   },
   en:{
@@ -678,12 +681,12 @@ const I18N={
     installTitle:'🌻 Install Habit Garden like a real app!',installSub:'Account sync — offline use — no internet required',later:'Later',install:'📲 Install',
     notifOn:'🔔 Notifications',notifOff:'🔕 Notifications off',logout:'Log out',brand:'🌻 Habit Garden',hello:'Hello,',friend:'friend',
     statHabits:'Habits',statToday:'Today',statStreak:'Best streak',statXP:'Total XP',tabGarden:'🌻 Garden',tabAdd:'＋ Add',tabBadges:'🏅 Badges',tabDiary:'📓 Diary',tabSettings:'⚙️ Settings',
-    addTitle:'🌻 Plant a new habit',icon:'Icon',habitName:'Habit name *',habitDesc:'Short description',category:'📂 Category',frequency:'📅 Frequency',
+    addTitle:'🌻 Plant a new habit',icon:'Icon',habitName:'Habit name *',habitDesc:'Short description',habitReminder:'Reminder time',category:'📂 Category',frequency:'📅 Frequency',
     daily:'Every day',weekly:'Times/week',custom:'Pick days',weeklyCount:'Times per week',chooseDays:'Choose weekdays',goal:'🎯 Quantity goal (optional)',rewards:'🏆 Streak rewards',
     r5:'Reward after 5 days',r7:'Reward after 7 days',r15:'Reward after 15 days',start:'🌻 Start growing!',badges:'🏅 Badge collection',
     account:'👤 Account & Sync',themeLabel:'Dark mode',themeSub:'Switch to a darker interface for night use',langLabel:'Language',langSub:'Use the English interface',langBtn:'Tiếng Việt',
     user:'User',cloud:'☁️ Data syncs automatically via Firebase',syncNow:'Sync now',syncNowSub:'Save data to the cloud immediately',sync:'☁️ Sync',
-    reminders:'🔔 Reminders (OneSignal)',enableNotif:'Enable notifications',enableNotifSub:'Remind even when the app is closed; supports iOS',notifTime:'Reminder time',notifTimeSub:'When to remind you each day',
+    reminders:'🔔 Smart reminders',enableNotif:'Enable notifications',enableNotifSub:'Remind each habit at its own time',notifTime:'Default reminder time',notifTimeSub:'Used for habits without a custom reminder',
     mysql:'💾 MySQL backup (optional)',mysqlNow:'Back up to MySQL now',mysqlSub:'Save a copy to your own server',autoBk:'Automatic backup',autoBkSub:'Back up whenever you tick a habit',
     exportImport:'📁 Export & Import data',exportCSV:'Export CSV',excel:'Open with Excel',exportJSON:'Export JSON',jsonSub:'Full data backup',importJSON:'Import JSON',importSub:'Restore from a backup file',deleteAll:'Delete everything',deleteSub:'This cannot be undone!',exportBtn:'📥 Export',downloadBtn:'💾 Download',importBtn:'📤 Import',deleteBtn:'🗑 Delete',
     iosTitle:'📱 Install on iPhone/iPad',iosGuide:'1. Open this website in <b>Safari</b> (required)<br>2. Tap the <b>Share</b> 📤 button at the bottom<br>3. Choose <b>"Add to Home Screen"</b><br>4. Tap <b>Add</b> — done! ✅<br><br><b>Note:</b> After installing, sign in with the same email and your data will sync automatically.',
@@ -698,13 +701,14 @@ const I18N={
     badgeText:{first:['First Step','Complete your first day'],s7:['Perfect Week','7-day streak'],s30:['Golden 30','30-day streak'],x100:['Collector','Reach 100 XP'],x500:['Experienced','Reach 500 XP'],h3:['Multitasker','Keep 3 habits at once'],h5:['Flower Garden','Keep 5 habits at once'],d10:['Diligent','10 total completed days'],d50:['Persistent','50 total completed days'],d100:['Mythic','100 total completed days'],lv3:['Advanced','Reach Warrior'],lv5:['Peak','Reach Legend']},
     alerts:{needLogin:'Please enter both email and password!',needName:'Please enter your name!',needEmail:'Please enter your email!',weak:'Password must be at least 6 characters!',mismatch:'Password confirmation does not match!',forgotEmail:'Enter your email above first!',resetSent:'✅ Password reset email sent! Check your inbox.',notFound:'No account found with this email.',logout:'Log out of this account?',ios:'Install on iOS: Safari → Share 📤 → Add to Home Screen',nameHabit:'Please enter a habit name!',editName:'Please enter a name!',deleteHabit:(n)=>`Delete "${n}"?\nThis data will be lost permanently.`,mysqlMissing:'MYSQL_URL is not configured in code!',oneSignal:'OneSignal is not configured. Replace YOUR_ONESIGNAL_APP_ID in code!',notifUnsupported:'This browser does not support notifications!',importConfirm:'Import will REPLACE your current data with the file data.\nContinue?',importOk:'✅ Data imported successfully!\n\nYour data was saved to the cloud — sign in on another device to see it.',invalidFile:'❌ Invalid file!',clearAll:'Delete ALL data? This cannot be undone!'},
     syncLoad:'☁️ Loading data...',syncLoaded:'✅ Data synced!',syncing:'☁️ Syncing...',synced:'✅ Synced!',syncLoadErr:'❌ Failed to load data: ',syncErr:'❌ Sync failed. Check Firebase!',
-    csv:['Habit','Date','Completed','Mood','Note'],yes:'Yes',no:'No',backuping:'⏳ Backing up...',backupOk:'✅ Backup successful! ',backupFail:'❌ Could not connect. Check MYSQL_URL!',notifBody:n=>`${n} habits still need a tick today! Keep your streak 💪`,
+    csv:['Habit','Date','Completed','Mood','Note'],yes:'Yes',no:'No',backuping:'⏳ Backing up...',backupOk:'✅ Backup successful! ',backupFail:'❌ Could not connect. Check MYSQL_URL!',notifBody:n=>`${n} habits still need a tick today! Keep your streak 💪`,habitNotifBody:n=>`Time for ${n}. Tick it to keep your streak! 💪`,habitNotifGroup:n=>`${n} habits are due now!`,
     milestone:(d,h)=>[`${d} days in a row! 🎊`,`"${h.emoji} ${h.name}" reached a ${d}-day streak!`],addXp:'new habit added',streakXp:d=>`${d}-day streak`
   }
 };
 
 // ── STATE ──
 let habits=[], stats={xp:0,done:0,ms:0,badges:[],notif:false,ntime:'21:00',autoBk:false};
+let notifSent={};
 let selE='📚',selCat='Sức khỏe',selFreq='daily',selDow=[0,1,2,3,4,5,6];
 let editId=null,editE='📚',editCat='Sức khỏe';
 let moodId=null,moodDay=null,selMood='😊';
@@ -745,7 +749,7 @@ function applyLang(){
   setTxt('.btag',tt('brand'));setHTML('.btitle',`${tt('hello')} <span class="hi" id="bname">${cu?(cu.displayName||cu.email?.split('@')[0]||tt('friend')):tt('friend')}</span>! ✨`);
   document.querySelectorAll('.sc span').forEach((el,i)=>el.textContent=[tt('statHabits'),tt('statToday'),tt('statStreak'),tt('statXP')][i]||el.textContent);
   document.querySelectorAll('.tab').forEach((el,i)=>el.textContent=[tt('tabGarden'),tt('tabAdd'),tt('tabBadges'),tt('tabDiary'),tt('tabSettings')][i]);
-  setTxt('.fhed',tt('addTitle'));document.querySelectorAll('#pg-add .field label').forEach((el,i)=>el.textContent=[tt('icon'),tt('habitName'),tt('habitDesc')][i]||el.textContent);
+  setTxt('.fhed',tt('addTitle'));document.querySelectorAll('#pg-add .field label').forEach((el,i)=>el.textContent=[tt('icon'),tt('habitName'),tt('habitDesc'),tt('habitReminder')][i]||el.textContent);
   document.querySelectorAll('#pg-add .sec-title').forEach((el,i)=>el.textContent=[tt('category'),tt('frequency'),tt('goal'),tt('rewards')][i]);
   document.querySelectorAll('#freqOpts .fopt').forEach((el,i)=>el.textContent=[tt('daily'),tt('weekly'),tt('custom')][i]);
   setTxt('#wkWrap label',tt('weeklyCount'));setTxt('#cdWrap label',tt('chooseDays'));
@@ -761,10 +765,11 @@ function applyLang(){
   [null,null,null,tt('cloud'),tt('syncNowSub'),tt('enableNotifSub'),tt('notifTimeSub'),tt('mysqlSub'),tt('autoBkSub'),tt('excel'),tt('jsonSub'),tt('importSub'),tt('deleteSub')].forEach((v,i)=>{if(v&&settingsSubs[i])settingsSubs[i].textContent=v;});
   document.querySelectorAll('#pg-settings .abtn').forEach(btn=>{const fn=btn.getAttribute('onclick')||'';if(fn.includes('doLogout'))btn.textContent=tt('logout');if(fn.includes('saveData'))btn.textContent=tt('sync');if(fn.includes('exportCSV'))btn.textContent=tt('exportBtn');if(fn.includes('exportJSON'))btn.textContent=tt('downloadBtn');if(fn.includes('rf'))btn.textContent=tt('importBtn');if(fn.includes('clearAll'))btn.textContent=tt('deleteBtn');});
   setHTML('.ios-guide',tt('iosGuide'));
-  setTxt('#editModal .mhed',tt('editTitle'));document.querySelectorAll('#editModal .field label').forEach((el,i)=>el.textContent=[tt('icon'),tt('name'),tt('desc'),lang==='en'?'Category':'Danh mục',tt('r5'),tt('r7'),tt('r15')][i]);
+  setTxt('#editModal .mhed',tt('editTitle'));document.querySelectorAll('#editModal .field label').forEach((el,i)=>el.textContent=[tt('icon'),tt('name'),tt('desc'),tt('habitReminder'),lang==='en'?'Category':'Danh mục',tt('r5'),tt('r7'),tt('r15')][i]);
   setTxt('#editModal .mcancel',tt('cancel'));setTxt('#editModal .msave',tt('save'));
   setTxt('#moodHed',tt('moodTitle'));document.querySelectorAll('#moodModal .field label').forEach((el,i)=>el.textContent=[tt('moodToday'),tt('note')][i]);setTxt('#moodModal .mcancel',tt('skip'));setTxt('#moodModal .msave',tt('saveShort'));setTxt('.msclose',tt('continue'));
   setPH('#iName',tt('pName'));setPH('#iDesc',tt('pDesc'));setPH('#iGN',tt('pGoal'));setPH('#iGU',tt('pUnit'));setPH('#iR5',tt('pR5'));setPH('#iR7',tt('pR7'));setPH('#iR15',tt('pR15'));setPH('#moodNote',tt('pMood'));
+  const addReminder=document.getElementById('iReminderTime');if(addReminder&&!addReminder.value)addReminder.value=stats.ntime||'21:00';
   render();renderBadges();updateXP();applyTheme();
 }
 window.toggleTheme=()=>{theme=theme==='dark'?'light':'dark';localStorage.setItem('vh_theme',theme);applyTheme();};
@@ -928,7 +933,12 @@ async function silentMySQLBackup(){
   try{await fetch(MYSQL_URL,{method:'POST',headers:{'Content-Type':'application/json','X-API-Key':MYSQL_KEY},body:JSON.stringify(await buildPayload())});}catch(e){}
 }
 window.toggleAutoBk=()=>{stats.autoBk=!stats.autoBk;document.getElementById('autoBkTog').classList.toggle('on',stats.autoBk);saveData();};
-window.saveNTime=()=>{stats.ntime=document.getElementById('notifTime').value;saveData();};
+window.saveNTime=()=>{
+  stats.ntime=document.getElementById('notifTime').value||'21:00';
+  const addReminder=document.getElementById('iReminderTime');
+  if(addReminder&&!addReminder.value)addReminder.value=stats.ntime;
+  saveData();
+};
 
 // ── ONESIGNAL NOTIF ──
 window.toggleNotif=async()=>{
@@ -949,12 +959,17 @@ window.toggleNotif=async()=>{
 };
 function startNotifCheck(){
   setInterval(()=>{
-    if(!stats.notif||Notification.permission!=='granted')return;
-    const now=new Date(),[h,m]=(stats.ntime||'21:00').split(':').map(Number);
-    if(now.getHours()===h&&now.getMinutes()===m){
-      const t=today(),nd=habits.filter(hb=>!hb.done?.[t]&&!hb.vacation?.[t]);
-      if(nd.length>0)new Notification('🌻 '+tt('app'),{body:tt('notifBody',nd.length),icon:'./icons/icon-192.png',tag:'daily'});
+    if(!stats.notif||!('Notification' in window)||Notification.permission!=='granted')return;
+    const now=new Date(),hm=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`,t=today();
+    const due=habits.filter(hb=>!hb.done?.[t]&&!hb.vacation?.[t]&&isSchd(hb,{dow:now.getDay()})&&((hb.reminderTime||stats.ntime||'21:00')===hm));
+    const key=t+'-'+hm;
+    if(due.length>0&&notifSent[key]!==due.map(hb=>hb.id).join(',')){
+      notifSent[key]=due.map(hb=>hb.id).join(',');
+      const title=due.length===1?`${due[0].emoji||'🌻'} ${due[0].name}`:'🌻 '+tt('app');
+      const body=due.length===1?tt('habitNotifBody',due[0].name):tt('habitNotifGroup',due.length);
+      new Notification(title,{body,icon:'./icons/icon-192.png',tag:'habit-'+key});
     }
+    Object.keys(notifSent).filter(k=>!k.startsWith(t)).forEach(k=>delete notifSent[k]);
   },60000);
 }
 
@@ -1036,14 +1051,16 @@ window.goTab=t=>{
 // ── HABIT CRUD ──
 window.addHabit=()=>{
   const name=document.getElementById('iName').value.trim();if(!name){alert(tt('alerts').nameHabit);return;}
-  habits.push({id:Date.now()+'',emoji:selE,name,cat:selCat,desc:document.getElementById('iDesc').value.trim(),freq:selFreq,weeklyN:selFreq==='weekly'?parseInt(document.getElementById('iWN').value)||3:0,dow:selFreq==='custom'?[...selDow]:[0,1,2,3,4,5,6],goal:parseInt(document.getElementById('iGN').value)||0,goalUnit:document.getElementById('iGU').value.trim(),r5:document.getElementById('iR5').value.trim()||(lang==='en'?'Reward yourself!':'Tự thưởng bản thân!'),r7:document.getElementById('iR7').value.trim()||(lang==='en'?'Enjoy a movie!':'Xem phim thoải mái!'),r15:document.getElementById('iR15').value.trim()||(lang==='en'?'Buy something you want!':'Mua thứ bạn muốn!'),done:{},vacation:{},moods:{},notes:{}});
+  habits.push({id:Date.now()+'',emoji:selE,name,cat:selCat,desc:document.getElementById('iDesc').value.trim(),reminderTime:document.getElementById('iReminderTime').value||stats.ntime||'21:00',freq:selFreq,weeklyN:selFreq==='weekly'?parseInt(document.getElementById('iWN').value)||3:0,dow:selFreq==='custom'?[...selDow]:[0,1,2,3,4,5,6],goal:parseInt(document.getElementById('iGN').value)||0,goalUnit:document.getElementById('iGU').value.trim(),r5:document.getElementById('iR5').value.trim()||(lang==='en'?'Reward yourself!':'Tự thưởng bản thân!'),r7:document.getElementById('iR7').value.trim()||(lang==='en'?'Enjoy a movie!':'Xem phim thoải mái!'),r15:document.getElementById('iR15').value.trim()||(lang==='en'?'Buy something you want!':'Mua thứ bạn muốn!'),done:{},vacation:{},moods:{},notes:{}});
   addXP(10,tt('addXp'));saveData();
   ['iName','iDesc','iR5','iR7','iR15','iGN','iGU'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('iReminderTime').value=stats.ntime||'21:00';
   goTab('garden');
 };
 window.openEdit=id=>{
   const h=habits.find(x=>x.id==id);if(!h)return;editId=id;editE=h.emoji;editCat=h.cat||'Sức khỏe';
   document.getElementById('eName').value=h.name;document.getElementById('eDesc').value=h.desc||'';
+  document.getElementById('eReminderTime').value=h.reminderTime||stats.ntime||'21:00';
   document.getElementById('eR5').value=h.r5||'';document.getElementById('eR7').value=h.r7||'';document.getElementById('eR15').value=h.r15||'';
   document.getElementById('epickE').innerHTML=EMOJIS.map(e=>`<div class="eopt${e===h.emoji?' on':''}" data-e="${e}" onclick="pickEE(this)">${e}</div>`).join('');
   document.querySelectorAll('#catOptsE .copt').forEach(el=>el.classList.toggle('on',el.dataset.c===editCat));
@@ -1055,6 +1072,7 @@ window.saveEdit=()=>{
   if(!editId)return;const h=habits.find(x=>x.id==editId);if(!h)return;
   const name=document.getElementById('eName').value.trim();if(!name){alert(tt('alerts').editName);return;}
   h.emoji=editE;h.name=name;h.cat=editCat;h.desc=document.getElementById('eDesc').value.trim();
+  h.reminderTime=document.getElementById('eReminderTime').value||stats.ntime||'21:00';
   h.r5=document.getElementById('eR5').value.trim()||h.r5;h.r7=document.getElementById('eR7').value.trim()||h.r7;h.r15=document.getElementById('eR15').value.trim()||h.r15;
   saveData();closeEdit();render();
 };
@@ -1160,7 +1178,7 @@ function render(){
       const missed2=!h.done?.[d.key]&&!h.vacation?.[d.key]&&!d.isToday;
       return`<div class="pdot${d.isToday?' tod2':''}${h.done?.[d.key]?' done':''}${missed2?' missed':''}" onclick="toggleDay('${h.id}','${d.key}')"></div>`;
     }).join('');
-    const tags=[h.cat?`<span class="tp tcat">${catLabel(h.cat)}</span>`:'',h.freq&&h.freq!=='daily'?`<span class="tp tfrq">${h.freq==='weekly'?h.weeklyN+'x/'+(lang==='en'?'week':'tuần'):tt('custom')}</span>`:'',h.goal>0?`<span class="tp tgl">🎯 ${h.goal} ${h.goalUnit||''}</span>`:'',onV?`<span class="tp tvac">${tt('vacation')}</span>`:''].filter(Boolean).join('');
+    const tags=[h.cat?`<span class="tp tcat">${catLabel(h.cat)}</span>`:'',h.freq&&h.freq!=='daily'?`<span class="tp tfrq">${h.freq==='weekly'?h.weeklyN+'x/'+(lang==='en'?'week':'tuần'):tt('custom')}</span>`:'',`<span class="tp trem">🔔 ${h.reminderTime||stats.ntime||'21:00'}</span>`,h.goal>0?`<span class="tp tgl">🎯 ${h.goal} ${h.goalUnit||''}</span>`:'',onV?`<span class="tp tvac">${tt('vacation')}</span>`:''].filter(Boolean).join('');
     const moodRow=`<div class="mlbl">${tt('moodRow')}</div><div class="mrow">${MOODS.map(m=>`<div class="mbtn${mood===m?' on':''}" onclick="pickMoodD('${h.id}','${t}','${m}')">${m}</div>`).join('')}</div>`;
     return`<div class="hcard">
       <div class="hstrip"></div>
