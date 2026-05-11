@@ -265,7 +265,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .rem-overlay{display:none;position:fixed;inset:0;background:rgba(28,18,0,.6);z-index:110;align-items:center;justify-content:center;backdrop-filter:blur(5px);padding:14px}
 .rem-overlay.on{display:flex}
 .rem-box{background:#fff;border-radius:22px;padding:22px;width:100%;max-width:370px;box-shadow:0 24px 80px rgba(28,18,0,.3);animation:pin .3s cubic-bezier(.34,1.56,.64,1)}
-.rem-box .mhed{font-size:16px;font-weight:900;color:#c47a00;margin-bottom:4px}
+.rem-head{font-size:16px;font-weight:900;color:#c47a00;margin-bottom:3px}
 .rem-sub{font-size:12px;color:#7a5a00;margin-bottom:16px;font-weight:600}
 .rem-time{width:100%;padding:13px;border:2px solid #f0d060;border-radius:14px;font-family:inherit;font-size:26px;font-weight:900;color:#2c1a00;background:#fffbf0;outline:none;text-align:center;transition:border-color .2s,box-shadow .2s}
 .rem-time:focus{border-color:#f4a100;box-shadow:0 0 0 3px rgba(244,161,0,.15)}
@@ -276,7 +276,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .rem-hint{font-size:11px;color:#9a7a00;margin-top:12px;line-height:1.6;background:#fffde7;border-radius:9px;padding:8px 11px;border-left:3px solid #f4a100}
 .rem-btns{display:flex;gap:8px;margin-top:16px}
 .rem-clear{flex:1;padding:11px;border-radius:10px;border:1.5px solid #ffcdd2;background:#fff5f5;font-family:inherit;font-size:12px;font-weight:700;color:#c62828;cursor:pointer}
-/* tag nhắc bấm được */
 .tp.trem{cursor:pointer;transition:all .2s}
 .tp.trem:hover{background:#fff3b0;border-color:#f4a100;color:#c47a00}
 html.dark .rem-box{background:#182235}
@@ -556,16 +555,16 @@ html.dark .overlay{background:rgba(2,6,23,.76)}
 <!-- Smart Reminder Modal -->
 <div class="rem-overlay" id="reminderModal">
   <div class="rem-box">
-    <div class="mhed">⏰ Nhắc nhở thông minh</div>
+    <div class="rem-head">⏰ Nhắc nhở thông minh</div>
     <div class="rem-sub" id="remHabitName">Đặt giờ nhắc riêng cho thói quen này</div>
     <label style="font-size:11px;font-weight:800;color:#7a5a00;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px">Nhắc lúc mấy giờ?</label>
     <input type="time" class="rem-time" id="remTimeInput" value="21:00">
     <div class="rem-dow-lbl">Nhắc vào các ngày trong tuần</div>
     <div class="rem-days" id="remDays"></div>
-    <div class="rem-hint">💡 Giờ nhắc riêng cho thói quen này. Thói quen chưa tick đúng giờ sẽ nhận thông báo ngay.</div>
+    <div class="rem-hint">💡 Thông báo sẽ bật đúng giờ bạn chọn nếu thói quen chưa được tick hôm đó.<br>⚠️ Cần bật thông báo trong Cài đặt → Nhắc nhở trước.</div>
     <div class="rem-btns">
       <button class="mcancel" onclick="closeReminderModal()" style="flex:1">Hủy</button>
-      <button class="rem-clear" onclick="clearReminderModal()">🗑 Xóa nhắc</button>
+      <button class="rem-clear" onclick="clearReminderModal()">🗑 Xóa</button>
       <button class="msave" style="flex:2" onclick="saveReminderModal()">💾 Lưu</button>
     </div>
   </div>
@@ -985,42 +984,59 @@ window.saveNTime=()=>{
 
 // ── ONESIGNAL NOTIF ──
 window.toggleNotif=async()=>{
-  try{
-    if(typeof OneSignalDeferred==='undefined'){alert(tt('alerts').oneSignal);return;}
-    const sub=await new Promise(r=>OneSignalDeferred.push(async o=>r(await o.User.PushSubscription.optedIn)));
-    await new Promise(r=>OneSignalDeferred.push(async o=>{sub?await o.User.PushSubscription.optOut():await o.User.PushSubscription.optIn();r();}));
-    stats.notif=!sub;
-    document.getElementById('notifTog').classList.toggle('on',stats.notif);
-    document.getElementById('notifBtn').textContent=stats.notif?tt('notifOff'):tt('notifOn');
+  // Luôn dùng native Notification API (không phụ thuộc OneSignal)
+  if(!('Notification' in window)){alert(tt('alerts').notifUnsupported);return;}
+  if(stats.notif){
+    // Tắt nhắc nhở
+    stats.notif=false;
+    document.getElementById('notifTog').classList.remove('on');
+    document.getElementById('notifBtn').textContent=tt('notifOn');
     saveData();
-  }catch(e){
-    // Fallback: native browser notification
-    if(!('Notification' in window)){alert(tt('alerts').notifUnsupported);return;}
-    const p=await Notification.requestPermission();
-    if(p==='granted'){stats.notif=!stats.notif;document.getElementById('notifTog').classList.toggle('on',stats.notif);saveData();}
+    return;
+  }
+  // Bật nhắc nhở — xin quyền nếu chưa có
+  let perm=Notification.permission;
+  if(perm==='default') perm=await Notification.requestPermission();
+  if(perm==='granted'){
+    stats.notif=true;
+    document.getElementById('notifTog').classList.add('on');
+    document.getElementById('notifBtn').textContent=tt('notifOff');
+    saveData();
+    // Test ngay để người dùng biết đã bật thành công
+    new Notification('🌻 '+tt('app'),{body:'✅ Nhắc nhở đã được bật! Bạn sẽ nhận thông báo đúng giờ.',icon:'./icons/icon-192.png',tag:'test-notif'});
+  } else {
+    alert('❌ Trình duyệt đang chặn thông báo!\n\nVào Settings → Site Settings → Notifications → Cho phép trang này gửi thông báo.');
   }
 };
 function startNotifCheck(){
+  let lastChecked='';
+  // Dùng vòng lặp 10 giây thay vì 60 giây để không bỏ sót phút đúng giờ
   setInterval(()=>{
-    if(!stats.notif||!('Notification' in window)||Notification.permission!=='granted')return;
-    const now=new Date(),hm=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`,t=today();
-    const due=habits.filter(hb=>{
-      if(hb.done?.[t]||hb.vacation?.[t])return false;
-      if(!isSchd(hb,{dow:now.getDay()}))return false;
-      const hbTime=hb.reminderTime||stats.ntime||'21:00';
-      if(hbTime!==hm)return false;
-      const rdow=Array.isArray(hb.reminderDow)?hb.reminderDow:[0,1,2,3,4,5,6];
-      return rdow.includes(now.getDay());
-    });
+    if(!('Notification' in window)||Notification.permission!=='granted')return;
+    const now=new Date();
+    const hm=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    const t=today();
     const key=t+'-'+hm;
-    if(due.length>0&&notifSent[key]!==due.map(hb=>hb.id).join(',')){
-      notifSent[key]=due.map(hb=>hb.id).join(',');
-      const title=due.length===1?`${due[0].emoji||'🌻'} ${due[0].name}`:'🌻 '+tt('app');
-      const body=due.length===1?tt('habitNotifBody',due[0].name):tt('habitNotifGroup',due.length);
-      new Notification(title,{body,icon:'./icons/icon-192.png',tag:'habit-'+key});
-    }
-    Object.keys(notifSent).filter(k=>!k.startsWith(t)).forEach(k=>delete notifSent[k]);
-  },60000);
+    // Tránh bắn nhiều lần trong cùng 1 phút
+    if(lastChecked===key)return;
+    lastChecked=key;
+
+    habits.forEach(hb=>{
+      if(hb.done?.[t]||hb.vacation?.[t])return;
+      if(!isSchd(hb,{dow:now.getDay()}))return;
+      const hbTime=hb.reminderTime||stats.ntime||'21:00';
+      if(hbTime!==hm)return;
+      // Kiểm tra ngày trong tuần nếu có cài
+      const rdow=Array.isArray(hb.reminderDow)?hb.reminderDow:[0,1,2,3,4,5,6];
+      if(!rdow.includes(now.getDay()))return;
+      // Bắn thông báo riêng cho từng habit
+      new Notification(`${hb.emoji||'🌻'} ${hb.name}`,{
+        body:tt('habitNotifBody',hb.name),
+        icon:'./icons/icon-192.png',
+        tag:'habit-'+hb.id+'-'+key
+      });
+    });
+  },10000); // 10 giây/lần thay vì 60 giây
 }
 
 // ── EXPORT / IMPORT ──
@@ -1250,7 +1266,7 @@ function render(){
       const missed2=!h.done?.[d.key]&&!h.vacation?.[d.key]&&!d.isToday;
       return`<div class="pdot${d.isToday?' tod2':''}${h.done?.[d.key]?' done':''}${missed2?' missed':''}" onclick="toggleDay('${h.id}','${d.key}')"></div>`;
     }).join('');
-    const tags=[h.cat?`<span class="tp tcat">${catLabel(h.cat)}</span>`:'',h.freq&&h.freq!=='daily'?`<span class="tp tfrq">${h.freq==='weekly'?h.weeklyN+'x/'+(lang==='en'?'week':'tuần'):tt('custom')}</span>`:'',`<span class="tp trem" onclick="openReminderModal('${h.id}')" title="Đặt giờ nhắc riêng">⏰ ${h.reminderTime||stats.ntime||'21:00'}</span>`,h.goal>0?`<span class="tp tgl">🎯 ${h.goal} ${h.goalUnit||''}</span>`:'',onV?`<span class="tp tvac">${tt('vacation')}</span>`:''].filter(Boolean).join('');
+    const tags=[h.cat?`<span class="tp tcat">${catLabel(h.cat)}</span>`:'',h.freq&&h.freq!=='daily'?`<span class="tp tfrq">${h.freq==='weekly'?h.weeklyN+'x/'+(lang==='en'?'week':'tuần'):tt('custom')}</span>`:'',`<span class="tp trem" onclick="openReminderModal('${h.id}')" title="Bấm để đặt giờ nhắc riêng">⏰ ${h.reminderTime||stats.ntime||'21:00'}</span>`,h.goal>0?`<span class="tp tgl">🎯 ${h.goal} ${h.goalUnit||''}</span>`:'',onV?`<span class="tp tvac">${tt('vacation')}</span>`:''].filter(Boolean).join('');
     const moodRow=`<div class="mlbl">${tt('moodRow')}</div><div class="mrow">${MOODS.map(m=>`<div class="mbtn${mood===m?' on':''}" onclick="pickMoodD('${h.id}','${t}','${m}')">${m}</div>`).join('')}</div>`;
     return`<div class="hcard">
       <div class="hstrip"></div>
@@ -1307,19 +1323,20 @@ window.openReminderModal=id=>{
 };
 window.closeReminderModal=()=>{document.getElementById('reminderModal').classList.remove('on');_remId=null;};
 window.clearReminderModal=()=>{
-  if(!_remId)return;
   const h=habits.find(x=>x.id==_remId);if(!h)return;
   h.reminderTime='';h.reminderDow=[0,1,2,3,4,5,6];
   saveData();render();closeReminderModal();
 };
 window.saveReminderModal=()=>{
-  if(!_remId)return;
   const h=habits.find(x=>x.id==_remId);if(!h)return;
   h.reminderTime=document.getElementById('remTimeInput').value||stats.ntime||'21:00';
   const sel=[...document.querySelectorAll('#remDays .rday.on')].map(el=>+el.dataset.d);
   h.reminderDow=sel.length>0?sel:[0,1,2,3,4,5,6];
   saveData();render();closeReminderModal();
-  if(Notification.permission==='default')Notification.requestPermission();
+  // Nhắc bật permission nếu chưa có
+  if(Notification.permission!=='granted'){
+    alert('⚠️ Hãy bật thông báo trong Cài đặt → Nhắc nhở để nhận thông báo!');
+  }
 };
 
 // INIT
