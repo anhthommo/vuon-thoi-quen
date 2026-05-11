@@ -1,6 +1,6 @@
 {
-  "name": "Vườn Thói Quen 🌻",
-  "short_name": "Vườn Hoa",
+  "name": "Vườn Thói Quen",
+  "short_name": "Vườn Thói Quen",
   "description": "Theo dõi thói quen hàng ngày — đồng bộ mọi thiết bị qua tài khoản",
   "start_url": "./index.html",
   "display": "standalone",
@@ -17,7 +17,7 @@
   ],
   "shortcuts": [
     {
-      "name": "Mở vườn hoa",
+      "name": "Mở vườn thói quen",
       "url": "./index.html",
       "icons": [{"src":"icons/icon-96.png","sizes":"96x96"}]
     }
