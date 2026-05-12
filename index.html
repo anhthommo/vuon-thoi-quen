@@ -11,19 +11,7 @@
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <title>Habit Garden 🌻</title>
 
-<!-- OneSignal Push Notification -->
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "YOUR_ONESIGNAL_APP_ID",  // ← THAY THẾ
-      serviceWorkerParam: { scope: "/" },
-      notifyButton: { enable: false },
-      allowLocalhostAsSecureOrigin: true,
-    });
-  });
-</script>
+<!-- Notification: dùng native Browser Notification API -->
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -260,7 +248,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .empty-ico{font-size:55px;animation:bob 3s ease-in-out infinite;margin-bottom:12px}
 .empty-txt{font-size:17px;font-weight:900;color:#9a7a00}
 .empty-sub{font-size:12px;color:#c47a00;margin-top:5px;font-weight:600}
-
 /* ── SMART REMINDER MODAL ── */
 .rem-overlay{display:none;position:fixed;inset:0;background:rgba(28,18,0,.6);z-index:110;align-items:center;justify-content:center;backdrop-filter:blur(5px);padding:14px}
 .rem-overlay.on{display:flex}
@@ -276,7 +263,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .rem-hint{font-size:11px;color:#9a7a00;margin-top:12px;line-height:1.6;background:#fffde7;border-radius:9px;padding:8px 11px;border-left:3px solid #f4a100}
 .rem-btns{display:flex;gap:8px;margin-top:16px}
 .rem-clear{flex:1;padding:11px;border-radius:10px;border:1.5px solid #ffcdd2;background:#fff5f5;font-family:inherit;font-size:12px;font-weight:700;color:#c62828;cursor:pointer}
-.tp.trem{cursor:pointer;transition:all .2s}
+.tp.trem{cursor:pointer;transition:all .15s}
 .tp.trem:hover{background:#fff3b0;border-color:#f4a100;color:#c47a00}
 html.dark .rem-box{background:#182235}
 html.dark .rem-time{background:#0f172a;border-color:#334155;color:#f8fafc}
@@ -491,7 +478,7 @@ html.dark .overlay{background:rgba(2,6,23,.76)}
 
     <!-- NOTIFICATION -->
     <div class="scard">
-      <div class="scard-title">🔔 Nhắc nhở (OneSignal)</div>
+      <div class="scard-title">🔔 Nhắc nhở thông minh</div>
       <div class="scrow">
         <div><div class="slbl">Bật thông báo</div><div class="ssub">Nhắc kể cả khi đóng app, hỗ trợ iOS</div></div>
         <div class="toggle" id="notifTog" onclick="toggleNotif()"></div>
@@ -556,12 +543,12 @@ html.dark .overlay{background:rgba(2,6,23,.76)}
 <div class="rem-overlay" id="reminderModal">
   <div class="rem-box">
     <div class="rem-head">⏰ Nhắc nhở thông minh</div>
-    <div class="rem-sub" id="remHabitName">Đặt giờ nhắc riêng cho thói quen này</div>
+    <div class="rem-sub" id="remHabitName">Đặt giờ nhắc riêng</div>
     <label style="font-size:11px;font-weight:800;color:#7a5a00;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px">Nhắc lúc mấy giờ?</label>
     <input type="time" class="rem-time" id="remTimeInput" value="21:00">
     <div class="rem-dow-lbl">Nhắc vào các ngày trong tuần</div>
     <div class="rem-days" id="remDays"></div>
-    <div class="rem-hint">💡 Thông báo sẽ bật đúng giờ bạn chọn nếu thói quen chưa được tick hôm đó.<br>⚠️ Cần bật thông báo trong Cài đặt → Nhắc nhở trước.</div>
+    <div class="rem-hint">💡 Thông báo hiện đúng giờ nếu thói quen chưa tick.<br>⚠️ Phải bật thông báo ở Cài đặt → Nhắc nhở trước.</div>
     <div class="rem-btns">
       <button class="mcancel" onclick="closeReminderModal()" style="flex:1">Hủy</button>
       <button class="rem-clear" onclick="clearReminderModal()">🗑 Xóa</button>
@@ -982,19 +969,18 @@ window.saveNTime=()=>{
   saveData();
 };
 
-// ── ONESIGNAL NOTIF ──
+// ── NATIVE NOTIFICATION ──
 window.toggleNotif=async()=>{
-  // Luôn dùng native Notification API (không phụ thuộc OneSignal)
-  if(!('Notification' in window)){alert(tt('alerts').notifUnsupported);return;}
+  if(!('Notification' in window)){alert('Trình duyệt này không hỗ trợ thông báo.');return;}
   if(stats.notif){
-    // Tắt nhắc nhở
+    // Tắt
     stats.notif=false;
     document.getElementById('notifTog').classList.remove('on');
     document.getElementById('notifBtn').textContent=tt('notifOn');
     saveData();
     return;
   }
-  // Bật nhắc nhở — xin quyền nếu chưa có
+  // Bật — xin quyền
   let perm=Notification.permission;
   if(perm==='default') perm=await Notification.requestPermission();
   if(perm==='granted'){
@@ -1002,41 +988,38 @@ window.toggleNotif=async()=>{
     document.getElementById('notifTog').classList.add('on');
     document.getElementById('notifBtn').textContent=tt('notifOff');
     saveData();
-    // Test ngay để người dùng biết đã bật thành công
-    new Notification('🌻 '+tt('app'),{body:'✅ Nhắc nhở đã được bật! Bạn sẽ nhận thông báo đúng giờ.',icon:'./icons/icon-192.png',tag:'test-notif'});
+    // Thông báo test ngay để người dùng biết đã hoạt động
+    setTimeout(()=>{
+      new Notification('🌻 Thông báo đã bật!',{body:'Bạn sẽ được nhắc đúng giờ cho từng thói quen 💪',icon:'./icons/icon-192.png',tag:'notif-test'});
+    },500);
   } else {
-    alert('❌ Trình duyệt đang chặn thông báo!\n\nVào Settings → Site Settings → Notifications → Cho phép trang này gửi thông báo.');
+    alert('❌ Trình duyệt đang chặn thông báo!\n\nCách bật:\n• Chrome: bấm 🔒 trên thanh địa chỉ → Thông báo → Cho phép\n• Safari iOS: Cài đặt → Safari → Thông báo → Cho phép trang này');
   }
 };
 function startNotifCheck(){
   let lastChecked='';
-  // Dùng vòng lặp 10 giây thay vì 60 giây để không bỏ sót phút đúng giờ
   setInterval(()=>{
     if(!('Notification' in window)||Notification.permission!=='granted')return;
     const now=new Date();
     const hm=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
     const t=today();
     const key=t+'-'+hm;
-    // Tránh bắn nhiều lần trong cùng 1 phút
-    if(lastChecked===key)return;
+    if(lastChecked===key)return; // đã xử lý phút này rồi
     lastChecked=key;
-
     habits.forEach(hb=>{
       if(hb.done?.[t]||hb.vacation?.[t])return;
       if(!isSchd(hb,{dow:now.getDay()}))return;
       const hbTime=hb.reminderTime||stats.ntime||'21:00';
       if(hbTime!==hm)return;
-      // Kiểm tra ngày trong tuần nếu có cài
       const rdow=Array.isArray(hb.reminderDow)?hb.reminderDow:[0,1,2,3,4,5,6];
       if(!rdow.includes(now.getDay()))return;
-      // Bắn thông báo riêng cho từng habit
       new Notification(`${hb.emoji||'🌻'} ${hb.name}`,{
-        body:tt('habitNotifBody',hb.name),
+        body:`Đến giờ rồi! Tick ngay để giữ streak nhé 💪`,
         icon:'./icons/icon-192.png',
         tag:'habit-'+hb.id+'-'+key
       });
     });
-  },10000); // 10 giây/lần thay vì 60 giây
+  },10000); // kiểm tra mỗi 10 giây, tránh bỏ sót phút đúng giờ
 }
 
 // ── EXPORT / IMPORT ──
@@ -1333,9 +1316,8 @@ window.saveReminderModal=()=>{
   const sel=[...document.querySelectorAll('#remDays .rday.on')].map(el=>+el.dataset.d);
   h.reminderDow=sel.length>0?sel:[0,1,2,3,4,5,6];
   saveData();render();closeReminderModal();
-  // Nhắc bật permission nếu chưa có
   if(Notification.permission!=='granted'){
-    alert('⚠️ Hãy bật thông báo trong Cài đặt → Nhắc nhở để nhận thông báo!');
+    alert('⚠️ Chưa bật quyền thông báo!\nVào Cài đặt → Nhắc nhở → bật thông báo trước nhé.');
   }
 };
 
