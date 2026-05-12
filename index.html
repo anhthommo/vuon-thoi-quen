@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <title>Habit Garden 🌻</title>
 
-<!-- Dùng native Browser Notification API -->
+<!-- Notification: dùng native Browser Notification API -->
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -254,11 +254,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .rem-box{background:#fff;border-radius:22px;padding:22px;width:100%;max-width:370px;box-shadow:0 24px 80px rgba(28,18,0,.3);animation:pin .3s cubic-bezier(.34,1.56,.64,1)}
 .rem-head{font-size:16px;font-weight:900;color:#c47a00;margin-bottom:3px}
 .rem-sub{font-size:12px;color:#7a5a00;margin-bottom:16px;font-weight:600}
-.rem-time{width:100%;padding:13px;border:2px solid #f0d060;border-radius:14px;font-family:inherit;font-size:26px;font-weight:900;color:#2c1a00;background:#fffbf0;outline:none;text-align:center;transition:border-color .2s}
+.rem-time{width:100%;padding:13px;border:2px solid #f0d060;border-radius:14px;font-family:inherit;font-size:26px;font-weight:900;color:#2c1a00;background:#fffbf0;outline:none;text-align:center;transition:border-color .2s,box-shadow .2s}
 .rem-time:focus{border-color:#f4a100;box-shadow:0 0 0 3px rgba(244,161,0,.15)}
 .rem-dow-lbl{font-size:11px;font-weight:800;color:#7a5a00;text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px}
 .rem-days{display:flex;gap:6px;flex-wrap:wrap}
-.rday{min-width:38px;height:38px;border-radius:50%;border:1.5px solid #f0d060;background:#fffbf0;font-size:10px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#7a5a00;transition:all .15s;user-select:none}
+.rday{min-width:38px;height:38px;padding:0 5px;border-radius:50%;border:1.5px solid #f0d060;background:#fffbf0;font-size:10px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#7a5a00;transition:all .15s;user-select:none}
 .rday.on{background:#fff3b0;border-color:#f4a100;color:#c47a00;box-shadow:0 0 0 2px rgba(244,161,0,.2)}
 .rem-hint{font-size:11px;color:#9a7a00;margin-top:12px;line-height:1.6;background:#fffde7;border-radius:9px;padding:8px 11px;border-left:3px solid #f4a100}
 .rem-btns{display:flex;gap:8px;margin-top:16px}
@@ -546,9 +546,9 @@ html.dark .overlay{background:rgba(2,6,23,.76)}
     <div class="rem-sub" id="remHabitName">Đặt giờ nhắc riêng</div>
     <label style="font-size:11px;font-weight:800;color:#7a5a00;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px">Nhắc lúc mấy giờ?</label>
     <input type="time" class="rem-time" id="remTimeInput" value="21:00">
-    <div class="rem-dow-lbl">Nhắc vào các ngày</div>
+    <div class="rem-dow-lbl">Nhắc vào các ngày trong tuần</div>
     <div class="rem-days" id="remDays"></div>
-    <div class="rem-hint">💡 Thông báo hiện đúng giờ nếu thói quen chưa tick hôm đó.</div>
+    <div class="rem-hint">💡 Thông báo hiện đúng giờ nếu thói quen chưa tick.<br>⚠️ Phải bật thông báo ở Cài đặt → Nhắc nhở trước.</div>
     <div class="rem-btns">
       <button class="mcancel" onclick="closeReminderModal()" style="flex:1">Hủy</button>
       <button class="rem-clear" onclick="clearReminderModal()">🗑 Xóa</button>
@@ -971,15 +971,16 @@ window.saveNTime=()=>{
 
 // ── NATIVE NOTIFICATION ──
 window.toggleNotif=async()=>{
-  if(!('Notification' in window)){
-    alert('Trình duyệt này không hỗ trợ thông báo.');return;
-  }
+  if(!('Notification' in window)){alert('Trình duyệt này không hỗ trợ thông báo.');return;}
   if(stats.notif){
+    // Tắt
     stats.notif=false;
     document.getElementById('notifTog').classList.remove('on');
     document.getElementById('notifBtn').textContent=tt('notifOn');
-    saveData();return;
+    saveData();
+    return;
   }
+  // Bật — xin quyền
   let perm=Notification.permission;
   if(perm==='default') perm=await Notification.requestPermission();
   if(perm==='granted'){
@@ -987,14 +988,12 @@ window.toggleNotif=async()=>{
     document.getElementById('notifTog').classList.add('on');
     document.getElementById('notifBtn').textContent=tt('notifOff');
     saveData();
+    // Thông báo test ngay để người dùng biết đã hoạt động
     setTimeout(()=>{
-      new Notification('🌻 Thông báo đã bật!',{
-        body:'Bạn sẽ được nhắc đúng giờ cho từng thói quen 💪',
-        icon:'./icons/icon-192.png',tag:'notif-test'
-      });
-    },300);
+      new Notification('🌻 Thông báo đã bật!',{body:'Bạn sẽ được nhắc đúng giờ cho từng thói quen 💪',icon:'./icons/icon-192.png',tag:'notif-test'});
+    },500);
   } else {
-    alert('❌ Trình duyệt đang chặn thông báo!\n\nCách bật:\n• Chrome/Edge: Bấm 🔒 trên thanh địa chỉ → Thông báo → Cho phép\n• Firefox: Bấm 🔒 → Quyền → Thông báo → Cho phép\n• Safari iOS: Không hỗ trợ — cần cài app (PWA)');
+    alert('❌ Trình duyệt đang chặn thông báo!\n\nCách bật:\n• Chrome: bấm 🔒 trên thanh địa chỉ → Thông báo → Cho phép\n• Safari iOS: Cài đặt → Safari → Thông báo → Cho phép trang này');
   }
 };
 function startNotifCheck(){
@@ -1003,8 +1002,9 @@ function startNotifCheck(){
     if(!('Notification' in window)||Notification.permission!=='granted')return;
     const now=new Date();
     const hm=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-    const t=today(), key=t+'-'+hm;
-    if(lastChecked===key)return;
+    const t=today();
+    const key=t+'-'+hm;
+    if(lastChecked===key)return; // đã xử lý phút này rồi
     lastChecked=key;
     habits.forEach(hb=>{
       if(hb.done?.[t]||hb.vacation?.[t])return;
@@ -1014,12 +1014,12 @@ function startNotifCheck(){
       const rdow=Array.isArray(hb.reminderDow)?hb.reminderDow:[0,1,2,3,4,5,6];
       if(!rdow.includes(now.getDay()))return;
       new Notification(`${hb.emoji||'🌻'} ${hb.name}`,{
-        body:'Đến giờ rồi! Tick ngay để giữ streak nhé 💪',
+        body:`Đến giờ rồi! Tick ngay để giữ streak nhé 💪`,
         icon:'./icons/icon-192.png',
         tag:'habit-'+hb.id+'-'+key
       });
     });
-  },10000);
+  },10000); // kiểm tra mỗi 10 giây, tránh bỏ sót phút đúng giờ
 }
 
 // ── EXPORT / IMPORT ──
@@ -1316,8 +1316,9 @@ window.saveReminderModal=()=>{
   const sel=[...document.querySelectorAll('#remDays .rday.on')].map(el=>+el.dataset.d);
   h.reminderDow=sel.length>0?sel:[0,1,2,3,4,5,6];
   saveData();render();closeReminderModal();
-  if(Notification.permission!=='granted')
-    alert('⚠️ Chưa bật quyền thông báo!\nVào Cài đặt → Nhắc nhở → bật thông báo trước.');
+  if(Notification.permission!=='granted'){
+    alert('⚠️ Chưa bật quyền thông báo!\nVào Cài đặt → Nhắc nhở → bật thông báo trước nhé.');
+  }
 };
 
 // INIT
