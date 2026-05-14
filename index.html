@@ -112,10 +112,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .hcard{background:#fff;border-radius:18px;border:1px solid #f0d060;margin-bottom:14px;box-shadow:0 4px 20px rgba(196,122,0,.1);overflow:hidden}
 .hstrip{height:4px;background:linear-gradient(90deg,#2d5a1b,#f4a100,#ffe066)}
 .htop{padding:12px 12px 0;display:flex;align-items:flex-start;gap:10px}
-.hemo{width:44px;height:44px;border-radius:12px;background:#fffbf0;border:1.5px solid #f0d060;display:flex;align-items:center;justify-content:center;font-size:23px;flex-shrink:0}
+.hemo{width:44px;height:44px;border-radius:12px;background:#fffbf0;border:1.5px solid #f0d060;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;line-height:1}
 .hmeta{flex:1;min-width:0}
-.hname{font-size:16px;font-weight:900;color:#1a1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hdesc{font-size:12px;color:#7a5a00;margin-top:1px}
+.hname{font-size:15px;font-weight:900;color:#1a1000;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.3}
+.hdesc{font-size:12px;color:#7a5a00;margin-top:1px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4}
 .htags{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
 .tp{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
 .tcat{background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7}
@@ -214,9 +214,6 @@ html.dark .rescue-item{background:#2a2000;border-color:#4a3800;color:#ffe082}
 html.dark .rescue-item:hover{background:#3a2e00}
 html.dark .rescue-quota{background:#2a2000;border-color:#4a3800;color:#fbbf24}
 
-.drag-handle{cursor:grab;font-size:18px;color:#c9a96e;padding:4px 6px;touch-action:none;user-select:none;flex-shrink:0;line-height:1;align-self:center}
-.drag-handle:active{cursor:grabbing}
-.hcard.drag-over{outline:2px dashed #f4a100;background:#fffde7}
 
 /* BADGES */
 .bggrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
@@ -380,13 +377,7 @@ html.dark .lib-edit-sub{color:#94a3b8}
 /* ── DRAG & DROP ── */
 .hcard{transition:box-shadow .2s,opacity .2s,transform .2s}
 .hcard.dragging{opacity:.45;transform:scale(.97);box-shadow:0 8px 32px rgba(196,122,0,.35)!important}
-.hcard.drag-over{box-shadow:0 0 0 2.5px #f4a100,0 8px 32px rgba(196,122,0,.2)!important;transform:translateY(-2px)}
-.drag-handle{cursor:grab;font-size:20px;color:#c8b07a;padding:8px 6px;user-select:none;touch-action:none;line-height:1;flex-shrink:0;border-radius:8px;transition:background .15s}
-.drag-handle:hover{background:rgba(244,161,0,.12);color:#f4a100}
-.drag-handle:active{cursor:grabbing;background:rgba(244,161,0,.2)}
-html.dark .drag-handle{color:#475569}
-html.dark .drag-handle:hover{background:rgba(244,161,0,.15);color:#f4a100}
-
+html.dark html.dark 
 /* ── DARK MODE ── */
 html.dark{color-scheme:dark}
 html.dark body{background:#111827;color:#f8fafc}
@@ -930,7 +921,8 @@ const I18N={
     libEditTitle:'✏️ Xem lại trước khi thêm',libEditSub:'Bạn có thể chỉnh sửa trước khi lưu vào vườn',libConfirm:'🌻 Thêm vào vườn!',
     libCatAll:'🌿 Tất cả',libCatHealth:'💪 Sức khỏe',libCatStudy:'📚 Học tập',libCatMind:'🧘 Tinh thần',libCatFinance:'💰 Tài chính',libCatProd:'⚡ Năng suất',libCatRelation:'🤝 Quan hệ',
     iconMore:'▾ Xem thêm icon',iconLess:'▴ Thu gọn',
-    libToast:n=>`✅ Đã thêm "${n}" vào vườn!`
+    libToast:n=>`✅ Đã thêm "${n}" vào vườn!`,
+    dragTip:'Kéo để sắp xếp'
   },
   en:{
     app:'Habit Garden',loading:'Loading your habit garden...',tagline:'Sign in once — your data follows you<br>across every device ✨',
@@ -964,7 +956,8 @@ const I18N={
     libEditTitle:'✏️ Review before adding',libEditSub:'You can edit before saving to your garden',libConfirm:'🌻 Add to garden!',
     libCatAll:'🌿 All',libCatHealth:'💪 Health',libCatStudy:'📚 Learning',libCatMind:'🧘 Mindfulness',libCatFinance:'💰 Finance',libCatProd:'⚡ Productivity',libCatRelation:'🤝 Relationships',
     iconMore:'▾ More icons',iconLess:'▴ Collapse',
-    libToast:n=>`✅ "${n}" added to your garden!`
+    libToast:n=>`✅ "${n}" added to your garden!`,
+    dragTip:'Drag to reorder'
   }
 };
 
@@ -1580,7 +1573,6 @@ function render(){
       <div class="hstrip"></div>
       ${onV?`<div class="vacbanner">${tt('vacToday')}</div>`:''}
       <div class="htop">
-        <div class="drag-handle" title="Kéo để sắp xếp">⠿</div>
         <div class="hemo">${h.emoji}</div>
         <div class="hmeta">
           <div class="hname">${h.name}</div>
@@ -1589,7 +1581,7 @@ function render(){
           <div class="hstreak">${tt('streak',s)}</div>
         </div>
         <div class="hacts">
-          <button class="ibtn vac${onV?' on':''}" onclick="togVac('${h.id}')" title="Nghỉ phép">🏖</button>
+          <button class="ibtn vac${onV?' on':''}" onclick="togVac('${h.id}')" title="${tt('vacation')}">🏖</button>
           <button class="ibtn" onclick="openEdit('${h.id}')">✏️</button>
           <button class="ibtn del" onclick="delHabit('${h.id}')">🗑</button>
         </div>
@@ -1603,7 +1595,6 @@ function render(){
       ${rwBlock(h,s)}
     </div>`;
   }).join('');
-  initDnD();
   updateRescueBar();
   updateBulkVacBtn();
 }
@@ -2099,103 +2090,6 @@ function renderLibList() {
   }).join('');
 }
 
-// ── DRAG & DROP (Pointer Events) ──
-let _dnd={active:false,id:null,srcEl:null,ghost:null,srcIdx:-1,lastOver:null};
-
-function initDnD(){
-  const list=document.getElementById('hlist');
-
-  list.querySelectorAll('.drag-handle').forEach(handle=>{
-    handle.addEventListener('pointerdown',startDrag,{passive:false});
-  });
-}
-
-function startDrag(e){
-  e.preventDefault();
-  const card=e.currentTarget.closest('.hcard');
-  if(!card)return;
-  const id=card.dataset.id;
-  const list=document.getElementById('hlist');
-  const rect=card.getBoundingClientRect();
-
-  // Ghost (visual clone following pointer)
-  const ghost=card.cloneNode(true);
-  ghost.style.cssText=`
-    position:fixed;left:${rect.left}px;top:${rect.top}px;
-    width:${rect.width}px;z-index:9999;
-    opacity:.82;pointer-events:none;
-    transform:scale(1.02) rotate(0.8deg);
-    box-shadow:0 16px 48px rgba(0,0,0,.28);
-    border-radius:18px;transition:none;
-    border:2px solid #f4a100;
-  `;
-  document.body.appendChild(ghost);
-
-  card.style.opacity='0.3';
-  card.style.transition='none';
-
-  _dnd={active:true,id,srcEl:card,ghost,
-    srcIdx:habits.findIndex(h=>h.id===id),
-    offsetY:e.clientY-rect.top,
-    offsetX:e.clientX-rect.left,
-    lastOver:null};
-
-  document.addEventListener('pointermove',onDrag,{passive:false});
-  document.addEventListener('pointerup',endDrag);
-  document.addEventListener('pointercancel',endDrag);
-}
-
-function onDrag(e){
-  if(!_dnd.active)return;
-  e.preventDefault();
-
-  // Move ghost
-  _dnd.ghost.style.top=(e.clientY-_dnd.offsetY)+'px';
-  _dnd.ghost.style.left=(e.clientX-_dnd.offsetX)+'px';
-
-  // Find card under pointer (hide ghost temporarily)
-  _dnd.ghost.style.display='none';
-  const under=document.elementFromPoint(e.clientX,e.clientY);
-  _dnd.ghost.style.display='';
-  const overCard=under?.closest('.hcard[data-id]');
-
-  // Highlight drop target
-  document.querySelectorAll('.hcard.drag-over').forEach(c=>c.classList.remove('drag-over'));
-  if(overCard&&overCard!==_dnd.srcEl){
-    overCard.classList.add('drag-over');
-    _dnd.lastOver=overCard;
-  }else{
-    _dnd.lastOver=null;
-  }
-}
-
-function endDrag(){
-  if(!_dnd.active)return;
-  document.removeEventListener('pointermove',onDrag);
-  document.removeEventListener('pointerup',endDrag);
-  document.removeEventListener('pointercancel',endDrag);
-
-  // Remove ghost & restore card
-  _dnd.ghost?.remove();
-  if(_dnd.srcEl){_dnd.srcEl.style.opacity='';_dnd.srcEl.style.transition='';}
-  document.querySelectorAll('.hcard.drag-over').forEach(c=>c.classList.remove('drag-over'));
-
-  // Reorder if valid drop
-  if(_dnd.lastOver){
-    const toId=_dnd.lastOver.dataset.id;
-    const fromIdx=habits.findIndex(h=>h.id===_dnd.id);
-    const toIdx=habits.findIndex(h=>h.id===toId);
-    if(fromIdx>=0&&toIdx>=0&&fromIdx!==toIdx){
-      const [moved]=habits.splice(fromIdx,1);
-      habits.splice(toIdx,0,moved);
-      saveData();
-      _dnd={active:false,id:null,srcEl:null,ghost:null,srcIdx:-1,lastOver:null};
-      render();
-      return;
-    }
-  }
-  _dnd={active:false,id:null,srcEl:null,ghost:null,srcIdx:-1,lastOver:null};
-}
 
 window.openLibEdit = idx => {
   const h = getLibrary()[idx];
