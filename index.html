@@ -213,27 +213,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .sec-title{font-size:13px;font-weight:900;color:#7a5a00;margin:15px 0 9px;border-left:3px solid #f4a100;padding-left:9px}
 .subbtn{width:100%;padding:13px;background:linear-gradient(135deg,#2d5a1b,#f4a100);color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 4px 16px rgba(196,122,0,.3);transition:transform .15s}
 .subbtn:active{transform:scale(.97)}
-.preset-card{background:#fff;border-radius:18px;border:1px solid #f0d060;padding:16px;box-shadow:0 4px 20px rgba(196,122,0,.08);margin-bottom:14px}
-.preset-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
-.preset-title{font-size:17px;font-weight:900;color:#c47a00}
-.preset-sub{font-size:12px;color:#7a5a00;font-weight:600;margin-top:2px}
-.preset-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px;scrollbar-width:none}
-.preset-tabs::-webkit-scrollbar{display:none}
-.preset-tab{flex:0 0 auto;border:1.5px solid #f0d060;background:#fffbf0;color:#7a5a00;border-radius:20px;padding:7px 12px;font-family:inherit;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap}
-.preset-tab.on{background:#fff3b0;border-color:#f4a100;color:#c47a00}
-.preset-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
-.preset-item{border:1px solid #f0d060;background:#fffbf0;border-radius:12px;padding:11px;display:flex;flex-direction:column;gap:7px;min-height:158px}
-.preset-top{display:flex;align-items:flex-start;gap:9px}
-.preset-ico{width:36px;height:36px;border-radius:10px;background:#fff;border:1px solid #f0d060;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.preset-name{font-size:14px;font-weight:900;color:#1a1000;line-height:1.25}
-.preset-desc{font-size:12px;color:#7a5a00;line-height:1.45}
-.preset-meta{display:flex;flex-wrap:wrap;gap:4px;margin-top:auto}
-.preset-add{width:100%;padding:9px 10px;border:none;border-radius:10px;background:linear-gradient(135deg,#2d5a1b,#f4a100);color:#fff;font-family:inherit;font-size:12px;font-weight:900;cursor:pointer}
-.preset-preview{background:#fffbf0;border:1px solid #f0d060;border-radius:12px;padding:10px;margin-bottom:12px}
-.preset-preview-title{font-size:12px;font-weight:900;color:#c47a00;margin-bottom:6px}
-.preset-preview-row{display:flex;flex-wrap:wrap;gap:5px}
-.field select{width:100%;padding:10px 13px;border:1.5px solid #f0d060;border-radius:11px;font-family:inherit;font-size:14px;font-weight:700;color:#1a1000;background:#fffbf0;outline:none}
-.field select:focus{border-color:#f4a100;box-shadow:0 0 0 3px rgba(244,161,0,.12)}
 
 /* DIARY */
 .dcard{background:#fff;border-radius:16px;border:1px solid #f0d060;padding:16px;margin-bottom:12px;box-shadow:0 3px 14px rgba(196,122,0,.07)}
@@ -293,12 +272,60 @@ html.dark .rday.on{background:#2b3a20;border-color:#f4a100;color:#ffe8a3}
 html.dark .rem-hint{background:#1f2937;border-left-color:#f4a100;color:#e2e8f0}
 html.dark .rem-clear{background:#3b1620;border-color:#7f1d1d;color:#fecaca}
 
+/* ── HABIT LIBRARY MODAL ── */
+.lib-overlay{display:none;position:fixed;inset:0;background:rgba(28,18,0,.65);z-index:120;align-items:flex-end;justify-content:center;backdrop-filter:blur(5px)}
+.lib-overlay.on{display:flex}
+.lib-sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 -12px 60px rgba(28,18,0,.25);animation:slideUp .35s cubic-bezier(.34,1.4,.64,1)}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.lib-header{padding:16px 18px 0;flex-shrink:0}
+.lib-drag{width:40px;height:4px;background:#e0d0a0;border-radius:2px;margin:0 auto 14px}
+.lib-title{font-size:18px;font-weight:900;color:#c47a00;margin-bottom:4px}
+.lib-sub{font-size:12px;color:#7a5a00;font-weight:600;margin-bottom:14px}
+.lib-cats{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none}
+.lib-cats::-webkit-scrollbar{display:none}
+.lib-cat{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:800;border:1.5px solid #f0d060;background:#fffbf0;color:#9a7a00;cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0}
+.lib-cat.on{background:linear-gradient(135deg,#2d5a1b,#f4a100);color:#fff;border-color:transparent}
+.lib-list{flex:1;overflow-y:auto;padding:4px 18px 20px}
+.lib-item{background:#fffbf0;border:1.5px solid #f0d060;border-radius:16px;padding:14px;margin-bottom:10px;cursor:pointer;transition:all .2s;position:relative}
+.lib-item:hover,.lib-item:active{border-color:#f4a100;box-shadow:0 4px 16px rgba(244,161,0,.18);transform:translateY(-1px)}
+.lib-item.added{opacity:.45;pointer-events:none}
+.lib-item-top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.lib-emoji{width:40px;height:40px;border-radius:11px;background:#fff;border:1.5px solid #f0d060;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
+.lib-name{font-size:15px;font-weight:900;color:#1a1000;flex:1}
+.lib-added-badge{font-size:10px;font-weight:800;background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.lib-desc{font-size:12px;color:#7a5a00;line-height:1.55;margin-bottom:8px}
+.lib-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.lib-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:#e3f2fd;color:#1565c0;border:1px solid #90caf9}
+.lib-add-btn{margin-left:auto;padding:6px 14px;border-radius:20px;border:none;background:linear-gradient(135deg,#2d5a1b,#f4a100);color:#fff;font-family:inherit;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;transition:transform .15s}
+.lib-add-btn:active{transform:scale(.93)}
+.lib-close-btn{width:100%;padding:14px;border:none;background:transparent;font-family:inherit;font-size:14px;font-weight:800;color:#9a7a00;cursor:pointer;flex-shrink:0;border-top:1px solid #f0e8c0}
+/* Edit before add modal */
+.lib-edit-overlay{display:none;position:fixed;inset:0;background:rgba(28,18,0,.7);z-index:130;align-items:center;justify-content:center;backdrop-filter:blur(5px);padding:14px}
+.lib-edit-overlay.on{display:flex}
+.lib-edit-box{background:#fff;border-radius:20px;padding:20px;width:100%;max-width:400px;box-shadow:0 24px 80px rgba(28,18,0,.3);max-height:88vh;overflow-y:auto;animation:pin .3s cubic-bezier(.34,1.56,.64,1)}
+.lib-edit-title{font-size:16px;font-weight:900;color:#c47a00;margin-bottom:4px}
+.lib-edit-sub{font-size:12px;color:#7a5a00;margin-bottom:16px;font-weight:600}
+html.dark .lib-sheet{background:#182235}
+html.dark .lib-cat{background:#0f172a;border-color:#334155;color:#cbd5e1}
+html.dark .lib-cat.on{background:linear-gradient(135deg,#2d5a1b,#f4a100);color:#fff}
+html.dark .lib-item{background:#0f172a;border-color:#334155}
+html.dark .lib-item:hover{border-color:#f4a100}
+html.dark .lib-name{color:#f8fafc}
+html.dark .lib-desc{color:#cbd5e1}
+html.dark .lib-drag{background:#334155}
+html.dark .lib-title{color:#fbbf24}
+html.dark .lib-sub{color:#94a3b8}
+html.dark .lib-close-btn{color:#94a3b8;border-color:#334155}
+html.dark .lib-edit-box{background:#182235}
+html.dark .lib-edit-title{color:#fbbf24}
+html.dark .lib-edit-sub{color:#94a3b8}
+
 /* ── DARK MODE ── */
 html.dark{color-scheme:dark}
 html.dark body{background:#111827;color:#f8fafc}
 html.dark .auth-tool{background:rgba(15,23,42,.58);border-color:rgba(148,163,184,.45);color:#f8fafc}
 html.dark .auth-card,html.dark .xpwrap,html.dark .tabs,html.dark .hcard,html.dark .scard,html.dark .fcard,html.dark .dcard,html.dark .modal{background:#182235;border-color:#334155;box-shadow:0 14px 40px rgba(0,0,0,.35)}
-html.dark .atab,html.dark .sc,html.dark .hemo,html.dark .ibtn,html.dark .mbtn,html.dark .abtn,html.dark .ntime,html.dark .field input,html.dark .field textarea,html.dark .field select,html.dark .afield input,html.dark .eopt,html.dark .dowopt,html.dark .mcancel{background:#0f172a;border-color:#334155;color:#f8fafc}
+html.dark .atab,html.dark .sc,html.dark .hemo,html.dark .ibtn,html.dark .mbtn,html.dark .abtn,html.dark .ntime,html.dark .field input,html.dark .field textarea,html.dark .afield input,html.dark .eopt,html.dark .dowopt,html.dark .mcancel{background:#0f172a;border-color:#334155;color:#f8fafc}
 html.dark .fopt,html.dark .copt{background:#0f172a;border-color:#334155;color:#cbd5e1}
 html.dark .atab.on,html.dark .fopt.on,html.dark .copt.on,html.dark .dowopt.on,html.dark .eopt.on,html.dark .mbtn.on{background:#2b3a20;border-color:#f4a100;color:#ffe8a3}
 html.dark .tabs{border-bottom-color:#334155}
@@ -311,11 +338,6 @@ html.dark .scrow,html.dark .ditem,html.dark .divln{border-bottom-color:#334155;b
 html.dark .pdot,html.dark .xpbar,html.dark .rwprog{background:#334155}
 html.dark .pdot.offday{background:#263244}
 html.dark .notebox,html.dark .ios-guide{background:#1f2937;border-color:#475569;color:#e2e8f0}
-html.dark .preset-card,html.dark .preset-item,html.dark .preset-ico,html.dark .preset-preview{background:#182235;border-color:#334155;color:#e5e7eb}
-html.dark .preset-tab{background:#0f172a;border-color:#334155;color:#cbd5e1}
-html.dark .preset-tab.on{background:#2b3a20;border-color:#f4a100;color:#ffe8a3}
-html.dark .preset-name{color:#f8fafc}
-html.dark .preset-desc,html.dark .preset-sub{color:#cbd5e1}
 html.dark .auth-err{background:#3b1620;border-color:#7f1d1d;color:#fecaca}
 html.dark .auth-ok{background:#123524;border-color:#166534;color:#bbf7d0}
 html.dark .bgitem{background:#182235;border-color:#334155}
@@ -441,17 +463,15 @@ html.dark .sc b{color:#fbbf24}
   <div id="pg-garden" class="page on"><div id="hlist"></div></div>
 
   <div id="pg-add" class="page">
-    <div class="preset-card">
-      <div class="preset-head">
-        <div>
-          <div class="preset-title">🌱 Thói quen gợi ý</div>
-          <div class="preset-sub">Chọn một thói quen mẫu, chỉnh lại cho hợp với bạn rồi lưu vào vườn.</div>
-        </div>
+    <div style="background:linear-gradient(135deg,#1a3a1a,#2d5a1b 50%,#f4a100);border-radius:18px;padding:16px 18px;margin-bottom:14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 4px 20px rgba(196,122,0,.2)" onclick="openHabitLibrary()">
+      <div style="font-size:32px;line-height:1;flex-shrink:0">🌿</div>
+      <div style="flex:1">
+        <div style="font-size:15px;font-weight:900;color:#fff;margin-bottom:3px">Thư viện thói quen</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.8);font-weight:600">60 thói quen gợi ý • 6 nhóm • Thêm ngay!</div>
       </div>
-      <div class="preset-tabs" id="presetTabs"></div>
-      <div class="preset-grid" id="presetGrid"></div>
+      <div style="font-size:22px;color:#fff">→</div>
     </div>
-
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><div style="flex:1;height:1px;background:#f0d060"></div><span style="font-size:11px;font-weight:800;color:#9a7a00">HOẶC TỰ TẠO MỚI</span><div style="flex:1;height:1px;background:#f0d060"></div></div>
     <div class="fcard">
       <div class="fhed">🌻 Trồng thói quen mới</div>
       <div class="field"><label>Biểu tượng</label><div class="egrid" id="epick"></div></div>
@@ -462,10 +482,9 @@ html.dark .sc b{color:#fbbf24}
       <div class="field"><div class="copts" id="catOpts">
         <div class="copt on" data-c="Sức khỏe" onclick="pickCat(this)">💪 Sức khỏe</div>
         <div class="copt" data-c="Học tập" onclick="pickCat(this)">📚 Học tập</div>
-        <div class="copt" data-c="Tinh thần" onclick="pickCat(this)">🧘 Tinh thần</div>
-        <div class="copt" data-c="Tài chính" onclick="pickCat(this)">💰 Tài chính</div>
-        <div class="copt" data-c="Năng suất" onclick="pickCat(this)">🎯 Năng suất</div>
-        <div class="copt" data-c="Quan hệ" onclick="pickCat(this)">🤝 Quan hệ</div>
+        <div class="copt" data-c="Cá nhân" onclick="pickCat(this)">🌟 Cá nhân</div>
+        <div class="copt" data-c="Công việc" onclick="pickCat(this)">💼 Công việc</div>
+        <div class="copt" data-c="Sáng tạo" onclick="pickCat(this)">🎨 Sáng tạo</div>
       </div></div>
       <div class="sec-title">📅 Tần suất</div>
       <div class="field"><div class="fopts" id="freqOpts">
@@ -591,6 +610,47 @@ html.dark .sc b{color:#fbbf24}
   </div>
 </div>
 
+<!-- Habit Library Modal -->
+<div class="lib-overlay" id="habitLibraryOverlay" onclick="if(event.target===this)closeHabitLibrary()">
+  <div class="lib-sheet">
+    <div class="lib-header">
+      <div class="lib-drag"></div>
+      <div class="lib-title">🌿 Thư viện thói quen</div>
+      <div class="lib-sub">Chọn thói quen phù hợp và chỉnh sửa trước khi thêm</div>
+      <div class="lib-cats" id="libCats"></div>
+    </div>
+    <div class="lib-list" id="libList"></div>
+    <button class="lib-close-btn" onclick="closeHabitLibrary()">✕ Đóng</button>
+  </div>
+</div>
+
+<!-- Edit Before Add Modal -->
+<div class="lib-edit-overlay" id="libEditOverlay">
+  <div class="lib-edit-box">
+    <div class="lib-edit-title">✏️ Xem lại trước khi thêm</div>
+    <div class="lib-edit-sub">Bạn có thể chỉnh sửa trước khi lưu vào vườn</div>
+    <div class="field"><label>Biểu tượng</label><div class="egrid" id="libEPick"></div></div>
+    <div class="field"><label>Tên thói quen *</label><input id="libName" maxlength="50"></div>
+    <div class="field"><label>Mô tả ngắn</label><input id="libDesc" maxlength="60"></div>
+    <div class="field"><label>Giờ nhắc riêng</label><input id="libReminder" type="time" value="21:00"></div>
+    <div class="field"><label>Danh mục</label><div class="copts" id="libCatPick">
+      <div class="copt" data-c="Sức khỏe" onclick="pickLibCat(this)">💪 Sức khỏe</div>
+      <div class="copt" data-c="Học tập" onclick="pickLibCat(this)">📚 Học tập</div>
+      <div class="copt" data-c="Tinh thần" onclick="pickLibCat(this)">🧘 Tinh thần</div>
+      <div class="copt" data-c="Tài chính" onclick="pickLibCat(this)">💰 Tài chính</div>
+      <div class="copt" data-c="Năng suất" onclick="pickLibCat(this)">⚡ Năng suất</div>
+      <div class="copt" data-c="Quan hệ" onclick="pickLibCat(this)">🤝 Quan hệ</div>
+    </div></div>
+    <div class="field"><label>Quà sau 5 ngày</label><input id="libR5" maxlength="60" placeholder="VD: Uống trà sữa yêu thích"></div>
+    <div class="field"><label>Quà sau 7 ngày</label><input id="libR7" maxlength="60" placeholder="VD: Xem 1 tập phim"></div>
+    <div class="field"><label>Quà sau 15 ngày</label><input id="libR15" maxlength="60" placeholder="VD: Mua thứ mình muốn"></div>
+    <div class="mbtns">
+      <button class="mcancel" onclick="closeLibEdit()">Hủy</button>
+      <button class="msave" onclick="confirmAddFromLib()">🌻 Thêm vào vườn!</button>
+    </div>
+  </div>
+</div>
+
 <!-- Smart Reminder Modal -->
 <div class="rem-overlay" id="reminderModal">
   <div class="rem-box">
@@ -620,47 +680,14 @@ html.dark .sc b{color:#fbbf24}
     <div class="field"><label>Danh mục</label><div class="copts" id="catOptsE">
       <div class="copt" data-c="Sức khỏe" onclick="pickCatE(this)">💪 Sức khỏe</div>
       <div class="copt" data-c="Học tập" onclick="pickCatE(this)">📚 Học tập</div>
-      <div class="copt" data-c="Tinh thần" onclick="pickCatE(this)">🧘 Tinh thần</div>
-      <div class="copt" data-c="Tài chính" onclick="pickCatE(this)">💰 Tài chính</div>
-      <div class="copt" data-c="Năng suất" onclick="pickCatE(this)">🎯 Năng suất</div>
-      <div class="copt" data-c="Quan hệ" onclick="pickCatE(this)">🤝 Quan hệ</div>
+      <div class="copt" data-c="Cá nhân" onclick="pickCatE(this)">🌟 Cá nhân</div>
+      <div class="copt" data-c="Công việc" onclick="pickCatE(this)">💼 Công việc</div>
+      <div class="copt" data-c="Sáng tạo" onclick="pickCatE(this)">🎨 Sáng tạo</div>
     </div></div>
     <div class="field"><label>Quà 5 ngày</label><input id="eR5" maxlength="60"></div>
     <div class="field"><label>Quà 7 ngày</label><input id="eR7" maxlength="60"></div>
     <div class="field"><label>Quà 15 ngày</label><input id="eR15" maxlength="60"></div>
     <div class="mbtns"><button class="mcancel" onclick="closeEdit()">Hủy</button><button class="msave" onclick="saveEdit()">Lưu lại</button></div>
-  </div>
-</div>
-
-<!-- Preset Habit Modal -->
-<div class="overlay" id="presetModal">
-  <div class="modal">
-    <div class="mhed">🌱 Chỉnh thói quen gợi ý</div>
-    <div class="preset-preview">
-      <div class="preset-preview-title">Thông tin gợi ý</div>
-      <div class="preset-preview-row" id="presetMeta"></div>
-    </div>
-    <div class="field"><label>Biểu tượng</label><div class="egrid" id="epickP"></div></div>
-    <div class="field"><label>Tên *</label><input id="pName" maxlength="50"></div>
-    <div class="field"><label>Mô tả</label><input id="pDesc" maxlength="80"></div>
-    <div class="field"><label>Giờ nhắc riêng</label><input id="pReminderTime" type="time"></div>
-    <div class="field"><label>Danh mục</label>
-      <select id="pCat">
-        <option value="Sức khỏe">💪 Sức khỏe</option>
-        <option value="Học tập">📚 Học tập</option>
-        <option value="Tinh thần">🧘 Tinh thần</option>
-        <option value="Tài chính">💰 Tài chính</option>
-        <option value="Năng suất">🎯 Năng suất</option>
-        <option value="Quan hệ">🤝 Quan hệ</option>
-      </select>
-    </div>
-    <div class="field"><label>Tần suất</label>
-      <select id="pFreq">
-        <option value="daily">Mỗi ngày</option>
-        <option value="weekly">3 lần/tuần</option>
-      </select>
-    </div>
-    <div class="mbtns"><button class="mcancel" onclick="closePresetModal()">Hủy</button><button class="msave" onclick="savePresetHabit()">Thêm vào vườn</button></div>
   </div>
 </div>
 
@@ -731,7 +758,7 @@ const auth  = getAuth(fbApp);
 const db    = getFirestore(fbApp);
 
 // ── CONSTANTS ──
-const EMOJIS=['📚','🏃','🚶','🧘','💪','🏋️','🎨','🎸','🍎','💧','📝','🌿','🎯','🌙','☀️','☕','🎵','🧠','✍️','📖','💻','💸','🏦','📊','✅','⏱️','💬','📞','🤝','🧡'];
+const EMOJIS=['📚','🏃','🧘','💪','🎨','🎸','🍎','💧','📝','🌿','🎯','🌙','☕','🎵','🧠','✍️'];
 const DOWS_VI=['CN','T2','T3','T4','T5','T6','T7'];
 const DOWS_EN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 let DOWS=DOWS_VI;
@@ -758,76 +785,6 @@ const BADGES=[
   {id:'lv3',  ico:'🦸',name:'Cấp Cao',        desc:'Đạt Chiến Binh',              ok:(s,h)=>s.xp>=300},
   {id:'lv5',  ico:'⭐',name:'Đỉnh Cao',        desc:'Đạt Huyền Thoại',            ok:(s,h)=>s.xp>=1000}
 ];
-const PRESET_CATEGORIES=[
-  {id:'Sức khỏe',label:'💪 Sức khỏe'},
-  {id:'Học tập',label:'📚 Học tập'},
-  {id:'Tinh thần',label:'🧘 Tinh thần'},
-  {id:'Tài chính',label:'💰 Tài chính'},
-  {id:'Năng suất',label:'🎯 Năng suất'},
-  {id:'Quan hệ',label:'🤝 Quan hệ'}
-];
-const HABIT_PRESETS=[
-  {cat:'Sức khỏe',emoji:'💧',name:'Uống 8 cốc nước',desc:'Giữ cơ thể đủ nước trong ngày.',freq:'daily',difficulty:'Dễ',minutes:2,reminder:'09:00',goal:8,unit:'cốc nước'},
-  {cat:'Sức khỏe',emoji:'🚶',name:'Đi bộ 10 phút',desc:'Tăng vận động nhẹ và tỉnh táo hơn.',freq:'daily',difficulty:'Dễ',minutes:10,reminder:'18:00'},
-  {cat:'Sức khỏe',emoji:'🧘',name:'Giãn cơ buổi sáng',desc:'Thả lỏng vai gáy, lưng và hông.',freq:'daily',difficulty:'Dễ',minutes:7,reminder:'07:00'},
-  {cat:'Sức khỏe',emoji:'🌙',name:'Ngủ trước 23:00',desc:'Tạo nhịp ngủ ổn định hơn.',freq:'daily',difficulty:'Vừa',minutes:5,reminder:'22:30'},
-  {cat:'Sức khỏe',emoji:'🍎',name:'Ăn thêm rau hoặc trái cây',desc:'Bổ sung chất xơ cho một bữa ăn.',freq:'daily',difficulty:'Dễ',minutes:5,reminder:'12:00'},
-  {cat:'Sức khỏe',emoji:'🏋️',name:'Tập sức mạnh 15 phút',desc:'Chống đẩy, squat hoặc bài tập nhẹ.',freq:'weekly',difficulty:'Vừa',minutes:15,reminder:'17:30'},
-  {cat:'Sức khỏe',emoji:'🦷',name:'Dùng chỉ nha khoa',desc:'Chăm sóc răng miệng kỹ hơn mỗi tối.',freq:'daily',difficulty:'Dễ',minutes:3,reminder:'21:30'},
-  {cat:'Sức khỏe',emoji:'☀️',name:'Ra nắng 5 phút',desc:'Nhận ánh sáng tự nhiên đầu ngày.',freq:'daily',difficulty:'Dễ',minutes:5,reminder:'08:00'},
-  {cat:'Sức khỏe',emoji:'🥗',name:'Ăn một bữa lành mạnh',desc:'Chọn món ít dầu, đủ đạm và rau.',freq:'daily',difficulty:'Vừa',minutes:20,reminder:'11:30'},
-  {cat:'Sức khỏe',emoji:'🧍',name:'Đứng dậy vận động',desc:'Rời ghế và xoay người sau giờ làm.',freq:'daily',difficulty:'Dễ',minutes:3,reminder:'15:00'},
-  {cat:'Học tập',emoji:'📖',name:'Đọc 10 trang sách',desc:'Nuôi thói quen học từ sách mỗi ngày.',freq:'daily',difficulty:'Dễ',minutes:15,reminder:'20:00'},
-  {cat:'Học tập',emoji:'🗣️',name:'Học ngoại ngữ 15 phút',desc:'Ôn từ vựng hoặc luyện nghe ngắn.',freq:'daily',difficulty:'Vừa',minutes:15,reminder:'19:30'},
-  {cat:'Học tập',emoji:'📝',name:'Ghi 3 ý chính đã học',desc:'Tóm tắt để nhớ lâu hơn.',freq:'daily',difficulty:'Dễ',minutes:5,reminder:'21:00'},
-  {cat:'Học tập',emoji:'🎧',name:'Nghe podcast học tập',desc:'Nghe một nội dung giúp mở rộng hiểu biết.',freq:'daily',difficulty:'Dễ',minutes:10,reminder:'08:30'},
-  {cat:'Học tập',emoji:'🧠',name:'Ôn flashcard',desc:'Lặp lại kiến thức bằng thẻ ghi nhớ.',freq:'daily',difficulty:'Dễ',minutes:10,reminder:'18:30'},
-  {cat:'Học tập',emoji:'💻',name:'Luyện code 20 phút',desc:'Giải một bài nhỏ hoặc đọc code mẫu.',freq:'daily',difficulty:'Vừa',minutes:20,reminder:'20:30'},
-  {cat:'Học tập',emoji:'🔎',name:'Tra cứu một khái niệm mới',desc:'Hiểu sâu hơn một thuật ngữ trong ngày.',freq:'daily',difficulty:'Dễ',minutes:8,reminder:'14:00'},
-  {cat:'Học tập',emoji:'✍️',name:'Viết 100 từ',desc:'Luyện diễn đạt bằng viết ngắn.',freq:'daily',difficulty:'Vừa',minutes:12,reminder:'21:15'},
-  {cat:'Học tập',emoji:'🎓',name:'Xem một bài học ngắn',desc:'Hoàn thành một video hoặc module nhỏ.',freq:'daily',difficulty:'Dễ',minutes:15,reminder:'19:00'},
-  {cat:'Học tập',emoji:'🧩',name:'Làm một bài tập nhỏ',desc:'Áp dụng ngay điều vừa học.',freq:'daily',difficulty:'Vừa',minutes:20,reminder:'16:00'},
-  {cat:'Tinh thần',emoji:'🧘',name:'Thiền 5 phút',desc:'Ngồi yên và quan sát hơi thở.',freq:'daily',difficulty:'Dễ',minutes:5,reminder:'07:30'},
-  {cat:'Tinh thần',emoji:'🙏',name:'Viết 3 điều biết ơn',desc:'Ghi lại những điểm sáng trong ngày.',freq:'daily',difficulty:'Dễ',minutes:5,reminder:'22:00'},
-  {cat:'Tinh thần',emoji:'🌬️',name:'Hít thở sâu 3 phút',desc:'Làm dịu cơ thể khi căng thẳng.',freq:'daily',difficulty:'Dễ',minutes:3,reminder:'15:30'},
-  {cat:'Tinh thần',emoji:'📓',name:'Viết nhật ký cảm xúc',desc:'Gọi tên cảm xúc thay vì nén lại.',freq:'daily',difficulty:'Vừa',minutes:10,reminder:'21:45'},
-  {cat:'Tinh thần',emoji:'📵',name:'Không điện thoại trước ngủ',desc:'Cất điện thoại 30 phút trước khi ngủ.',freq:'daily',difficulty:'Vừa',minutes:30,reminder:'22:00'},
-  {cat:'Tinh thần',emoji:'🎵',name:'Nghe một bài nhạc thư giãn',desc:'Cho đầu óc nghỉ bằng âm nhạc nhẹ.',freq:'daily',difficulty:'Dễ',minutes:5,reminder:'20:45'},
-  {cat:'Tinh thần',emoji:'🌿',name:'Ra ngoài hít thở',desc:'Đổi không gian và thả lỏng tâm trí.',freq:'daily',difficulty:'Dễ',minutes:7,reminder:'17:00'},
-  {cat:'Tinh thần',emoji:'💬',name:'Tự nói một câu tử tế',desc:'Đối xử với bản thân nhẹ nhàng hơn.',freq:'daily',difficulty:'Dễ',minutes:2,reminder:'08:00'},
-  {cat:'Tinh thần',emoji:'🧹',name:'Dọn một góc nhỏ',desc:'Làm sạch không gian để đầu óc nhẹ hơn.',freq:'daily',difficulty:'Dễ',minutes:10,reminder:'19:00'},
-  {cat:'Tinh thần',emoji:'🛁',name:'Nghỉ ngơi có chủ đích',desc:'Dành một khoảng không làm gì cả.',freq:'daily',difficulty:'Vừa',minutes:15,reminder:'21:00'},
-  {cat:'Tài chính',emoji:'💸',name:'Ghi chi tiêu hôm nay',desc:'Theo dõi tiền đi đâu trong ngày.',freq:'daily',difficulty:'Dễ',minutes:5,reminder:'21:00'},
-  {cat:'Tài chính',emoji:'🏦',name:'Bỏ tiết kiệm nhỏ',desc:'Cất một khoản nhỏ đều đặn.',freq:'daily',difficulty:'Dễ',minutes:2,reminder:'20:00'},
-  {cat:'Tài chính',emoji:'🧾',name:'Kiểm tra ví và tài khoản',desc:'Nắm số dư hiện tại trước khi chi.',freq:'daily',difficulty:'Dễ',minutes:4,reminder:'09:00'},
-  {cat:'Tài chính',emoji:'🛒',name:'Không mua món không cần',desc:'Dừng lại trước các mua sắm bốc đồng.',freq:'daily',difficulty:'Vừa',minutes:2,reminder:'12:00'},
-  {cat:'Tài chính',emoji:'📊',name:'Cập nhật ngân sách',desc:'So sánh chi tiêu với kế hoạch tháng.',freq:'weekly',difficulty:'Vừa',minutes:15,reminder:'20:00'},
-  {cat:'Tài chính',emoji:'💳',name:'Kiểm tra hóa đơn sắp đến',desc:'Tránh quên hạn thanh toán.',freq:'weekly',difficulty:'Dễ',minutes:10,reminder:'09:30'},
-  {cat:'Tài chính',emoji:'📚',name:'Đọc 5 phút về tài chính',desc:'Tăng hiểu biết tiền bạc từng chút.',freq:'daily',difficulty:'Dễ',minutes:5,reminder:'20:30'},
-  {cat:'Tài chính',emoji:'🎯',name:'Xem lại mục tiêu tiết kiệm',desc:'Nhớ lý do mình đang tích lũy.',freq:'weekly',difficulty:'Dễ',minutes:5,reminder:'19:30'},
-  {cat:'Tài chính',emoji:'☕',name:'Tự pha đồ uống',desc:'Giảm một khoản chi nhỏ lặp lại.',freq:'daily',difficulty:'Dễ',minutes:5,reminder:'08:00'},
-  {cat:'Tài chính',emoji:'🧮',name:'Tổng kết chi tiêu tuần',desc:'Nhìn lại khoản nên giữ hoặc cắt.',freq:'weekly',difficulty:'Vừa',minutes:20,reminder:'18:00'},
-  {cat:'Năng suất',emoji:'🗓️',name:'Lên kế hoạch ngày mai',desc:'Chọn việc quan trọng trước khi ngủ.',freq:'daily',difficulty:'Dễ',minutes:7,reminder:'21:30'},
-  {cat:'Năng suất',emoji:'✅',name:'Hoàn thành việc quan trọng nhất',desc:'Xử lý một việc tạo khác biệt lớn.',freq:'daily',difficulty:'Vừa',minutes:30,reminder:'09:00'},
-  {cat:'Năng suất',emoji:'🧹',name:'Dọn bàn làm việc',desc:'Giữ mặt bàn gọn để dễ tập trung.',freq:'daily',difficulty:'Dễ',minutes:5,reminder:'08:45'},
-  {cat:'Năng suất',emoji:'⏱️',name:'Tập trung 25 phút',desc:'Một phiên làm việc không xao nhãng.',freq:'daily',difficulty:'Vừa',minutes:25,reminder:'10:00'},
-  {cat:'Năng suất',emoji:'📥',name:'Dọn inbox 10 phút',desc:'Xử lý tin nhắn hoặc email tồn đọng.',freq:'daily',difficulty:'Dễ',minutes:10,reminder:'16:30'},
-  {cat:'Năng suất',emoji:'📌',name:'Viết 3 ưu tiên',desc:'Biết rõ hôm nay nên làm gì trước.',freq:'daily',difficulty:'Dễ',minutes:5,reminder:'08:15'},
-  {cat:'Năng suất',emoji:'🚫',name:'Tắt thông báo 1 giờ',desc:'Bảo vệ một khoảng tập trung sâu.',freq:'daily',difficulty:'Vừa',minutes:60,reminder:'09:30'},
-  {cat:'Năng suất',emoji:'🔁',name:'Tổng kết cuối ngày',desc:'Nhìn lại việc đã xong và điều cần sửa.',freq:'daily',difficulty:'Dễ',minutes:8,reminder:'21:00'},
-  {cat:'Năng suất',emoji:'📂',name:'Sắp xếp một file hoặc thư mục',desc:'Giảm lộn xộn số từng chút.',freq:'daily',difficulty:'Dễ',minutes:5,reminder:'17:30'},
-  {cat:'Năng suất',emoji:'🧱',name:'Làm trước 2 phút',desc:'Bắt đầu việc đang trì hoãn rất nhỏ.',freq:'daily',difficulty:'Dễ',minutes:2,reminder:'13:30'},
-  {cat:'Quan hệ',emoji:'💬',name:'Nhắn hỏi thăm một người',desc:'Giữ kết nối bằng một tin nhắn thật lòng.',freq:'daily',difficulty:'Dễ',minutes:3,reminder:'20:00'},
-  {cat:'Quan hệ',emoji:'📞',name:'Gọi cho người thân',desc:'Dành vài phút cho gia đình.',freq:'weekly',difficulty:'Vừa',minutes:10,reminder:'19:00'},
-  {cat:'Quan hệ',emoji:'🤝',name:'Cảm ơn một người',desc:'Nói lời cảm ơn cụ thể trong ngày.',freq:'daily',difficulty:'Dễ',minutes:2,reminder:'18:00'},
-  {cat:'Quan hệ',emoji:'👂',name:'Lắng nghe không ngắt lời',desc:'Tập trung nghe trọn một cuộc trò chuyện.',freq:'daily',difficulty:'Vừa',minutes:10,reminder:'12:30'},
-  {cat:'Quan hệ',emoji:'💌',name:'Gửi lời động viên',desc:'Cho ai đó biết bạn đang ủng hộ họ.',freq:'daily',difficulty:'Dễ',minutes:3,reminder:'16:00'},
-  {cat:'Quan hệ',emoji:'🍽️',name:'Ăn cùng gia đình',desc:'Có một bữa ăn không vội vàng.',freq:'weekly',difficulty:'Vừa',minutes:30,reminder:'18:30'},
-  {cat:'Quan hệ',emoji:'🗣️',name:'Nói rõ một nhu cầu',desc:'Giao tiếp thẳng thắn và nhẹ nhàng.',freq:'daily',difficulty:'Vừa',minutes:5,reminder:'20:30'},
-  {cat:'Quan hệ',emoji:'🧡',name:'Khen thật lòng',desc:'Nhìn thấy và nói ra điểm tốt của người khác.',freq:'daily',difficulty:'Dễ',minutes:2,reminder:'14:00'},
-  {cat:'Quan hệ',emoji:'🕊️',name:'Tha thứ một chuyện nhỏ',desc:'Buông một bực bội không đáng giữ.',freq:'daily',difficulty:'Vừa',minutes:5,reminder:'21:30'},
-  {cat:'Quan hệ',emoji:'🎁',name:'Làm một việc giúp ai đó',desc:'Một hành động nhỏ làm ngày của họ dễ hơn.',freq:'daily',difficulty:'Vừa',minutes:10,reminder:'17:00'}
-];
 
 const I18N={
   vi:{
@@ -848,7 +805,7 @@ const I18N={
     editTitle:'✏️ Chỉnh sửa thói quen',name:'Tên *',desc:'Mô tả',cancel:'Hủy',save:'Lưu lại',moodTitle:'📓 Ghi chú hôm nay',moodToday:'Tâm trạng hôm nay',note:'Ghi chú',skip:'Bỏ qua',saveShort:'Lưu',continue:'🌻 Tiếp tục cố gắng!',
     pName:'VD: Học 10 câu tiếng Anh mỗi ngày',pDesc:'VD: Dùng Duolingo, 10 phút',pGoal:'VD: 8',pUnit:'VD: cốc nước, km...',pR5:'VD: Uống trà sữa yêu thích',pR7:'VD: Xem 1 tập phim',pR15:'VD: Mua thứ mình muốn',pMood:'Hôm nay bạn cảm thấy thế nào?',
     authName:'Tên hiển thị',authPass:'Mật khẩu',authConfirm:'Xác nhận mật khẩu',pAuthName:'Tên của bạn',pAuthPass:'Ít nhất 6 ký tự',pAuthConfirm:'Nhập lại mật khẩu',
-    catHealth:'💪 Sức khỏe',catStudy:'📚 Học tập',catMental:'🧘 Tinh thần',catFinance:'💰 Tài chính',catProductivity:'🎯 Năng suất',catRelationship:'🤝 Quan hệ',
+    catHealth:'💪 Sức khỏe',catStudy:'📚 Học tập',catPersonal:'🌟 Cá nhân',catWork:'💼 Công việc',catCreative:'🎨 Sáng tạo',catMind:'🧘 Tinh thần',catFinance:'💰 Tài chính',catProd:'⚡ Năng suất',catRelation:'🤝 Quan hệ',
     noHabitsTitle:'Vườn hoa đang trống!',noHabitsSub:'Nhấn ＋ Thêm để trồng thói quen đầu tiên ✨',firstHabit:'Thêm thói quen đầu tiên để bắt đầu ✨',allDone:'Tuyệt vời! Hoàn thành hết hôm nay! 🎉',left:n=>`Còn ${n} thói quen chưa tick hôm nay 💪`,
     moodRow:'Tâm trạng hôm nay',rewardMilestone:'🌟 Mốc phần thưởng',days:n=>`${n} ngày`,oneLeft:'Còn 1 ngày!',vacation:'🏖 Nghỉ phép',vacToday:'🏖 Nghỉ phép hôm nay — streak được bảo toàn!',streak:n=>`🌻 ${n} ngày liên tiếp`,missed:'Bỏ sót ngày này 😢',
     noDiaryTitle:'Chưa có nhật ký nào',noDiarySub:'Tick thói quen để bắt đầu ghi chép ✨',unlocked:'✅ Đã mở',locked:'🔒 Chưa mở',newBadge:'🏅 Huy hiệu mới!',
@@ -877,7 +834,7 @@ const I18N={
     editTitle:'✏️ Edit habit',name:'Name *',desc:'Description',cancel:'Cancel',save:'Save changes',moodTitle:'📓 Today’s note',moodToday:'Today’s mood',note:'Note',skip:'Skip',saveShort:'Save',continue:'🌻 Keep going!',
     pName:'E.g. Learn 10 English words daily',pDesc:'E.g. Duolingo, 10 minutes',pGoal:'E.g. 8',pUnit:'E.g. glasses of water, km...',pR5:'E.g. Favorite milk tea',pR7:'E.g. Watch one episode',pR15:'E.g. Buy something you want',pMood:'How do you feel today?',
     authName:'Display name',authPass:'Password',authConfirm:'Confirm password',pAuthName:'Your name',pAuthPass:'At least 6 characters',pAuthConfirm:'Enter password again',
-    catHealth:'💪 Health',catStudy:'📚 Learning',catMental:'🧘 Mind',catFinance:'💰 Finance',catProductivity:'🎯 Productivity',catRelationship:'🤝 Relationships',
+    catHealth:'💪 Health',catStudy:'📚 Learning',catPersonal:'🌟 Personal',catWork:'💼 Work',catCreative:'🎨 Creative',catMind:'🧘 Mindfulness',catFinance:'💰 Finance',catProd:'⚡ Productivity',catRelation:'🤝 Relationships',
     noHabitsTitle:'Your garden is empty!',noHabitsSub:'Tap ＋ Add to plant your first habit ✨',firstHabit:'Add your first habit to begin ✨',allDone:'Wonderful! Everything is done today! 🎉',left:n=>`${n} habits left today 💪`,
     moodRow:'Today’s mood',rewardMilestone:'🌟 Reward milestones',days:n=>`${n} days`,oneLeft:'1 day left!',vacation:'🏖 Break',vacToday:'🏖 Break today — your streak is protected!',streak:n=>`🌻 ${n} day streak`,missed:'Missed this day 😢',
     noDiaryTitle:'No diary entries yet',noDiarySub:'Tick a habit to start journaling ✨',unlocked:'✅ Unlocked',locked:'🔒 Locked',newBadge:'🏅 New badge!',
@@ -899,14 +856,13 @@ let moodId=null,moodDay=null,selMood='😊';
 let cu=null, saveTimer=null, dPr=null;
 let lang=localStorage.getItem('vh_lang')||'vi';
 let theme=localStorage.getItem('vh_theme')||'light';
-let activePresetCat='Sức khỏe',presetDraft=null,presetE='🌻';
 
 function tt(k,...args){const v=I18N[lang][k];return typeof v==='function'?v(...args):v;}
 function setTxt(sel,val){const el=document.querySelector(sel);if(el)el.textContent=val;}
 function setHTML(sel,val){const el=document.querySelector(sel);if(el)el.innerHTML=val;}
 function setPH(sel,val){const el=document.querySelector(sel);if(el)el.placeholder=val;}
 function catLabel(c){
-  const map={'Sức khỏe':'catHealth','Học tập':'catStudy','Tinh thần':'catMental','Tài chính':'catFinance','Năng suất':'catProductivity','Quan hệ':'catRelationship','Cá nhân':'catMental','Công việc':'catProductivity','Sáng tạo':'catProductivity'};
+  const map={'Sức khỏe':'catHealth','Học tập':'catStudy','Cá nhân':'catPersonal','Công việc':'catWork','Sáng tạo':'catCreative','Tinh thần':'catMind','Tài chính':'catFinance','Năng suất':'catProd','Quan hệ':'catRelation'};
   return map[c]?tt(map[c]):c;
 }
 function applyTheme(){
@@ -955,7 +911,7 @@ function applyLang(){
   setTxt('#moodHed',tt('moodTitle'));document.querySelectorAll('#moodModal .field label').forEach((el,i)=>el.textContent=[tt('moodToday'),tt('note')][i]);setTxt('#moodModal .mcancel',tt('skip'));setTxt('#moodModal .msave',tt('saveShort'));setTxt('.msclose',tt('continue'));
   setPH('#iName',tt('pName'));setPH('#iDesc',tt('pDesc'));setPH('#iGN',tt('pGoal'));setPH('#iGU',tt('pUnit'));setPH('#iR5',tt('pR5'));setPH('#iR7',tt('pR7'));setPH('#iR15',tt('pR15'));setPH('#moodNote',tt('pMood'));
   const addReminder=document.getElementById('iReminderTime');if(addReminder&&!addReminder.value)addReminder.value=stats.ntime||'21:00';
-  renderPresetLibrary();render();renderBadges();updateXP();applyTheme();
+  render();renderBadges();updateXP();applyTheme();
 }
 window.toggleTheme=()=>{theme=theme==='dark'?'light':'dark';localStorage.setItem('vh_theme',theme);applyTheme();};
 window.toggleLang=()=>{lang=lang==='vi'?'en':'vi';localStorage.setItem('vh_lang',lang);applyLang();};
@@ -1246,58 +1202,11 @@ window.pickCatE=el=>{el.parentNode.querySelectorAll('.copt').forEach(e=>e.classL
 window.pickMood=el=>{document.querySelectorAll('#moodPicker .mbtn').forEach(e=>e.classList.remove('on'));el.classList.add('on');selMood=el.dataset.m;};
 window.pickFreq=el=>{el.parentNode.querySelectorAll('.fopt').forEach(e=>e.classList.remove('on'));el.classList.add('on');selFreq=el.dataset.f;document.getElementById('wkWrap').style.display=selFreq==='weekly'?'block':'none';document.getElementById('cdWrap').style.display=selFreq==='custom'?'block':'none';};
 window.togDow=el=>{el.classList.toggle('on');selDow=[...document.querySelectorAll('#dowOpts .dowopt.on')].map(e=>+e.dataset.d);};
-function freqText(f){return f==='weekly'?(lang==='en'?'3x/week':'3 lần/tuần'):tt('daily');}
-function renderPresetLibrary(){
-  const tabs=document.getElementById('presetTabs'),grid=document.getElementById('presetGrid');
-  if(!tabs||!grid)return;
-  tabs.innerHTML=PRESET_CATEGORIES.map(c=>`<button class="preset-tab${activePresetCat===c.id?' on':''}" onclick="pickPresetCat('${c.id}')">${catLabel(c.id)}</button>`).join('');
-  grid.innerHTML=HABIT_PRESETS.filter(p=>p.cat===activePresetCat).map((p,i)=>`
-    <div class="preset-item">
-      <div class="preset-top">
-        <div class="preset-ico">${p.emoji}</div>
-        <div><div class="preset-name">${p.name}</div><div class="preset-desc">${p.desc}</div></div>
-      </div>
-      <div class="preset-meta">
-        <span class="tp tcat">${catLabel(p.cat)}</span>
-        <span class="tp tfrq">${freqText(p.freq)}</span>
-        <span class="tp tgl">${p.difficulty}</span>
-        <span class="tp trem">${p.minutes} phút</span>
-      </div>
-      <button class="preset-add" onclick="openPresetModal('${p.cat}',${i})">＋ Thêm</button>
-    </div>`).join('');
-}
-window.pickPresetCat=cat=>{activePresetCat=cat;renderPresetLibrary();};
-window.pickEP=el=>{el.parentNode.querySelectorAll('.eopt').forEach(e=>e.classList.remove('on'));el.classList.add('on');presetE=el.dataset.e;};
-window.openPresetModal=(cat,index)=>{
-  const p=HABIT_PRESETS.filter(x=>x.cat===cat)[index];if(!p)return;
-  presetDraft=p;presetE=p.emoji;
-  document.getElementById('presetMeta').innerHTML=[
-    `<span class="tp tcat">${catLabel(p.cat)}</span>`,
-    `<span class="tp tfrq">${freqText(p.freq)}</span>`,
-    `<span class="tp tgl">${p.difficulty}</span>`,
-    `<span class="tp trem">${p.minutes} phút</span>`
-  ].join('');
-  document.getElementById('epickP').innerHTML=EMOJIS.map(e=>`<div class="eopt${e===p.emoji?' on':''}" data-e="${e}" onclick="pickEP(this)">${e}</div>`).join('');
-  document.getElementById('pName').value=p.name;
-  document.getElementById('pDesc').value=p.desc;
-  document.getElementById('pReminderTime').value=p.reminder||stats.ntime||'21:00';
-  document.getElementById('pCat').value=p.cat;
-  document.getElementById('pFreq').value=p.freq||'daily';
-  document.getElementById('presetModal').classList.add('on');
-};
-window.closePresetModal=()=>{document.getElementById('presetModal').classList.remove('on');presetDraft=null;};
-window.savePresetHabit=()=>{
-  if(!presetDraft)return;
-  const name=document.getElementById('pName').value.trim();if(!name){alert(tt('alerts').nameHabit);return;}
-  const freq=document.getElementById('pFreq').value||'daily';
-  habits.push({id:Date.now()+'',emoji:presetE,name,cat:document.getElementById('pCat').value,desc:document.getElementById('pDesc').value.trim(),reminderTime:document.getElementById('pReminderTime').value||stats.ntime||'21:00',freq,weeklyN:freq==='weekly'?3:0,dow:[0,1,2,3,4,5,6],goal:presetDraft.goal||0,goalUnit:presetDraft.unit||'',difficulty:presetDraft.difficulty,estimateMinutes:presetDraft.minutes,r5:'Tự thưởng một món nhỏ!',r7:'Dành thời gian thư giãn!',r15:'Mua thứ bạn muốn!',done:{},vacation:{},moods:{},notes:{}});
-  addXP(10,tt('addXp'));saveData();closePresetModal();goTab('garden');
-};
 window.goTab=t=>{
   document.querySelectorAll('.tab').forEach((tb,i)=>tb.classList.toggle('on',['garden','add','badges','diary','settings'][i]===t));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.getElementById('pg-'+t).classList.add('on');
-  if(t==='garden')render();if(t==='add')renderPresetLibrary();if(t==='badges')renderBadges();if(t==='diary')renderDiary();
+  if(t==='garden')render();if(t==='badges')renderBadges();if(t==='diary')renderDiary();
 };
 
 // ── HABIT CRUD ──
@@ -1437,7 +1346,7 @@ function render(){
   const td=habits.filter(h=>h.done?.[t]).length,ms=habits.reduce((m,h)=>Math.max(m,getStreak(h)),0);
   document.getElementById('sH').textContent=habits.length;document.getElementById('sD').textContent=td;document.getElementById('sS').textContent=ms;
   document.getElementById('bsub').textContent=habits.length===0?tt('firstHabit'):td===habits.length&&habits.length>0?tt('allDone'):tt('left',habits.length-td);
-  if(!habits.length){list.innerHTML=`<div class="empty-box"><div class="empty-ico">🌻</div><div class="empty-txt">${tt('noHabitsTitle')}</div><div class="empty-sub">${tt('noHabitsSub')}</div></div>`;return;}
+  if(!habits.length){list.innerHTML=`<div class="empty-box"><div class="empty-ico">🌻</div><div class="empty-txt">${tt('noHabitsTitle')}</div><div class="empty-sub">${tt('noHabitsSub')}</div><button onclick="goTab('add');setTimeout(openHabitLibrary,200)" style="margin-top:16px;padding:10px 22px;background:linear-gradient(135deg,#2d5a1b,#f4a100);color:#fff;border:none;border-radius:20px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer">🌿 Xem thư viện gợi ý</button></div>`;return;}
   list.innerHTML=habits.map(h=>{
     const s=getStreak(h),onV=h.vacation?.[t],mood=h.moods?.[t],note=h.notes?.[t];
     const flowers=days.map(d=>{
@@ -1525,6 +1434,205 @@ window.saveReminderModal=()=>{
   if(Notification.permission!=='granted'){
     alert('⚠️ Chưa bật quyền thông báo!\nVào Cài đặt → Nhắc nhở → bật thông báo trước nhé.');
   }
+};
+
+// ── HABIT LIBRARY ──
+const HABIT_LIBRARY = [
+  // 💪 SỨC KHỎE
+  {emoji:'💧',name:'Uống đủ 2 lít nước',cat:'Sức khỏe',desc:'Đặt bình nước 500ml — uống đủ 4 lần mỗi ngày',freq:'daily',tips:'Sức khỏe từ trong ra ngoài. Uống nước đều giúp da đẹp, não hoạt động tốt hơn 20%.'},
+  {emoji:'🏃',name:'Đi bộ 30 phút',cat:'Sức khỏe',desc:'Ra ngoài hoặc đi bộ tại chỗ — không cần gym',freq:'daily',tips:'Chỉ 30 phút đi bộ mỗi ngày giảm 35% nguy cơ bệnh tim và cải thiện tâm trạng rõ rệt.'},
+  {emoji:'🌅',name:'Thức dậy lúc 6 giờ sáng',cat:'Sức khỏe',desc:'Đặt báo thức, không nhấn snooze, ra khỏi giường ngay',freq:'daily',tips:'Người dậy sớm có xu hướng năng suất hơn, ít stress hơn và ngủ ngon hơn buổi tối.'},
+  {emoji:'🛌',name:'Ngủ trước 23 giờ',cat:'Sức khỏe',desc:'Tắt điện thoại lúc 22h30 để chuẩn bị ngủ',freq:'daily',tips:'Ngủ đủ 7-8 tiếng giúp não xử lý ký ức, tái tạo tế bào và kiểm soát cảm xúc tốt hơn.'},
+  {emoji:'🥗',name:'Ăn rau xanh mỗi bữa',cat:'Sức khỏe',desc:'Thêm rau vào bữa trưa và tối mỗi ngày',freq:'daily',tips:'Rau xanh cung cấp chất xơ, vitamin và chất chống oxy hóa — nền tảng của sức khỏe lâu dài.'},
+  {emoji:'🧘',name:'Vươn vai buổi sáng',cat:'Sức khỏe',desc:'5 phút stretching nhẹ sau khi thức dậy',freq:'daily',tips:'Kéo giãn buổi sáng kích hoạt tuần hoàn máu, giảm cứng khớp và tạo năng lượng khởi đầu ngày mới.'},
+  {emoji:'🚴',name:'Tập thể dục 45 phút',cat:'Sức khỏe',desc:'Gym, đạp xe, bơi, hoặc bài tập tại nhà',freq:'daily',tips:'45 phút vận động mỗi ngày tăng endorphin — hormone hạnh phúc — giúp bạn vui hơn, khỏe hơn.'},
+  {emoji:'🚭',name:'Không ăn vặt sau 20 giờ',cat:'Sức khỏe',desc:'Dừng ăn sau 8 giờ tối để tiêu hóa nghỉ ngơi',freq:'daily',tips:'Nhịn ăn tối muộn giúp kiểm soát cân nặng, cải thiện giấc ngủ và giảm axit dạ dày.'},
+  {emoji:'☀️',name:'Ra nắng 15 phút',cat:'Sức khỏe',desc:'Tiếp xúc ánh nắng buổi sáng để hấp thụ vitamin D',freq:'daily',tips:'Vitamin D từ ánh nắng tự nhiên giúp xương chắc, miễn dịch tốt và tâm trạng ổn định.'},
+  {emoji:'🦷',name:'Dùng chỉ nha khoa',cat:'Sức khỏe',desc:'Dùng chỉ nha khoa tối trước khi đánh răng',freq:'daily',tips:'70% bệnh nha chu bắt đầu từ mảng bám giữa kẽ răng mà bàn chải thường không với tới.'},
+
+  // 📚 HỌC TẬP
+  {emoji:'📖',name:'Đọc sách 20 phút',cat:'Học tập',desc:'Mỗi ngày đọc ít nhất 10 trang sách bạn đang đọc',freq:'daily',tips:'20 phút/ngày = hơn 20 cuốn sách mỗi năm. Đọc sách là đầu tư sinh lời nhất cho bản thân.'},
+  {emoji:'🗣️',name:'Học 10 từ tiếng Anh',cat:'Học tập',desc:'Dùng Anki, Duolingo hoặc flashcard — 10 phút',freq:'daily',tips:'Học 10 từ/ngày = 3.650 từ/năm. Vốn từ vựng là nền tảng của khả năng giao tiếp.'},
+  {emoji:'✍️',name:'Viết tay 1 trang',cat:'Học tập',desc:'Ghi chú học được, ý tưởng, hoặc tóm tắt bài học',freq:'daily',tips:'Viết tay giúp não xử lý thông tin sâu hơn đánh máy 40% — công cụ học tập bị đánh giá thấp nhất.'},
+  {emoji:'🎧',name:'Nghe podcast học thuật',cat:'Học tập',desc:'30 phút podcast về chủ đề bạn muốn giỏi lên',freq:'daily',tips:'Tận dụng thời gian di chuyển, rửa bát, tập thể dục để học — tích lũy không có điểm dừng.'},
+  {emoji:'💻',name:'Luyện kỹ năng kỹ thuật',cat:'Học tập',desc:'Code, thiết kế, Excel, hoặc kỹ năng chuyên môn — 30 phút',freq:'daily',tips:'Deliberate practice — luyện tập có chủ đích — là cách duy nhất để thực sự thành thạo kỹ năng.'},
+  {emoji:'🧪',name:'Ôn lại ghi chú cũ',cat:'Học tập',desc:'Mở lại ghi chú tuần trước và đọc 10 phút',freq:'daily',tips:'Spaced repetition — ôn lại đúng lúc — giúp kiến thức lưu vào trí nhớ dài hạn lên đến 90%.'},
+  {emoji:'🎯',name:'Học 1 điều mới mỗi ngày',cat:'Học tập',desc:'Tìm hiểu 1 khái niệm, sự kiện hoặc kỹ năng mới',freq:'daily',tips:'Trí tò mò là đặc điểm chung của những người thành công. Học liên tục là lợi thế bền vững nhất.'},
+  {emoji:'📝',name:'Làm bài tập thực hành',cat:'Học tập',desc:'Áp dụng lý thuyết vào bài tập thực tế mỗi ngày',freq:'daily',tips:'Học thông qua làm — learning by doing — giúp nhớ lâu hơn nghe hoặc đọc đơn thuần 70%.'},
+  {emoji:'🌐',name:'Đọc 1 bài báo tiếng Anh',cat:'Học tập',desc:'Tìm bài trên Medium, BBC, hoặc chủ đề yêu thích',freq:'daily',tips:'Đọc báo tiếng Anh vừa học ngoại ngữ vừa cập nhật thông tin thế giới — hiệu quả kép.'},
+  {emoji:'🎓',name:'Ôn thi hoặc học khóa online',cat:'Học tập',desc:'Dành 45 phút cho khóa học trực tuyến đang theo',freq:'daily',tips:'Nhất quán quan trọng hơn cường độ. 45 phút/ngày đều đặn hơn 5 giờ vào cuối tuần.'},
+
+  // 🧘 TINH THẦN
+  {emoji:'🧘',name:'Thiền 10 phút buổi sáng',cat:'Tinh thần',desc:'Ngồi yên, thở sâu, quan sát suy nghĩ — không phán xét',freq:'daily',tips:'Thiền định thay đổi cấu trúc não sau 8 tuần: giảm lo âu, tăng khả năng tập trung và lòng trắc ẩn.'},
+  {emoji:'📓',name:'Viết nhật ký 5 phút',cat:'Tinh thần',desc:'Ghi lại 3 điều xảy ra hôm nay và cảm xúc của bạn',freq:'daily',tips:'Viết nhật ký giúp xử lý cảm xúc, giảm stress và tăng sự tự nhận thức — liệu pháp rẻ nhất thế giới.'},
+  {emoji:'🙏',name:'Thực hành biết ơn',cat:'Tinh thần',desc:'Ghi 3 điều bạn biết ơn hôm nay — dù nhỏ nhất',freq:'daily',tips:'Nghiên cứu Harvard: người thực hành biết ơn mỗi ngày hạnh phúc hơn 25% và ngủ ngon hơn.'},
+  {emoji:'📵',name:'Không dùng điện thoại 1 giờ',cat:'Tinh thần',desc:'Thời gian không màn hình trước khi ngủ hoặc sau khi dậy',freq:'daily',tips:'Ánh sáng xanh từ điện thoại ức chế melatonin, làm khó ngủ và tăng lo âu mãn tính.'},
+  {emoji:'🌿',name:'Dành 10 phút với thiên nhiên',cat:'Tinh thần',desc:'Ra ban công, công viên, hoặc nhìn ra cửa sổ có cây xanh',freq:'daily',tips:'Tiếp xúc thiên nhiên chỉ 10 phút/ngày giảm cortisol (hormone stress) đáng kể theo nhiều nghiên cứu.'},
+  {emoji:'💆',name:'Thở sâu 4-7-8',cat:'Tinh thần',desc:'Hít vào 4 giây, giữ 7 giây, thở ra 8 giây — làm 5 lần',freq:'daily',tips:'Kỹ thuật thở 4-7-8 kích hoạt hệ thần kinh phó giao cảm — giảm lo âu nhanh hơn thuốc.'},
+  {emoji:'🎨',name:'Làm gì đó sáng tạo',cat:'Tinh thần',desc:'Vẽ, nấu ăn, viết thơ, chơi nhạc cụ — 20 phút',freq:'daily',tips:'Hoạt động sáng tạo giúp não thoát khỏi chế độ lo âu và kích thích dopamine — tự nhiên và bền vững.'},
+  {emoji:'🚿',name:'Tắm nước lạnh 30 giây',cat:'Tinh thần',desc:'Kết thúc bằng 30 giây nước lạnh để tăng tỉnh táo',freq:'daily',tips:'Tắm lạnh kích hoạt norepinephrine tăng 300% — cải thiện tâm trạng, sự tập trung và khả năng chịu đựng.'},
+  {emoji:'😊',name:'Mỉm cười với gương',cat:'Tinh thần',desc:'Nhìn vào gương và mỉm cười 1 phút sau khi thức dậy',freq:'daily',tips:'Facial feedback hypothesis: cơ mặt khi cười gửi tín hiệu về não, làm não thực sự cảm thấy vui hơn.'},
+  {emoji:'🌙',name:'Đọc sách trước khi ngủ',cat:'Tinh thần',desc:'Thay điện thoại bằng sách 20 phút trước khi ngủ',freq:'daily',tips:'Đọc sách trước ngủ giảm stress đến 68% — hiệu quả hơn nghe nhạc, đi bộ hoặc uống trà.'},
+
+  // 💰 TÀI CHÍNH
+  {emoji:'📊',name:'Ghi chép chi tiêu hôm nay',cat:'Tài chính',desc:'Ghi lại mọi khoản chi — dù nhỏ nhất trong ngày',freq:'daily',tips:'Theo dõi chi tiêu là bước đầu tiên kiểm soát tiền bạc. Không thể quản lý thứ bạn không đo lường.'},
+  {emoji:'🏦',name:'Chuyển tiết kiệm mỗi ngày',cat:'Tài chính',desc:'Chuyển một khoản cố định sang tài khoản tiết kiệm',freq:'daily',tips:'Nguyên tắc "trả cho bản thân trước": dù 20.000đ/ngày, sau 10 năm bạn có hơn 73 triệu.'},
+  {emoji:'📈',name:'Đọc tin tức tài chính 10 phút',cat:'Tài chính',desc:'Theo dõi thị trường, lạm phát, xu hướng kinh tế',freq:'daily',tips:'Hiểu kinh tế vĩ mô giúp bạn đưa ra quyết định đầu tư và tiêu dùng thông minh hơn.'},
+  {emoji:'🛒',name:'Kiểm tra giỏ hàng trước khi mua',cat:'Tài chính',desc:'Chờ 24 giờ trước khi mua bất kỳ thứ gì không cần thiết',freq:'daily',tips:'Nguyên tắc 24 giờ loại bỏ 80% mua sắm bốc đồng — tiết kiệm hàng triệu đồng mỗi tháng.'},
+  {emoji:'💡',name:'Tìm 1 cách tiết kiệm mỗi ngày',cat:'Tài chính',desc:'Nấu ăn thay vì gọi đồ, đi xe buýt, tắt điện dư...',freq:'daily',tips:'Nhỏ giọt tạo đại dương. Tiết kiệm 50.000đ/ngày = 18 triệu/năm mà không cần tăng lương.'},
+  {emoji:'📚',name:'Đọc 1 trang sách tài chính',cat:'Tài chính',desc:'Rich Dad Poor Dad, Nhà Đầu Tư Thông Minh, hoặc tương đương',freq:'daily',tips:'Kiến thức tài chính là kỹ năng không được dạy ở trường nhưng quyết định 80% sự giàu có của bạn.'},
+  {emoji:'🎯',name:'Xem lại mục tiêu tài chính',cat:'Tài chính',desc:'Đọc lại mục tiêu tiết kiệm/đầu tư trong 1-5 phút',freq:'daily',tips:'Xem lại mục tiêu mỗi ngày giữ cho bạn đi đúng hướng và tránh các quyết định tài chính ngắn hạn.'},
+  {emoji:'💳',name:'Không mua gì ngoài kế hoạch',cat:'Tài chính',desc:'Chỉ mua những thứ trong danh sách lập từ trước',freq:'daily',tips:'Lập kế hoạch mua sắm trước giúp bạn tiết kiệm trung bình 25% so với mua ngẫu hứng.'},
+  {emoji:'📉',name:'Theo dõi danh mục đầu tư',cat:'Tài chính',desc:'Kiểm tra danh mục cổ phiếu/quỹ/coin — không hoảng loạn',freq:'daily',tips:'Đầu tư thành công không phải về chọn đúng cổ phiếu mà về kỷ luật không bán khi thị trường giảm.'},
+  {emoji:'🤝',name:'Tìm cơ hội tăng thu nhập',cat:'Tài chính',desc:'Dành 15 phút nghĩ/thực hiện 1 ý tưởng tăng thu nhập',freq:'daily',tips:'Tiết kiệm có giới hạn nhưng thu nhập thì không. Đầu tư vào bản thân là ROI cao nhất.'},
+
+  // ⚡ NĂNG SUẤT
+  {emoji:'📋',name:'Lập danh sách việc cần làm',cat:'Năng suất',desc:'Viết ra 3 việc quan trọng nhất cần hoàn thành hôm nay',freq:'daily',tips:'MIT — Most Important Tasks — không phải làm nhiều nhất mà là làm đúng việc quan trọng nhất.'},
+  {emoji:'🍅',name:'Làm việc theo Pomodoro',cat:'Năng suất',desc:'25 phút tập trung tuyệt đối, 5 phút nghỉ — làm 4 chu kỳ',freq:'daily',tips:'Kỹ thuật Pomodoro tăng năng suất 30-40% bằng cách tận dụng cửa sổ tập trung tự nhiên của não.'},
+  {emoji:'🚫',name:'Không kiểm tra email trước 10 giờ',cat:'Năng suất',desc:'Làm việc quan trọng nhất trước khi mở email/tin nhắn',freq:'daily',tips:'Email là phản ứng với ưu tiên của người khác. Buổi sáng nên dành cho ưu tiên của chính bạn.'},
+  {emoji:'🧹',name:'Dọn dẹp bàn làm việc',cat:'Năng suất',desc:'Cuối ngày dọn gọn bàn để sáng hôm sau bắt đầu sạch sẽ',freq:'daily',tips:'Môi trường lộn xộn làm giảm khả năng tập trung và tăng cortisol theo nghiên cứu Princeton.'},
+  {emoji:'⏰',name:'Làm ngay trong 2 phút',cat:'Năng suất',desc:'Nếu việc làm được trong 2 phút — làm ngay, đừng để dành',freq:'daily',tips:'Nguyên tắc 2 phút của David Allen: những việc nhỏ tích lại tạo ra gánh nặng tinh thần khổng lồ.'},
+  {emoji:'🔕',name:'Tắt thông báo khi làm việc',cat:'Năng suất',desc:'Để điện thoại ở chế độ im lặng trong giờ làm việc sâu',freq:'daily',tips:'Mỗi lần bị gián đoạn mất trung bình 23 phút để não quay lại trạng thái tập trung sâu.'},
+  {emoji:'🌄',name:'Lên kế hoạch ngày hôm sau',cat:'Năng suất',desc:'Trước khi ngủ, viết ra 3 việc sẽ làm vào sáng mai',freq:'daily',tips:'Lên kế hoạch tối hôm trước giúp não "ủ" ý tưởng trong khi ngủ — sáng dậy đã biết làm gì.'},
+  {emoji:'💪',name:'Làm việc khó trước tiên',cat:'Năng suất',desc:'Bắt đầu ngày bằng việc bạn sợ hoặc ngại nhất',freq:'daily',tips:'Eat the frog: hoàn thành việc khó nhất vào buổi sáng khi ý chí mạnh nhất giúp mọi thứ sau dễ hơn.'},
+  {emoji:'📵',name:'Deep work 90 phút',cat:'Năng suất',desc:'Một khối công việc sâu, không gián đoạn mỗi ngày',freq:'daily',tips:'Cal Newport: 90 phút deep work mỗi ngày tạo ra nhiều giá trị hơn 8 giờ làm việc bị gián đoạn.'},
+  {emoji:'✅',name:'Tổng kết ngày làm việc',cat:'Năng suất',desc:'Nhìn lại những gì đã làm và chưa làm — 5 phút',freq:'daily',tips:'Review cuối ngày giúp bạn học từ từng ngày, điều chỉnh và cải thiện liên tục — compound growth.'},
+
+  // 🤝 QUAN HỆ
+  {emoji:'📱',name:'Nhắn tin hỏi thăm gia đình',cat:'Quan hệ',desc:'Gửi tin nhắn hoặc gọi điện cho bố mẹ, anh chị em',freq:'daily',tips:'Các mối quan hệ thân thiết là yếu tố dự đoán hạnh phúc tốt nhất — nghiên cứu 80 năm của Harvard.'},
+  {emoji:'🙂',name:'Làm 1 việc tốt cho người khác',cat:'Quan hệ',desc:'Giúp đỡ đồng nghiệp, khen ngợi ai đó, hoặc nhường chỗ',freq:'daily',tips:'Làm điều tốt cho người khác tạo ra cảm giác hạnh phúc mạnh hơn làm điều tốt cho bản thân.'},
+  {emoji:'👂',name:'Lắng nghe chủ động 1 cuộc trò chuyện',cat:'Quan hệ',desc:'Trong 1 cuộc trò chuyện, chỉ nghe — không ngắt lời, không điện thoại',freq:'daily',tips:'Lắng nghe chủ động là kỹ năng khan hiếm nhất và được đánh giá cao nhất trong mọi mối quan hệ.'},
+  {emoji:'✉️',name:'Gửi lời cảm ơn mỗi ngày',cat:'Quan hệ',desc:'Cảm ơn ai đó thật lòng — tin nhắn, lời nói, hoặc thư tay',freq:'daily',tips:'Biết ơn công khai không chỉ làm người nhận hạnh phúc mà còn tăng hạnh phúc của người cho lên 30%.'},
+  {emoji:'🤲',name:'Không phán xét trong 1 ngày',cat:'Quan hệ',desc:'Để ý và dừng lại mỗi khi muốn phán xét người khác',freq:'daily',tips:'Phán xét ít hơn giúp bạn nhìn thế giới cởi mở hơn, stress ít hơn và các mối quan hệ bền hơn.'},
+  {emoji:'🎁',name:'Ngạc nhiên người thân',cat:'Quan hệ',desc:'Mang về món ăn, nói lời yêu thương, hoặc làm điều bất ngờ',freq:'daily',tips:'Những hành động nhỏ bất ngờ giữ lửa mối quan hệ tốt hơn những buổi hẹn hò lớn nhưng hiếm hoi.'},
+  {emoji:'🤗',name:'Gặp gỡ bạn bè 1 lần/tuần',cat:'Quan hệ',desc:'Cà phê, ăn trưa, hoặc gọi video call với bạn',freq:'daily',tips:'Cô đơn xã hội nguy hiểm cho sức khỏe như hút thuốc 15 điếu/ngày — theo nghiên cứu Brigham Young.'},
+  {emoji:'💬',name:'Hỏi 1 câu hỏi sâu',cat:'Quan hệ',desc:'Hỏi điều thực sự muốn biết về người bạn đang nói chuyện',freq:'daily',tips:'Câu hỏi sâu tạo kết nối thực sự. "Bạn đang ổn không?" khác hẳn "Gần đây bạn thấy cuộc sống thế nào?"'},
+  {emoji:'🤝',name:'Xin lỗi khi làm sai',cat:'Quan hệ',desc:'Đừng để sai sót nhỏ tích thành vết nứt lớn trong mối quan hệ',freq:'daily',tips:'Xin lỗi chân thành và kịp thời là dấu hiệu của người trưởng thành cảm xúc và được tôn trọng nhất.'},
+  {emoji:'🌟',name:'Khen ngợi ai đó thật lòng',cat:'Quan hệ',desc:'Nhận ra và nói ra điều tốt bạn thấy ở người xung quanh',freq:'daily',tips:'Lời khen chân thành cụ thể (không phải xã giao chung chung) tạo ra sự gắn kết và tin tưởng lâu dài.'}
+];
+
+const LIB_CATS = [
+  {key:'all',label:'🌿 Tất cả'},
+  {key:'Sức khỏe',label:'💪 Sức khỏe'},
+  {key:'Học tập',label:'📚 Học tập'},
+  {key:'Tinh thần',label:'🧘 Tinh thần'},
+  {key:'Tài chính',label:'💰 Tài chính'},
+  {key:'Năng suất',label:'⚡ Năng suất'},
+  {key:'Quan hệ',label:'🤝 Quan hệ'}
+];
+
+let libActiveCat = 'all';
+let libSelectedHabit = null;
+let libEditE = '📚';
+let libEditCat = 'Sức khỏe';
+
+window.openHabitLibrary = () => {
+  libActiveCat = 'all';
+  renderLibCats();
+  renderLibList();
+  document.getElementById('habitLibraryOverlay').classList.add('on');
+};
+window.closeHabitLibrary = () => {
+  document.getElementById('habitLibraryOverlay').classList.remove('on');
+};
+
+function renderLibCats() {
+  document.getElementById('libCats').innerHTML = LIB_CATS.map(c =>
+    `<div class="lib-cat${libActiveCat===c.key?' on':''}" onclick="setLibCat('${c.key}')">${c.label}</div>`
+  ).join('');
+}
+
+window.setLibCat = key => {
+  libActiveCat = key;
+  renderLibCats();
+  renderLibList();
+};
+
+function renderLibList() {
+  const existingNames = habits.map(h => h.name.toLowerCase());
+  const filtered = libActiveCat === 'all' ? HABIT_LIBRARY : HABIT_LIBRARY.filter(h => h.cat === libActiveCat);
+  document.getElementById('libList').innerHTML = filtered.map((h, i) => {
+    const idx = HABIT_LIBRARY.indexOf(h);
+    const added = existingNames.includes(h.name.toLowerCase());
+    return `<div class="lib-item${added?' added':''}" >
+      <div class="lib-item-top">
+        <div class="lib-emoji">${h.emoji}</div>
+        <div class="lib-name">${h.name}</div>
+        ${added ? '<span class="lib-added-badge">✓ Đã có</span>' : ''}
+      </div>
+      <div class="lib-desc">${h.tips}</div>
+      <div class="lib-meta">
+        <span class="lib-tag">${h.cat}</span>
+        ${!added ? `<button class="lib-add-btn" onclick="openLibEdit(${idx})">＋ Thêm</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.openLibEdit = idx => {
+  const h = HABIT_LIBRARY[idx];
+  libSelectedHabit = h;
+  libEditE = h.emoji;
+  libEditCat = h.cat;
+  document.getElementById('libName').value = h.name;
+  document.getElementById('libDesc').value = h.desc;
+  document.getElementById('libReminder').value = stats.ntime || '21:00';
+  document.getElementById('libR5').value = '';
+  document.getElementById('libR7').value = '';
+  document.getElementById('libR15').value = '';
+  document.getElementById('libEPick').innerHTML = EMOJIS.map(e =>
+    `<div class="eopt${e===h.emoji?' on':''}" data-e="${e}" onclick="pickLibE(this)">${e}</div>`
+  ).join('');
+  document.querySelectorAll('#libCatPick .copt').forEach(el => el.classList.toggle('on', el.dataset.c === h.cat));
+  document.getElementById('libEditOverlay').classList.add('on');
+};
+
+window.closeLibEdit = () => {
+  document.getElementById('libEditOverlay').classList.remove('on');
+  libSelectedHabit = null;
+};
+
+window.pickLibE = el => {
+  el.parentNode.querySelectorAll('.eopt').forEach(e => e.classList.remove('on'));
+  el.classList.add('on');
+  libEditE = el.dataset.e;
+};
+
+window.pickLibCat = el => {
+  el.parentNode.querySelectorAll('.copt').forEach(e => e.classList.remove('on'));
+  el.classList.add('on');
+  libEditCat = el.dataset.c;
+};
+
+window.confirmAddFromLib = () => {
+  const name = document.getElementById('libName').value.trim();
+  if (!name) { alert('Vui lòng nhập tên thói quen!'); return; }
+  habits.push({
+    id: Date.now() + '',
+    emoji: libEditE,
+    name,
+    cat: libEditCat,
+    desc: document.getElementById('libDesc').value.trim(),
+    reminderTime: document.getElementById('libReminder').value || stats.ntime || '21:00',
+    freq: 'daily',
+    weeklyN: 0,
+    dow: [0,1,2,3,4,5,6],
+    goal: 0,
+    goalUnit: '',
+    r5: document.getElementById('libR5').value.trim() || 'Tự thưởng bản thân!',
+    r7: document.getElementById('libR7').value.trim() || 'Xem phim thoải mái!',
+    r15: document.getElementById('libR15').value.trim() || 'Mua thứ bạn muốn!',
+    done: {}, vacation: {}, moods: {}, notes: {}
+  });
+  addXP(10, tt('addXp'));
+  saveData();
+  closeLibEdit();
+  renderLibList(); // refresh để mark "đã có"
+  // Toast thông báo
+  const t = document.getElementById('xpToast');
+  t.textContent = `✅ Đã thêm "${name}" vào vườn!`;
+  t.classList.add('on');
+  setTimeout(() => t.classList.remove('on'), 2500);
 };
 
 // INIT
