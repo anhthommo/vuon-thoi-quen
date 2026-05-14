@@ -159,7 +159,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .rwico{font-size:19px;line-height:1}
 .rwdays{font-size:11px;font-weight:900;margin:3px 0 2px}
 .rwdays-lk{color:#b0a0c8}.rwdays-nr{color:#c47a00}.rwdays-dn{color:#2e7d32}
-.rwtxt{font-size:9px;font-weight:600;color:#6b5b00;line-height:1.4}
+.rwtxt{font-size:9px;font-weight:600;color:#6b5b00;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
 .rwchk{position:absolute;top:4px;right:6px;font-size:11px}
 .rwprog{height:3px;background:#e8e0d0;border-radius:2px;overflow:hidden;margin-top:5px}
 .rwprogf{height:100%;background:linear-gradient(90deg,#2d5a1b,#f4a100);border-radius:2px}
@@ -585,12 +585,12 @@ html.dark .sc b{color:#fbbf24}
       <div class="sec-title">🎯 Mục tiêu số lượng (tùy chọn)</div>
       <div class="field"><div class="grow-row">
         <input id="iGN" type="number" min="0" placeholder="VD: 8" style="flex:1">
-        <input id="iGU" placeholder="VD: cốc nước, km..." style="flex:2" maxlength="20">
+        <input id="iGU" placeholder="VD: cốc nước, km..." style="flex:2" maxlength="50">
       </div></div>
       <div class="sec-title">🏆 Phần quà mốc streak</div>
-      <div class="field"><label>Quà sau 5 ngày</label><input id="iR5" placeholder="VD: Uống trà sữa yêu thích" maxlength="60"></div>
-      <div class="field"><label>Quà sau 7 ngày</label><input id="iR7" placeholder="VD: Xem 1 tập phim" maxlength="60"></div>
-      <div class="field"><label>Quà sau 15 ngày</label><input id="iR15" placeholder="VD: Mua thứ mình muốn" maxlength="60"></div>
+      <div class="field"><label>Quà sau 5 ngày</label><input id="iR5" placeholder="VD: Uống trà sữa yêu thích" maxlength="50"></div>
+      <div class="field"><label>Quà sau 7 ngày</label><input id="iR7" placeholder="VD: Xem 1 tập phim" maxlength="50"></div>
+      <div class="field"><label>Quà sau 15 ngày</label><input id="iR15" placeholder="VD: Mua thứ mình muốn" maxlength="50"></div>
       <button class="subbtn" onclick="addHabit()">🌻 Bắt đầu hành trình!</button>
     </div>
   </div>
@@ -725,9 +725,9 @@ html.dark .sc b{color:#fbbf24}
       <div class="copt" data-c="Năng suất" onclick="pickLibCat(this)">⚡ Năng suất</div>
       <div class="copt" data-c="Quan hệ" onclick="pickLibCat(this)">🤝 Quan hệ</div>
     </div></div>
-    <div class="field"><label id="libLabelR5">Quà sau 5 ngày</label><input id="libR5" maxlength="60"></div>
-    <div class="field"><label id="libLabelR7">Quà sau 7 ngày</label><input id="libR7" maxlength="60"></div>
-    <div class="field"><label id="libLabelR15">Quà sau 15 ngày</label><input id="libR15" maxlength="60"></div>
+    <div class="field"><label id="libLabelR5">Quà sau 5 ngày</label><input id="libR5" maxlength="50"></div>
+    <div class="field"><label id="libLabelR7">Quà sau 7 ngày</label><input id="libR7" maxlength="50"></div>
+    <div class="field"><label id="libLabelR15">Quà sau 15 ngày</label><input id="libR15" maxlength="50"></div>
     <div class="mbtns">
       <button class="mcancel" id="libCancelBtn" onclick="closeLibEdit()">Hủy</button>
       <button class="msave" id="libConfirmBtn" onclick="confirmAddFromLib()">🌻 Thêm vào vườn!</button>
@@ -768,13 +768,13 @@ html.dark .sc b{color:#fbbf24}
       <div class="copt" data-c="Công việc" onclick="pickCatE(this)">💼 Công việc</div>
       <div class="copt" data-c="Sáng tạo" onclick="pickCatE(this)">🎨 Sáng tạo</div>
     </div></div>
-    <div class="field"><label>🎁 Quà 5 ngày</label><input id="eR5" maxlength="60"></div>
-    <div class="field"><label>🎉 Quà 7 ngày</label><input id="eR7" maxlength="60"></div>
-    <div class="field"><label>🏆 Quà 15 ngày</label><input id="eR15" maxlength="60"></div>
-    <div class="field"><label>💎 Quà 21 ngày</label><input id="eR21" maxlength="60"></div>
-    <div class="field"><label>⭐ Quà 30 ngày</label><input id="eR30" maxlength="60"></div>
-    <div class="field"><label>🔥 Quà 66 ngày</label><input id="eR66" maxlength="60"></div>
-    <div class="field"><label>👑 Quà 90 ngày</label><input id="eR90" maxlength="60"></div>
+    <div class="field"><label>🎁 Quà 5 ngày</label><input id="eR5" maxlength="50"></div>
+    <div class="field"><label>🎉 Quà 7 ngày</label><input id="eR7" maxlength="50"></div>
+    <div class="field"><label>🏆 Quà 15 ngày</label><input id="eR15" maxlength="50"></div>
+    <div class="field"><label>💎 Quà 21 ngày</label><input id="eR21" maxlength="50"></div>
+    <div class="field"><label>⭐ Quà 30 ngày</label><input id="eR30" maxlength="50"></div>
+    <div class="field"><label>🔥 Quà 66 ngày</label><input id="eR66" maxlength="50"></div>
+    <div class="field"><label>👑 Quà 90 ngày</label><input id="eR90" maxlength="50"></div>
     <div class="mbtns"><button class="mcancel" onclick="closeEdit()">Hủy</button><button class="msave" onclick="saveEdit()">Lưu lại</button></div>
   </div>
 </div>
@@ -1561,13 +1561,17 @@ function rwBlock(h,s){
     {d:66,ico:'🔥', r:h.r66||(lang==='en'?'Habit fully formed!':'Thói quen đã thành hình!')},
     {d:90,ico:'👑', r:h.r90||(lang==='en'?'90-day master!':'Bậc thầy 90 ngày!')}
   ];
-  // Các mốc đã đạt
-  const done=allM.filter(m=>s>=m.d);
-  // Các mốc chưa đạt — chỉ lấy 3 mốc tiếp theo
-  const upcoming=allM.filter(m=>s<m.d).slice(0,3);
-  // Hiện mốc đã đạt gần nhất (1 cái) + 3 mốc tiếp theo
-  const lastDone=done.length?[done[done.length-1]]:[];
-  const toShow=[...lastDone,...upcoming];
+  // Tìm index mốc tiếp theo chưa đạt
+  const nextIdx=allM.findIndex(m=>s<m.d);
+  let toShow;
+  if(nextIdx===-1){
+    // Đã đạt hết — hiện 3 mốc cuối
+    toShow=allM.slice(-3);
+  } else {
+    // Lấy cửa sổ: 1 mốc đã đạt trước đó + mốc tiếp theo + 1 mốc sau nữa
+    const start=Math.max(0,nextIdx-1);
+    toShow=allM.slice(start,start+3);
+  }
   if(!toShow.length) return '';
   const items=toShow.map(m=>{
     const dn=s>=m.d,nr=s>=m.d-1&&s<m.d,cl=dn?'rwdn':nr?'rwnr':'rwlk',dc=dn?'rwdays-dn':nr?'rwdays-nr':'rwdays-lk';
