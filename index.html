@@ -166,6 +166,54 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .divln{height:1px;background:#f0e8c0;margin:0 12px}
 
 /* DRAG HANDLE */
+/* STREAK RESCUE & BULK VAC */
+.rescue-bar{display:flex;gap:8px;padding:0 14px 12px;flex-wrap:wrap}
+.rescue-btn{flex:1;min-width:140px;padding:10px 12px;border-radius:14px;border:1.5px solid #ff9800;background:linear-gradient(135deg,#fff8e1,#fff3cd);color:#c47a00;font-family:inherit;font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;box-shadow:0 2px 8px rgba(196,122,0,.12)}
+.rescue-btn:hover{background:linear-gradient(135deg,#fff3cd,#ffe082);transform:translateY(-1px)}
+.rescue-btn:disabled{opacity:.45;cursor:default;transform:none}
+.rescue-btn .rb-ico{font-size:18px;flex-shrink:0}
+.rescue-btn .rb-txt{text-align:left;line-height:1.3}
+.rescue-btn .rb-lbl{font-size:12px;font-weight:900;color:#c47a00}
+.rescue-btn .rb-sub{font-size:10px;color:#8b6a00;font-weight:600}
+.bulkvac-btn{flex:1;min-width:140px;padding:10px 12px;border-radius:14px;border:1.5px solid #4caf50;background:linear-gradient(135deg,#e8f5e9,#c8e6c9);color:#2e7d32;font-family:inherit;font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;box-shadow:0 2px 8px rgba(46,125,50,.1)}
+.bulkvac-btn:hover{background:linear-gradient(135deg,#c8e6c9,#a5d6a7);transform:translateY(-1px)}
+.bulkvac-btn.on{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-color:#ff9800;color:#e65100}
+.bulkvac-btn .rb-ico{font-size:18px;flex-shrink:0}
+.bulkvac-btn .rb-txt{text-align:left;line-height:1.3}
+.bulkvac-btn .rb-lbl{font-size:12px;font-weight:900}
+.bulkvac-btn .rb-sub{font-size:10px;font-weight:600;opacity:.8}
+/* Rescue overlay */
+.rescue-overlay{display:none;position:fixed;inset:0;background:rgba(28,18,0,.62);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(5px);padding:14px}
+.rescue-overlay.on{display:flex}
+.rescue-modal{background:#fff;border-radius:20px;padding:20px;width:100%;max-width:400px;box-shadow:0 24px 80px rgba(28,18,0,.3);animation:pin .3s cubic-bezier(.34,1.56,.64,1)}
+.rescue-title{font-size:17px;font-weight:900;color:#c47a00;margin-bottom:6px}
+.rescue-sub{font-size:12px;color:#7a5a00;margin-bottom:16px;line-height:1.6}
+.rescue-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;max-height:320px;overflow-y:auto}
+.rescue-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:1.5px solid #f0d060;background:#fffbf0;cursor:pointer;transition:all .15s}
+.rescue-item:hover{background:#fff3b0;border-color:#f4a100}
+.rescue-item input[type=checkbox]{width:18px;height:18px;accent-color:#f4a100;flex-shrink:0}
+.rescue-item .ri-ico{font-size:20px;flex-shrink:0}
+.rescue-item .ri-name{font-size:13px;font-weight:800;color:#1a1000;flex:1}
+.rescue-item .ri-streak{font-size:10px;font-weight:700;color:#7a5a00}
+.rescue-quota{background:#fff8e1;border:1.5px solid #ffe082;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:700;color:#7a4f00;margin-bottom:10px}
+.rescue-tabs{display:flex;gap:6px;margin-bottom:10px}
+.rtab{flex:1;padding:8px;text-align:center;font-size:12px;font-weight:800;border-radius:10px;border:1.5px solid #f0d060;background:#fffbf0;color:#9a7a00;cursor:pointer;transition:all .2s}
+.rtab.on{background:linear-gradient(135deg,#2d5a1b,#f4a100);color:#fff;border-color:transparent}
+.rescue-item .ri-radios{display:flex;gap:5px;margin-top:4px}
+.ri-radio{padding:4px 10px;border-radius:20px;border:1.5px solid #f0d060;background:#fffbf0;font-size:11px;font-weight:700;color:#7a5a00;cursor:pointer;transition:all .15s}
+.ri-radio.on-done{background:#e8f5e9;border-color:#66bb6a;color:#2e7d32}
+.ri-radio.on-vac{background:#fff8e1;border-color:#ffcc80;color:#e65100}
+html.dark .rtab{background:#1a1200;border-color:#4a3800;color:#fbbf24}
+html.dark .rtab.on{background:linear-gradient(135deg,#1a3a1a,#c47a00);color:#fff}
+html.dark .ri-radio{background:#1a1200;border-color:#4a3800;color:#fbbf24}
+html.dark .rescue-btn{background:linear-gradient(135deg,#292200,#3a2e00);border-color:#c47a00;color:#fbbf24}
+html.dark .bulkvac-btn{background:linear-gradient(135deg,#0a2010,#0d2e14);border-color:#388e3c;color:#81c784}
+html.dark .bulkvac-btn.on{background:linear-gradient(135deg,#2a1500,#3a1e00);border-color:#f4a100;color:#fbbf24}
+html.dark .rescue-modal{background:#1e1e1e}
+html.dark .rescue-item{background:#2a2000;border-color:#4a3800;color:#ffe082}
+html.dark .rescue-item:hover{background:#3a2e00}
+html.dark .rescue-quota{background:#2a2000;border-color:#4a3800;color:#fbbf24}
+
 .drag-handle{cursor:grab;font-size:18px;color:#c9a96e;padding:4px 6px;touch-action:none;user-select:none;flex-shrink:0;line-height:1;align-self:center}
 .drag-handle:active{cursor:grabbing}
 .hcard.drag-over{outline:2px dashed #f4a100;background:#fffde7}
@@ -479,7 +527,25 @@ html.dark .sc b{color:#fbbf24}
     <div class="tab" onclick="goTab('settings')">⚙️ Cài Đặt</div>
   </div>
 
-  <div id="pg-garden" class="page on"><div id="hlist"></div></div>
+  <div id="pg-garden" class="page on">
+    <div class="rescue-bar">
+      <button class="rescue-btn" id="rescueBarBtn" onclick="openRescue()">
+        <span class="rb-ico">⚡</span>
+        <span class="rb-txt">
+          <span class="rb-lbl" id="rescueBarLbl">Cứu streak hôm qua</span>
+          <span class="rb-sub" id="rescueBarSub">(Còn 2 lần cứu tháng này)</span>
+        </span>
+      </button>
+      <button class="bulkvac-btn" id="bulkVacBtn" onclick="toggleBulkVac()">
+        <span class="rb-ico">🏖</span>
+        <span class="rb-txt">
+          <span class="rb-lbl" id="bulkVacLbl">Nghỉ phép hôm nay</span>
+          <span class="rb-sub" id="bulkVacSub">(Tất cả các thói quen)</span>
+        </span>
+      </button>
+    </div>
+    <div id="hlist"></div>
+  </div>
 
   <div id="pg-add" class="page">
     <div style="background:linear-gradient(135deg,#1a3a1a,#2d5a1b 50%,#f4a100);border-radius:18px;padding:16px 18px;margin-bottom:14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 4px 20px rgba(196,122,0,.2)" onclick="openHabitLibrary()">
@@ -707,6 +773,24 @@ html.dark .sc b{color:#fbbf24}
     <div class="field"><label>Quà 7 ngày</label><input id="eR7" maxlength="60"></div>
     <div class="field"><label>Quà 15 ngày</label><input id="eR15" maxlength="60"></div>
     <div class="mbtns"><button class="mcancel" onclick="closeEdit()">Hủy</button><button class="msave" onclick="saveEdit()">Lưu lại</button></div>
+  </div>
+</div>
+
+<!-- Streak Rescue Modal -->
+<div class="rescue-overlay" id="rescueOverlay" onclick="if(event.target===this)closeRescue()">
+  <div class="rescue-modal">
+    <div class="rescue-title" id="rescueTitle">⚡ Cứu streak cho hôm qua</div>
+    <div class="rescue-quota" id="rescueQuota">📅 Đã dùng 0/2 lần cứu tháng này</div>
+    <div class="rescue-tabs" id="rescueTabs">
+      <div class="rtab on" id="rtab-done" onclick="switchRescueTab('done')">✅ Quên tick</div>
+      <div class="rtab" id="rtab-vac" onclick="switchRescueTab('vac')">🏖 Quên nghỉ phép</div>
+    </div>
+    <div class="rescue-sub" id="rescueSub">Chọn thói quen bạn đã làm hôm qua nhưng quên tick. Streak sẽ được giữ nguyên.</div>
+    <div class="rescue-list" id="rescueList"></div>
+    <div class="mbtns">
+      <button class="mcancel" onclick="closeRescue()" id="rescueCancelBtn">Hủy</button>
+      <button class="msave" onclick="confirmRescue()" id="rescueSaveBtn">⚡ Cứu streak!</button>
+    </div>
   </div>
 </div>
 
@@ -1520,6 +1604,8 @@ function render(){
     </div>`;
   }).join('');
   initDnD();
+  updateRescueBar();
+  updateBulkVacBtn();
 }
 
 function renderDiary(){
@@ -2193,6 +2279,167 @@ function resetEgrid(gridId, btnId){
   if(grid) grid.classList.remove('expanded');
   if(btn)  btn.textContent = tt('iconMore');
 }
+
+// ── STREAK RESCUE ──
+const RESCUE_LIMIT = 2;
+let _rescueTab = 'done';
+function getRescueMonthKey(){ const n=new Date(); return `rescue_${n.getFullYear()}_${n.getMonth()+1}`; }
+function getRescueUsed(){ return (stats.rescueLog || {})[getRescueMonthKey()] || 0; }
+function getRescueLeft(){ return Math.max(0, RESCUE_LIMIT - getRescueUsed()); }
+
+function updateRescueBar(){
+  const left = getRescueLeft();
+  const btn = document.getElementById('rescueBarBtn');
+  const lbl = document.getElementById('rescueBarLbl');
+  const sub = document.getElementById('rescueBarSub');
+  if(!btn) return;
+  if(lbl) lbl.textContent = lang==='en' ? "Rescue yesterday's streak" : 'Cứu streak hôm qua';
+  if(left===0){
+    btn.disabled=true;
+    if(sub) sub.textContent = lang==='en' ? '(No rescues left this month)' : '(Hết lượt cứu tháng này)';
+  } else {
+    btn.disabled=false;
+    if(sub) sub.textContent = lang==='en' ? `(${left} rescue${left>1?'s':''} left this month)` : `(Còn ${left} lần cứu tháng này)`;
+  }
+}
+
+window.switchRescueTab = (tab) => {
+  _rescueTab = tab;
+  document.getElementById('rtab-done').classList.toggle('on', tab==='done');
+  document.getElementById('rtab-vac').classList.toggle('on', tab==='vac');
+  _renderRescueList();
+};
+
+function _renderRescueList(){
+  const yKey = dateKeyLocal(addLocalDays(new Date(),-1));
+  const yDow = parseLocalDateKey(yKey).getDay();
+  const isVac = _rescueTab === 'vac';
+  const sub = document.getElementById('rescueSub');
+  if(sub) sub.textContent = isVac
+    ? (lang==='en' ? 'Select habits you forgot to mark as break yesterday. Streak will be protected.' : 'Chọn thói quen bạn quên bật nghỉ phép hôm qua. Streak sẽ được bảo toàn.')
+    : (lang==='en' ? 'Select habits you did yesterday but forgot to tick. Streak will be kept.' : 'Chọn thói quen bạn đã làm hôm qua nhưng quên tick. Streak sẽ được giữ nguyên.');
+  const saveBtn = document.getElementById('rescueSaveBtn');
+  if(saveBtn) saveBtn.textContent = isVac
+    ? (lang==='en' ? '🏖 Save break!' : '🏖 Lưu nghỉ phép!')
+    : (lang==='en' ? '⚡ Rescue streak!' : '⚡ Cứu streak!');
+  const eligible = habits.filter(h=>{
+    if(!isSchd(h,{dow:yDow})) return false;
+    if(isVac){
+      if(h.vacation?.[yKey]) return false;
+      if(h.done?.[yKey]) return false;
+    } else {
+      if(h.done?.[yKey]) return false;
+      if(h.vacation?.[yKey]) return false;
+    }
+    return true;
+  });
+  const emptyMsg = isVac
+    ? (lang==='en' ? '✅ No habits need a break saved for yesterday!' : '✅ Không có thói quen nào cần lưu nghỉ phép cho hôm qua!')
+    : (lang==='en' ? '✅ No habits need rescuing for yesterday!' : '✅ Không có thói quen nào cần cứu cho hôm qua!');
+  if(!eligible.length){
+    document.getElementById('rescueList').innerHTML=`<div style="text-align:center;padding:20px;color:#7a5a00;font-size:13px">${emptyMsg}</div>`;
+    if(saveBtn) saveBtn.disabled=true;
+  } else {
+    if(saveBtn) saveBtn.disabled=false;
+    const streakLabel = lang==='en' ? 'Current streak' : 'Streak hiện tại';
+    const daysLabel = lang==='en' ? 'days' : 'ngày';
+    document.getElementById('rescueList').innerHTML = eligible.map(h=>`
+      <label class="rescue-item">
+        <input type="checkbox" value="${h.id}" checked>
+        <span class="ri-ico">${h.emoji}</span>
+        <span class="ri-name">${h.name}<br><span class="ri-streak">🔥 ${streakLabel}: ${getStreak(h)} ${daysLabel}</span></span>
+      </label>`).join('');
+  }
+}
+
+window.openRescue = ()=>{
+  if(getRescueLeft()===0){
+    alert(lang==='en'
+      ? 'You have used all 2 rescues this month!\n\nA streak is only valuable when you truly maintain it 💪'
+      : 'Bạn đã dùng hết 2 lần cứu streak tháng này rồi!\n\nStreak cần được duy trì để có giá trị thật sự 💪');
+    return;
+  }
+  _rescueTab = 'done';
+  document.getElementById('rtab-done').classList.add('on');
+  document.getElementById('rtab-vac').classList.remove('on');
+  const used = getRescueUsed();
+  const quotaEl = document.getElementById('rescueQuota');
+  if(quotaEl) quotaEl.textContent = lang==='en'
+    ? `📅 Used ${used}/${RESCUE_LIMIT} rescues this month`
+    : `📅 Đã dùng ${used}/${RESCUE_LIMIT} lần cứu tháng này`;
+  const titleEl = document.getElementById('rescueTitle');
+  if(titleEl) titleEl.textContent = lang==='en' ? "⚡ Rescue yesterday's streak" : '⚡ Cứu streak cho hôm qua';
+  const cancelEl = document.getElementById('rescueCancelBtn');
+  if(cancelEl) cancelEl.textContent = lang==='en' ? 'Cancel' : 'Hủy';
+  const tabDone = document.getElementById('rtab-done');
+  const tabVac = document.getElementById('rtab-vac');
+  if(tabDone) tabDone.textContent = lang==='en' ? '✅ Forgot to tick' : '✅ Quên tick';
+  if(tabVac) tabVac.textContent = lang==='en' ? '🏖 Forgot break' : '🏖 Quên nghỉ phép';
+  _renderRescueList();
+  document.getElementById('rescueOverlay').classList.add('on');
+};
+window.closeRescue = ()=>{ document.getElementById('rescueOverlay').classList.remove('on'); };
+window.confirmRescue = ()=>{
+  const yKey = dateKeyLocal(addLocalDays(new Date(),-1));
+  const isVac = _rescueTab === 'vac';
+  const checked = [...document.querySelectorAll('#rescueList input[type=checkbox]:checked')].map(el=>el.value);
+  if(!checked.length){
+    alert(lang==='en' ? 'Please select at least one habit!' : 'Chọn ít nhất 1 thói quen để cứu!');
+    return;
+  }
+  checked.forEach(id=>{
+    const h=habits.find(x=>x.id===id); if(!h)return;
+    if(isVac){ if(!h.vacation)h.vacation={}; h.vacation[yKey]=true; }
+    else { if(!h.done)h.done={}; h.done[yKey]=true; }
+  });
+  if(!stats.rescueLog) stats.rescueLog={};
+  const mk=getRescueMonthKey();
+  stats.rescueLog[mk]=(stats.rescueLog[mk]||0)+1;
+  saveData(); render(); closeRescue(); updateRescueBar();
+  const t=document.getElementById('xpToast');
+  t.textContent = isVac
+    ? (lang==='en' ? `🏖 Break saved for ${checked.length} habit(s)! Streak protected 🔥` : `🏖 Đã lưu nghỉ phép cho ${checked.length} thói quen! Streak được bảo toàn 🔥`)
+    : (lang==='en' ? `⚡ Rescued ${checked.length} habit(s)! Streak kept 🔥` : `⚡ Đã cứu streak ${checked.length} thói quen! Streak được giữ 🔥`);
+  t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),3000);
+};
+
+// ── BULK VACATION ──
+function isBulkVacToday(){
+  const t=today();
+  const scheduled=habits.filter(h=>isSchd(h,{dow:new Date().getDay()}));
+  return scheduled.length>0 && scheduled.every(h=>h.vacation?.[t]);
+}
+window.toggleBulkVac = ()=>{
+  const t=today();
+  const scheduled=habits.filter(h=>isSchd(h,{dow:new Date().getDay()}));
+  if(!scheduled.length){
+    alert(lang==='en' ? 'No habits scheduled today!' : 'Không có thói quen nào hôm nay!');
+    return;
+  }
+  const allOn=scheduled.every(h=>h.vacation?.[t]);
+  scheduled.forEach(h=>{ if(!h.vacation)h.vacation={}; h.vacation[t]=!allOn; });
+  saveData(); render(); updateBulkVacBtn();
+  const msg = !allOn
+    ? (lang==='en' ? '🏖 Break mode on for all habits today!' : '🏖 Đã bật nghỉ phép cho tất cả thói quen hôm nay!')
+    : (lang==='en' ? '✅ Break off — keep going!' : '✅ Đã tắt nghỉ phép — tiếp tục hành trình!');
+  const t2=document.getElementById('xpToast'); t2.textContent=msg; t2.classList.add('on'); setTimeout(()=>t2.classList.remove('on'),2500);
+};
+function updateBulkVacBtn(){
+  const btn=document.getElementById('bulkVacBtn');
+  const lbl=document.getElementById('bulkVacLbl');
+  const sub=document.getElementById('bulkVacSub');
+  if(!btn) return;
+  const on=isBulkVacToday();
+  btn.classList.toggle('on',on);
+  if(on){
+    if(lbl) lbl.textContent = lang==='en' ? 'On break today' : 'Đang nghỉ phép';
+    if(sub) sub.textContent = lang==='en' ? '(Tap to turn off)' : '(Nhấn để bật lại)';
+  } else {
+    if(lbl) lbl.textContent = lang==='en' ? 'Day off today' : 'Nghỉ phép hôm nay';
+    if(sub) sub.textContent = lang==='en' ? '(All habits)' : '(Tất cả các thói quen)';
+  }
+}
+
 
 // INIT
 document.getElementById('epick').innerHTML=EMOJIS.map(e=>`<div class="eopt${e===selE?' on':''}" data-e="${e}" onclick="pickE(this)">${e}</div>`).join('');
