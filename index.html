@@ -324,6 +324,14 @@ html.dark .lib-edit-box{background:#182235}
 html.dark .lib-edit-title{color:#fbbf24}
 html.dark .lib-edit-sub{color:#94a3b8}
 
+/* ── DRAG & DROP ── */
+.hcard{transition:box-shadow .2s,opacity .2s,transform .2s}
+.hcard.dragging{opacity:.45;transform:scale(.97);box-shadow:0 8px 32px rgba(196,122,0,.35)!important}
+.hcard.drag-over{box-shadow:0 0 0 2.5px #f4a100,0 8px 32px rgba(196,122,0,.2)!important;transform:translateY(-2px)}
+.drag-handle{cursor:grab;font-size:18px;color:#c8b07a;padding:4px 2px;user-select:none;touch-action:none;line-height:1;flex-shrink:0}
+.drag-handle:active{cursor:grabbing}
+html.dark .drag-handle{color:#475569}
+
 /* ── DARK MODE ── */
 html.dark{color-scheme:dark}
 html.dark body{background:#111827;color:#f8fafc}
@@ -962,7 +970,7 @@ function applyLang(){
   render();renderBadges();updateXP();applyTheme();
 }
 window.toggleTheme=()=>{theme=theme==='dark'?'light':'dark';localStorage.setItem('vh_theme',theme);applyTheme();};
-window.toggleLang=()=>{lang=lang==='vi'?'en':'vi';localStorage.setItem('vh_lang',lang);applyLang();};
+window.toggleLang=()=>{lang=lang==='vi'?'en':'vi';localStorage.setItem('vh_lang',lang);libActiveCat='all';applyLang();};
 
 // ── PWA ──
 applyTheme();
@@ -1477,10 +1485,11 @@ function render(){
     }).join('');
     const tags=[h.cat?`<span class="tp tcat">${catLabel(h.cat)}</span>`:'',h.freq&&h.freq!=='daily'?`<span class="tp tfrq">${h.freq==='weekly'?h.weeklyN+'x/'+(lang==='en'?'week':'tuần'):tt('custom')}</span>`:'',`<span class="tp trem" onclick="openReminderModal('${h.id}')" title="Bấm để đặt giờ nhắc riêng">⏰ ${h.reminderTime||stats.ntime||'21:00'}</span>`,h.goal>0?`<span class="tp tgl">🎯 ${h.goal} ${h.goalUnit||''}</span>`:'',onV?`<span class="tp tvac">${tt('vacation')}</span>`:''].filter(Boolean).join('');
     const moodRow=`<div class="mlbl">${tt('moodRow')}</div><div class="mrow">${MOODS.map(m=>`<div class="mbtn${mood===m?' on':''}" onclick="pickMoodD('${h.id}','${t}','${m}')">${m}</div>`).join('')}</div>`;
-    return`<div class="hcard">
+    return`<div class="hcard" data-id="${h.id}" draggable="true">
       <div class="hstrip"></div>
       ${onV?`<div class="vacbanner">${tt('vacToday')}</div>`:''}
       <div class="htop">
+        <div class="drag-handle" title="Kéo để sắp xếp">⠿</div>
         <div class="hemo">${h.emoji}</div>
         <div class="hmeta">
           <div class="hname">${h.name}</div>
@@ -1742,15 +1751,209 @@ const HABIT_LIBRARY = [
   {emoji:'❤️',name:'Nói lời yêu thương cụ thể',cat:'Quan hệ',desc:'Nói "Em yêu anh vì..." hoặc "Con biết ơn ba/mẹ vì..." — cụ thể',freq:'daily',tips:'Lời yêu thương cụ thể chạm đến trái tim hơn "anh yêu em" chung chung — specificity creates depth.'}
 ];
 
-function getLibCats(){return[
-  {key:'all',label:tt('libCatAll')},
-  {key:'Sức khỏe',label:tt('libCatHealth')},
-  {key:'Học tập',label:tt('libCatStudy')},
-  {key:'Tinh thần',label:tt('libCatMind')},
-  {key:'Tài chính',label:tt('libCatFinance')},
-  {key:'Năng suất',label:tt('libCatProd')},
-  {key:'Quan hệ',label:tt('libCatRelation')}
-];}
+const HABIT_LIBRARY_EN = [
+  // 💪 HEALTH (30)
+  {emoji:'💧',name:'Drink 8 glasses of water',cat:'Health',desc:'Drink steadily throughout the day — keep a bottle nearby',freq:'daily',tips:'Even 1–2% dehydration reduces brain performance noticeably. Staying hydrated is the foundation of health.'},
+  {emoji:'🚶',name:'Walk 20 minutes',cat:'Health',desc:'A light walk around the house, park, or during lunch break',freq:'daily',tips:'20 minutes of walking daily reduces cardiovascular risk by 30% and improves mood within just 10 minutes.'},
+  {emoji:'🤸',name:'Morning stretching',cat:'Health',desc:'5–10 minutes of gentle stretching right after waking up',freq:'daily',tips:'Morning stretches activate blood circulation, reduce joint stiffness and create energy for the whole day.'},
+  {emoji:'🌙',name:'Sleep before 23:00',cat:'Health',desc:'Put away your phone by 22:30 to prepare for rest',freq:'daily',tips:'Getting 7–8 hours of sleep before midnight helps the brain process memories and regenerate cells most effectively.'},
+  {emoji:'🥦',name:'Eat more vegetables or fruit',cat:'Health',desc:'Add at least 1 serving of vegetables or fruit to today\'s meals',freq:'daily',tips:'Fiber and vitamins from produce reduce cancer risk by up to 20% according to WHO research.'},
+  {emoji:'🏋️',name:'10 minutes strength training',cat:'Health',desc:'Squats, planks, push-ups — no equipment needed',freq:'daily',tips:'10 minutes of resistance training daily improves bone density, boosts metabolism and posture.'},
+  {emoji:'🦷',name:'Use dental floss',cat:'Health',desc:'Floss before brushing teeth at night',freq:'daily',tips:'70% of plaque hides between teeth where toothbrushes can\'t reach. Flossing is the most effective gum protection.'},
+  {emoji:'☀️',name:'Get 5 minutes of sunlight',cat:'Health',desc:'Step onto the balcony or by a window to catch morning sun',freq:'daily',tips:'Morning sunlight regulates your biological clock, boosts vitamin D and improves sleep quality at night.'},
+  {emoji:'🍱',name:'Eat one healthy meal',cat:'Health',desc:'Focus on at least 1 meal: balanced protein, vegetables, good carbs',freq:'daily',tips:'One balanced meal a day creates enough nutritional foundation for your body to recover and thrive.'},
+  {emoji:'🧍',name:'Stand up and move 5 minutes',cat:'Health',desc:'Every 1–2 hours of sitting, get up and walk around',freq:'daily',tips:'Sitting continuously for over 2 hours raises diabetes and heart disease risk, even if you exercise regularly.'},
+  {emoji:'🍵',name:'Drink warm water after waking up',cat:'Health',desc:'1 glass of warm water before breakfast to activate digestion',freq:'daily',tips:'Warm water in the morning stimulates intestinal movement, gently detoxifies and rehydrates after sleep.'},
+  {emoji:'🫁',name:'Practice belly breathing',cat:'Health',desc:'Breathe deeply from the belly, exhale slowly — 5 minutes',freq:'daily',tips:'Diaphragmatic breathing activates the parasympathetic nervous system, lowering heart rate and blood pressure within minutes.'},
+  {emoji:'🚴',name:'Cycling or cardio workout',cat:'Health',desc:'Cycling, jump rope, swimming or home aerobics',freq:'daily',tips:'Regular cardio increases lung capacity, cardiovascular endurance and helps you sleep deeper at night.'},
+  {emoji:'🧂',name:'Eat less salt today',cat:'Health',desc:'Avoid adding extra salt — season lighter today',freq:'daily',tips:'High salt intake is the leading cause of hypertension — the silent disease affecting millions of people.'},
+  {emoji:'🍬',name:'Cut back on sweets today',cat:'Health',desc:'Skip one sugary snack or sweetened drink today',freq:'daily',tips:'Refined sugar causes chronic inflammation, blood sugar swings and post-meal fatigue.'},
+  {emoji:'🍳',name:'Eat a nutritious breakfast',cat:'Health',desc:'Breakfast with protein + good carbs for lasting energy and focus',freq:'daily',tips:'A proper breakfast stabilizes blood sugar, reduces afternoon cravings and boosts concentration.'},
+  {emoji:'🧴',name:'Apply sunscreen',cat:'Health',desc:'SPF 30+ every morning — even on cloudy or indoor days',freq:'daily',tips:'UV rays penetrate glass and clouds. Daily sunscreen is the most effective anti-aging measure available.'},
+  {emoji:'👁️',name:'20-20-20 eye rest rule',cat:'Health',desc:'Every 20 minutes of screen time, look 6m away for 20 seconds',freq:'daily',tips:'The 20-20-20 rule significantly reduces digital eye strain — a problem affecting 90% of office workers.'},
+  {emoji:'🪥',name:'Brush teeth before sleep',cat:'Health',desc:'Brush for 2 full minutes — don\'t skip even when tired',freq:'daily',tips:'Mouth bacteria double while you sleep. Brushing at night is a habit that protects your overall health.'},
+  {emoji:'⚖️',name:'Track your weight',cat:'Health',desc:'Weigh yourself each morning after waking — record it',freq:'daily',tips:'Daily weight tracking (without judgment) helps spot trends and make adjustments earlier.'},
+  {emoji:'🪑',name:'Correct your posture',cat:'Health',desc:'Straight back, relaxed shoulders, screen at eye level',freq:'daily',tips:'Poor posture causes chronic back pain — the most common condition for office workers in the 21st century.'},
+  {emoji:'🚿',name:'Wash face or quick shower',cat:'Health',desc:'Basic hygiene every morning to feel fresh and alert',freq:'daily',tips:'A morning hygiene routine signals to the brain that "a new day has started" — boosting alertness.'},
+  {emoji:'🥕',name:'Prepare a healthy snack',cat:'Health',desc:'Nuts, fruit, yogurt — replace unhealthy snacks',freq:'daily',tips:'Having healthy snacks within reach reduces the chance of choosing junk food when hungry by 60%.'},
+  {emoji:'🥤',name:'No sugary drinks today',cat:'Health',desc:'Replace soda with water, unsweetened tea or fresh juice',freq:'daily',tips:'One can of soda contains 10 teaspoons of sugar. Cutting it out is the most impactful dietary change you can make.'},
+  {emoji:'🛏️',name:'Make your bed',cat:'Health',desc:'Make your bed right after waking up — it only takes 2 minutes',freq:'daily',tips:'Making your bed in the morning is your first win of the day — it creates momentum and a sense of control.'},
+  {emoji:'🧘',name:'10 minutes yoga',cat:'Health',desc:'A gentle morning yoga flow to wake up your body',freq:'daily',tips:'Yoga combines stretching, breathing and meditation — addressing both physical and mental health at once.'},
+  {emoji:'🧴',name:'Carry a water bottle',cat:'Health',desc:'Always have a bottle nearby — you drink more when you can see it',freq:'daily',tips:'People with a water bottle nearby drink 60% more than those without one — environment shapes behavior.'},
+  {emoji:'📵',name:'Take a 15-minute screen break',cat:'Health',desc:'Turn off all screens and rest completely mid-day',freq:'daily',tips:'The brain needs unstimulated time to consolidate memories and restore the capacity to focus.'},
+  {emoji:'🍽️',name:'Walk after a meal',cat:'Health',desc:'A gentle 10-minute walk after lunch or dinner',freq:'daily',tips:'A light post-meal walk reduces blood sugar by up to 30% and aids digestion better than lying down.'},
+  {emoji:'🩺',name:'Personal health check-in',cat:'Health',desc:'Ask yourself how your body feels today — note any unusual signs',freq:'daily',tips:'Listening to your body daily helps detect problems early before they become serious.'},
+
+  // 📚 LEARNING (30)
+  {emoji:'📖',name:'Read 10 pages',cat:'Learning',desc:'Read consistently every day — quantity matters less than consistency',freq:'daily',tips:'10 pages/day = 3,650 pages/year = about 12–15 books. Consistency beats volume.'},
+  {emoji:'🌍',name:'Study a foreign language 15 min',cat:'Learning',desc:'Duolingo, Anki or subtitled videos — 15 minutes',freq:'daily',tips:'15 minutes daily is enough to reach conversational level in 1 year — if you truly stay consistent.'},
+  {emoji:'✏️',name:'Write down 3 key ideas learned',cat:'Learning',desc:'After studying, write down the 3 most important things',freq:'daily',tips:'Retrieval practice: recalling knowledge from memory helps retain it 4× longer than re-reading.'},
+  {emoji:'🎧',name:'Listen to a learning podcast',cat:'Learning',desc:'30 minutes of a subject podcast while commuting or exercising',freq:'daily',tips:'Using "dead time" to learn — people who listen to podcasts consistently accumulate 200+ learning hours per year.'},
+  {emoji:'🃏',name:'Review flashcards',cat:'Learning',desc:'Go through your flashcard deck — Anki, Quizlet or handwritten cards',freq:'daily',tips:'Spaced repetition via flashcards is the most scientifically proven method for long-term retention — 90% after 30 days.'},
+  {emoji:'💻',name:'Code for 20 minutes',cat:'Learning',desc:'LeetCode, personal project or learn a new feature',freq:'daily',tips:'Coding consistently 20 min/day = 120 hours/year. Programming skills compound like interest.'},
+  {emoji:'🔍',name:'Look up one new concept',cat:'Learning',desc:'Research 1 term, concept or curiosity you had today',freq:'daily',tips:'Curiosity-driven learning — following what interests you — helps the brain retain information deeper than pressure-driven study.'},
+  {emoji:'✍️',name:'Write 100 words',cat:'Learning',desc:'Free writing — journal, ideas, summary — 100 words a day',freq:'daily',tips:'Regular writing improves analytical thinking, expression skills and clarity of thought.'},
+  {emoji:'📺',name:'Watch one short lesson',cat:'Learning',desc:'YouTube video or online course — 1 lesson under 20 minutes',freq:'daily',tips:'1 lesson/day = 365 lessons/year. Learning in small units is easier to sustain than long marathon sessions.'},
+  {emoji:'📝',name:'Do one small exercise',cat:'Learning',desc:'Apply knowledge to a practical task — even a small one',freq:'daily',tips:'Learning by doing: the brain retains 75% of what we do, versus only 10% of what we read.'},
+  {emoji:'🗂️',name:'Review old notes',cat:'Learning',desc:'Open notes from last week or month — re-read for 10 minutes',freq:'daily',tips:'Reviewing at the right interval (spaced repetition) improves long-term retention from 20% to 90%.'},
+  {emoji:'❓',name:'Ask one good question',cat:'Learning',desc:'Ask yourself or someone else something you\'re genuinely curious about',freq:'daily',tips:'Feynman Technique: good questions are a sign of understanding — great learners ask more than they answer.'},
+  {emoji:'📂',name:'Organize study materials',cat:'Learning',desc:'Tidy up your folders, notes, bookmarks — 10 minutes',freq:'daily',tips:'A clean learning environment reduces cognitive load — helping the brain focus on learning instead of searching.'},
+  {emoji:'🧑‍🏫',name:'Teach an idea to someone else',cat:'Learning',desc:'Explain one thing you learned today to someone — or to yourself',freq:'daily',tips:'The Protégé Effect: teaching others helps you understand and retain 90% of that knowledge.'},
+  {emoji:'🔖',name:'Save one quality resource',cat:'Learning',desc:'Bookmark or note one great article, video or tool',freq:'daily',tips:'Building a personal knowledge library by topic helps you learn systematically and stay on track.'},
+  {emoji:'📰',name:'Read one professional article',cat:'Learning',desc:'Blog, Medium, industry journal — one quality piece',freq:'daily',tips:'Reading deeply in your field helps you stay ahead of colleagues who don\'t read.'},
+  {emoji:'🏁',name:'Complete one small learning goal',cat:'Learning',desc:'Finish 1 chapter, 1 module, 1 exercise — check it off',freq:'daily',tips:'Clear progress triggers dopamine — the brain rewards every completed task, helping sustain motivation.'},
+  {emoji:'🧫',name:'Run a small experiment',cat:'Learning',desc:'Try applying 1 new idea in real life — even something small',freq:'daily',tips:'Experimenting beats theory — you immediately learn what works and what doesn\'t.'},
+  {emoji:'📗',name:'Read non-fiction',cat:'Learning',desc:'Knowledge, skills, history, science books — 15 minutes',freq:'daily',tips:'Non-fiction expands your worldview and provides thinking tools that no school will ever teach you.'},
+  {emoji:'🔤',name:'Learn 5 new words',cat:'Learning',desc:'5 new words — in a foreign language or your professional field',freq:'daily',tips:'5 words/day = 1,825 words/year. Vocabulary is the foundation of every communication and learning skill.'},
+  {emoji:'🗣️',name:'Practice speaking for 5 minutes',cat:'Learning',desc:'Speak aloud — explain a concept, tell a story, practice pronunciation',freq:'daily',tips:'Speaking aloud reveals knowledge gaps faster than reading silently — you\'ll immediately know if you truly understand.'},
+  {emoji:'🧩',name:'Practice logical thinking',cat:'Learning',desc:'Solve a puzzle, math problem, sudoku or reasoning exercise',freq:'daily',tips:'Training logical thinking is like going to the gym for your brain — it helps you solve problems faster in every area.'},
+  {emoji:'🗺️',name:'Review your learning roadmap',cat:'Learning',desc:'Look back at your learning goals and current progress — 5 minutes',freq:'daily',tips:'People with a clear learning roadmap reach their goals 40% faster than those learning without a plan.'},
+  {emoji:'💡',name:'Write down a real-life example',cat:'Learning',desc:'Find 1 real-life example for something you just learned',freq:'daily',tips:'Abstract to concrete: real examples help the brain create stronger connections — making knowledge easier to remember.'},
+  {emoji:'🧑‍💼',name:'Learn from an expert',cat:'Learning',desc:'Watch an interview or follow someone great in your field',freq:'daily',tips:'Learning from people better than you shortens the path — avoid their mistakes and absorb their insights.'},
+  {emoji:'📅',name:'Set a fixed study schedule',cat:'Learning',desc:'Choose a specific time slot for studying and keep it every day',freq:'daily',tips:'Studying at the same time each day helps the brain form an automatic habit — no willpower needed.'},
+  {emoji:'🔧',name:'Learn a new tool',cat:'Learning',desc:'Explore 1 feature or tool you haven\'t mastered yet',freq:'daily',tips:'Great tools amplify productivity. A person skilled with tools always outperforms one with only raw skills.'},
+  {emoji:'🗃️',name:'Summarize with a diagram',cat:'Learning',desc:'Draw a mind map or diagram for the topic you just studied',freq:'daily',tips:'Visual learning: 65% of people learn better through visuals — diagrams reveal connections between ideas.'},
+  {emoji:'🐛',name:'Review past mistakes',cat:'Learning',desc:'Look back at old errors — find the cause and correct it',freq:'daily',tips:'Learning from mistakes is more effective than learning from success — the brain encodes corrections more deeply.'},
+  {emoji:'📋',name:'Take a short quiz',cat:'Learning',desc:'A small self-quiz to check how well you truly understand',freq:'daily',tips:'The testing effect: frequent self-testing improves long-term retention twice as much as re-reading material.'},
+
+  // 🧘 MINDFULNESS (30)
+  {emoji:'🧘',name:'Meditate for 5 minutes',cat:'Mindfulness',desc:'Sit quietly, close your eyes, focus only on breathing',freq:'daily',tips:'5 minutes of daily meditation over 8 weeks changes brain structure: less anxiety, better focus.'},
+  {emoji:'🙏',name:'Write 3 things you\'re grateful for',cat:'Mindfulness',desc:'List 3 things you\'re grateful for today — even the smallest ones',freq:'daily',tips:'Harvard research: daily gratitude practice increases happiness by 25% and improves sleep quality.'},
+  {emoji:'🌬️',name:'Deep breathing for 3 minutes',cat:'Mindfulness',desc:'Inhale 4 seconds, hold 4 seconds, exhale 4 seconds — repeat',freq:'daily',tips:'Controlled breathing activates the vagus nerve, lowering cortisol and heart rate within minutes.'},
+  {emoji:'📔',name:'Write an emotion journal',cat:'Mindfulness',desc:'Record your feelings and thoughts from today — no need to be perfect',freq:'daily',tips:'Emotion journaling helps process stress, increases self-awareness and reduces anxiety symptoms.'},
+  {emoji:'📵',name:'No phone before sleep',cat:'Mindfulness',desc:'Put your phone away at least 30 minutes before bed',freq:'daily',tips:'Blue light suppresses melatonin by 50% — making it hard to fall asleep and reducing sleep quality.'},
+  {emoji:'🎵',name:'Listen to relaxing music',cat:'Mindfulness',desc:'10 minutes of soft music, nature sounds or a favorite instrument',freq:'daily',tips:'Music at 60 bpm synchronizes with the resting heart rate, helping the brain shift into a relaxed state quickly.'},
+  {emoji:'🌳',name:'Go outside for fresh air',cat:'Mindfulness',desc:'5–10 minutes outside — balcony, yard or the street',freq:'daily',tips:'Fresh air and a change of environment resets the brain more effectively than resting indoors.'},
+  {emoji:'💚',name:'Say one kind thing to yourself',cat:'Mindfulness',desc:'Tell yourself what you need to hear today',freq:'daily',tips:'Self-compassion predicts psychological wellbeing better than traditional self-esteem measures.'},
+  {emoji:'🧹',name:'Tidy one small area',cat:'Mindfulness',desc:'Clean one spot — a desk, drawer or corner of a room',freq:'daily',tips:'A tidy environment reduces anxiety, increases focus and creates a sense of control over life.'},
+  {emoji:'☕',name:'Rest with intention',cat:'Mindfulness',desc:'Take 10–15 minutes of real rest — no phone, no work',freq:'daily',tips:'The brain needs rest to consolidate memories and recover. Intentional rest outperforms continuous work.'},
+  {emoji:'🪷',name:'Sit quietly and do nothing',cat:'Mindfulness',desc:'Sit still for 5 minutes — no phone, no music, no work thoughts',freq:'daily',tips:'The Default Mode Network — the brain\'s resting state — is essential for creativity and self-awareness.'},
+  {emoji:'🌄',name:'Watch the morning light',cat:'Mindfulness',desc:'Look out the window or step outside for 5 minutes right after waking',freq:'daily',tips:'Natural morning light sets the biological clock, boosts serotonin and improves mood all day.'},
+  {emoji:'🔁',name:'Write down a recurring thought',cat:'Mindfulness',desc:'Write out the thought looping in your head to free your mind',freq:'daily',tips:'Externalizing thoughts — moving them out of your head — reduces anxiety and allows more objective perspective.'},
+  {emoji:'😰',name:'Name your worry',cat:'Mindfulness',desc:'Label the emotion you\'re feeling: "I am anxious because..."',freq:'daily',tips:'Labeling emotions reduces amygdala activity — naming your worry literally makes it feel smaller.'},
+  {emoji:'✨',name:'Spot one thing you did well',cat:'Mindfulness',desc:'Recall 1 thing you handled well today — even something small',freq:'daily',tips:'Acknowledging small daily wins builds self-efficacy — belief in your own ability to succeed.'},
+  {emoji:'🌊',name:'Listen to nature sounds',cat:'Mindfulness',desc:'10 minutes of rain, ocean waves or forest sounds — YouTube or an app',freq:'daily',tips:'Nature sounds lower cortisol and activate the parasympathetic nervous system — genuine relaxation.'},
+  {emoji:'🪑',name:'Create a small rest corner',cat:'Mindfulness',desc:'Set up a small spot used only for rest — not for work',freq:'daily',tips:'A dedicated rest space trains the brain to associate that spot with relaxation — making it easier to unwind.'},
+  {emoji:'🚶',name:'Step outside for a few minutes',cat:'Mindfulness',desc:'Leave the room, step into the hallway or yard — breathe',freq:'daily',tips:'Physically changing your environment immediately changes your mental state — simple but powerful.'},
+  {emoji:'📵',name:'One hour off social media',cat:'Mindfulness',desc:'Turn off social media for at least 1 hour each day',freq:'daily',tips:'Reducing social media by 1 hour/day noticeably improves mental health — especially in young people.'},
+  {emoji:'🪴',name:'Care for a small plant',cat:'Mindfulness',desc:'Water your plant, wipe the leaves or tend to something growing',freq:'daily',tips:'Caring for a living thing creates connection, responsibility and presence — naturally reducing anxiety.'},
+  {emoji:'🎨',name:'Do something creative',cat:'Mindfulness',desc:'Draw, write, cook, photograph — 15 minutes',freq:'daily',tips:'Creative activities stimulate dopamine and bring the brain into a state of flow — the happiest mental state.'},
+  {emoji:'⏸️',name:'Pause before reacting',cat:'Mindfulness',desc:'When you want to react immediately — pause 3 seconds, breathe, then speak',freq:'daily',tips:'The space between stimulus and response is where freedom lives. A 3-second pause can change the entire outcome.'},
+  {emoji:'🍃',name:'Write what you need to let go',cat:'Mindfulness',desc:'Write down 1 thing you\'re holding onto that you should release',freq:'daily',tips:'Intentional release reduces cognitive load — your brain spends energy holding every unresolved thing.'},
+  {emoji:'💛',name:'Forgive yourself for a small mistake',cat:'Mindfulness',desc:'Remind yourself: mistakes are normal, you\'re learning',freq:'daily',tips:'Self-forgiveness breaks the cycle of self-criticism — which quietly drains productivity and mental health.'},
+  {emoji:'🌿',name:'Prepare tomorrow lightly',cat:'Mindfulness',desc:'Lay out your things, write a short list — so tomorrow morning isn\'t rushed',freq:'daily',tips:'Preparing the night before reduces morning stress — helping the new day begin calmly instead of frantically.'},
+  {emoji:'⭐',name:'Read one inspiring quote',cat:'Mindfulness',desc:'One quote, book passage or short story that moves you',freq:'daily',tips:'Quality input creates quality output — what you read and hear each day shapes how you think.'},
+  {emoji:'🫀',name:'Body scan',cat:'Mindfulness',desc:'Lie still, notice each part of your body from head to toe — 5 minutes',freq:'daily',tips:'Body scan meditation helps detect muscle tension you didn\'t notice — and release it consciously.'},
+  {emoji:'🍵',name:'Drink a cup of tea slowly',cat:'Mindfulness',desc:'Brew tea, sit quietly, drink each sip without doing anything else',freq:'daily',tips:'The ritual of slowly drinking tea is a mini-meditation — helping you be present in the current moment.'},
+  {emoji:'📝',name:'Write what you can control',cat:'Mindfulness',desc:'List 3–5 things in your life that are within your control',freq:'daily',tips:'Focusing on what you can control reduces anxiety and increases a sense of agency — the core Stoic principle.'},
+  {emoji:'🌛',name:'End the day with one gentle thought',cat:'Mindfulness',desc:'Before sleeping, tell yourself: "I did my best today"',freq:'daily',tips:'Ending the day mindfully instead of anxiously helps you fall asleep faster and sleep more deeply.'},
+
+  // 💰 FINANCE (30)
+  {emoji:'📒',name:'Record today\'s expenses',cat:'Finance',desc:'Log every expense today — no matter how small',freq:'daily',tips:'You can\'t manage what you don\'t measure. Tracking spending is the first step to financial control.'},
+  {emoji:'🏦',name:'Put aside a small saving',cat:'Finance',desc:'Transfer even a small amount to your savings each day',freq:'daily',tips:'"Pay yourself first" — even a tiny daily habit of saving matters more than the amount itself.'},
+  {emoji:'💳',name:'Check your wallet and accounts',cat:'Finance',desc:'Glance at your balance — know where you stand',freq:'daily',tips:'People who check their accounts regularly are less surprised by spending and respond to problems faster.'},
+  {emoji:'🚫',name:'Don\'t buy anything unnecessary',cat:'Finance',desc:'Skip at least 1 item you want but don\'t actually need today',freq:'daily',tips:'Distinguishing want vs. need is the most important financial skill — most unnecessary spending is impulse-driven.'},
+  {emoji:'📊',name:'Update your budget',cat:'Finance',desc:'Compare actual spending to your plan — adjust if needed',freq:'daily',tips:'A budget isn\'t a restriction on freedom — it\'s an intentional spending plan based on your values.'},
+  {emoji:'📅',name:'Check upcoming bills',cat:'Finance',desc:'Review which bills, subscriptions or debts are due in the next 7 days',freq:'daily',tips:'Paying on time saves penalty fees and protects your credit score — a powerful but invisible financial tool.'},
+  {emoji:'📖',name:'Read 5 minutes about finance',cat:'Finance',desc:'Financial blog, book or podcast — 5 minutes a day',freq:'daily',tips:'Financial literacy is a skill no school teaches but that determines most of your long-term wealth.'},
+  {emoji:'🎯',name:'Review your savings goal',cat:'Finance',desc:'Read back your financial goal and current progress — 2 minutes',freq:'daily',tips:'Seeing your goal every day maintains motivation better than setting it once and forgetting — out of sight, out of mind.'},
+  {emoji:'☕',name:'Make your own drink',cat:'Finance',desc:'Brew coffee or tea at home instead of buying out',freq:'daily',tips:'Making your own coffee saves money per cup daily. Small amounts daily = large amounts yearly through compounding.'},
+  {emoji:'📋',name:'Weekly spending summary',cat:'Finance',desc:'Review the past 7 days of spending — find 1 thing to improve',freq:'daily',tips:'Weekly review helps spot bad spending patterns early — before they accumulate into a bigger problem.'},
+  {emoji:'🗃️',name:'Save important receipts',cat:'Finance',desc:'Photo or save warranty receipts and important documents',freq:'daily',tips:'Properly saved receipts save money during warranty claims and protect consumer rights.'},
+  {emoji:'✂️',name:'Cut one unnecessary fee',cat:'Finance',desc:'Find 1 subscription or service you don\'t use and cancel or reduce it',freq:'daily',tips:'Subscription creep — accumulated fees — means most people pay for 3–5 services they no longer use.'},
+  {emoji:'📈',name:'Track your net worth',cat:'Finance',desc:'Assets minus liabilities = net worth — update it regularly',freq:'daily',tips:'Net worth is the most important financial metric — not income. Track it to know if you\'re moving forward.'},
+  {emoji:'🔢',name:'Set a daily spending limit',cat:'Finance',desc:'Decide today\'s maximum spend — and stick to it',freq:'daily',tips:'A daily spending limit creates a clear boundary — the brain no longer has to decide every time you spend.'},
+  {emoji:'🛍️',name:'Make a list before shopping',cat:'Finance',desc:'Write a shopping list before going to the market or supermarket',freq:'daily',tips:'Shopping with a list reduces unplanned spending by 23% — according to consumer behavior research.'},
+  {emoji:'🔍',name:'Compare prices before buying',cat:'Finance',desc:'Check at least 2–3 places before purchasing something expensive',freq:'daily',tips:'Comparing prices before buying saves an average of 15–30% — especially with online shopping.'},
+  {emoji:'🚫',name:'No-spend day',cat:'Finance',desc:'Try going one day without spending beyond essentials',freq:'daily',tips:'A no-spend day reveals how much of your spending is unconscious habit — and resets your mindset.'},
+  {emoji:'⏰',name:'Transfer savings first thing',cat:'Finance',desc:'Move your savings amount first thing in the morning — not at end of month',freq:'daily',tips:'Pay yourself first: save before spending — not from the leftovers. This is the foundational principle.'},
+  {emoji:'🤔',name:'Write your reason before a big purchase',cat:'Finance',desc:'Write 3 reasons why you need it — before deciding to buy',freq:'daily',tips:'The pause-and-justify step reduces impulse buying and leads to smarter financial decisions.'},
+  {emoji:'🏫',name:'Learn one investment concept',cat:'Finance',desc:'Compound interest, ETF, P/E ratio — 1 concept per day',freq:'daily',tips:'Investing without understanding is gambling. Learn 1 concept/day = 365/year — enough to invest intelligently.'},
+  {emoji:'💰',name:'Check debt and credit cards',cat:'Finance',desc:'Review your debt balance and credit card due dates',freq:'daily',tips:'Credit card interest of 18–30%/year is the heaviest financial burden — controlling it is priority number one.'},
+  {emoji:'🍱',name:'Bring food from home',cat:'Finance',desc:'Cook and bring lunch — save significantly per meal',freq:'daily',tips:'Bringing lunch saves money every month — one of the most effective spending cuts available.'},
+  {emoji:'🔄',name:'Round up your savings',cat:'Finance',desc:'After each transaction, round up and move the difference to savings',freq:'daily',tips:'Round-up saving: small drops fill big buckets — an automatic, painless way to save.'},
+  {emoji:'📊',name:'Verify one income source',cat:'Finance',desc:'Confirm one incoming payment — salary, freelance, cashback',freq:'daily',tips:'Tracking income sources helps spot trends and catch missed or delayed payments before they become issues.'},
+  {emoji:'♻️',name:'Sell or give away unused items',cat:'Finance',desc:'Find 1 thing you don\'t use — sell online or give to someone who needs it',freq:'daily',tips:'Decluttering generates cash, reduces storage costs and keeps your home tidy — three benefits at once.'},
+  {emoji:'🆘',name:'Review your emergency fund',cat:'Finance',desc:'Check your emergency fund — is it 3–6 months of expenses?',freq:'daily',tips:'An emergency fund is your first layer of protection — without it, any financial plan is fragile when crises hit.'},
+  {emoji:'📆',name:'Schedule bill payments',cat:'Finance',desc:'Set reminders for all this month\'s bills',freq:'daily',tips:'Automating on-time payments is the simplest way to protect your credit score and avoid late fees.'},
+  {emoji:'🍳',name:'Cook one meal at home',cat:'Finance',desc:'Prepare at least 1 meal today instead of ordering in',freq:'daily',tips:'Home cooking is 3–5 times cheaper than delivery and healthier — a double win for health and finance.'},
+  {emoji:'🔗',name:'Update money owed or lent',cat:'Finance',desc:'Log money you\'ve lent or borrowed from others',freq:'daily',tips:'Tracking loans protects relationships and prevents losing money to forgetfulness — money is a common source of misunderstanding.'},
+  {emoji:'🗓️',name:'Review this month\'s financial goal',cat:'Finance',desc:'Look back at your monthly target and current progress',freq:'daily',tips:'Specific financial goals with deadlines increase the likelihood of achieving them by 42% over vague intentions.'},
+
+  // ⚡ PRODUCTIVITY (30)
+  {emoji:'📅',name:'Plan tomorrow',cat:'Productivity',desc:'Before sleep, write the 3 most important tasks for tomorrow',freq:'daily',tips:'Planning the night before lets your brain "incubate" ideas while sleeping — you wake up knowing where to start.'},
+  {emoji:'🥇',name:'Complete the most important task',cat:'Productivity',desc:'Finish your MIT — Most Important Task — before noon',freq:'daily',tips:'1 important task done well beats 10 tasks done poorly. Prioritizing correctly is the #1 productivity skill.'},
+  {emoji:'🗃️',name:'Clear your desk',cat:'Productivity',desc:'Clean your desk before or after work — start fresh each day',freq:'daily',tips:'A cluttered environment raises cortisol and reduces focus — according to Princeton Neuroscience research.'},
+  {emoji:'🧹',name:'Tidy the room',cat:'Productivity',desc:'Quick clean of your living space — 10 minutes a day',freq:'daily',tips:'A tidy living space reduces cognitive overload — letting your brain focus on things that actually matter.'},
+  {emoji:'⏱️',name:'Focus for 25 minutes',cat:'Productivity',desc:'Pomodoro — 25 minutes of full concentration, no interruptions',freq:'daily',tips:'The Pomodoro Technique increases productivity by 25–30% by leveraging the brain\'s natural focus window.'},
+  {emoji:'📧',name:'Clear inbox for 10 minutes',cat:'Productivity',desc:'Process backed-up emails — delete, reply or schedule them',freq:'daily',tips:'A clean inbox reduces background anxiety and lets you focus on work instead of worrying about unread messages.'},
+  {emoji:'🎯',name:'Write 3 priorities',cat:'Productivity',desc:'Each morning, write the 3 things that must get done today',freq:'daily',tips:'3 clear priorities prevent the brain from getting overwhelmed — and focus it on what truly matters.'},
+  {emoji:'🔕',name:'Turn off notifications for 1 hour',cat:'Productivity',desc:'Silence all notifications and work deeply without interruption',freq:'daily',tips:'Each interruption costs an average of 23 minutes to return to deep focus — 1 uninterrupted hour is gold.'},
+  {emoji:'📓',name:'End-of-day review',cat:'Productivity',desc:'5-minute review: what did I do, what\'s left, what did I learn?',freq:'daily',tips:'A daily shutdown helps the brain "close the loop" on work — so you sleep better and don\'t ruminate at night.'},
+  {emoji:'💾',name:'Organize one file or folder',cat:'Productivity',desc:'Tidy your desktop, Downloads or one messy folder',freq:'daily',tips:'Digital clutter wastes time searching — every file in its right place saves minutes every day.'},
+  {emoji:'⚡',name:'Do it now if it takes 2 minutes',cat:'Productivity',desc:'If a task takes under 2 minutes — do it immediately, don\'t queue it',freq:'daily',tips:'Getting Things Done: small tasks accumulate into a massive mental burden — doing them now frees your mind.'},
+  {emoji:'🚀',name:'No social media in the first hour',cat:'Productivity',desc:'No Facebook, TikTok or Instagram in the first hour after waking up',freq:'daily',tips:'Social media in the morning switches the brain into reactive mode instead of proactive — you lose control of your day.'},
+  {emoji:'🗑️',name:'Choose one thing to skip',cat:'Productivity',desc:'Delete 1 unimportant task from today\'s list',freq:'daily',tips:'Removing things is as important as adding them. Essentialists focus on fewer things done better.'},
+  {emoji:'✅',name:'Update your task list',cat:'Productivity',desc:'Check off completed items, add new ones, remove outdated tasks',freq:'daily',tips:'A task list needs to be current to be trustworthy — an outdated list creates more anxiety than it resolves.'},
+  {emoji:'🕐',name:'Start on time',cat:'Productivity',desc:'Begin work at the scheduled time — no delay',freq:'daily',tips:'Punctuality is a sign of respect — for others and for your own time.'},
+  {emoji:'🔪',name:'Break one big task into pieces',cat:'Productivity',desc:'The task you keep avoiding — break it into the smallest possible steps',freq:'daily',tips:'Procrastination usually comes from tasks that feel too big and vague. A clear first step is enough to begin.'},
+  {emoji:'📵',name:'Put your phone in another room',cat:'Productivity',desc:'Store your phone in a drawer or another room during deep work',freq:'daily',tips:'Just the presence of a phone (even silenced) reduces concentration by 20% — University of Texas at Austin research.'},
+  {emoji:'📁',name:'Prepare materials before a meeting',cat:'Productivity',desc:'Review the agenda and prepare questions 10 minutes before',freq:'daily',tips:'Coming prepared makes meetings more effective — prepared people take initiative and leave better impressions.'},
+  {emoji:'➡️',name:'Clarify next steps after meetings',cat:'Productivity',desc:'After every meeting, record action items and who\'s responsible',freq:'daily',tips:'Meetings without clear action items are wasted time. Specific next actions turn discussions into results.'},
+  {emoji:'🗑️',name:'Clear one lingering small task',cat:'Productivity',desc:'Handle 1 task you\'ve been putting off too long — even if uncomfortable',freq:'daily',tips:'Open loops — unfinished items — occupy working memory and cause chronic low-grade stress.'},
+  {emoji:'🦁',name:'Do hard work when you\'re sharpest',cat:'Productivity',desc:'Schedule your most important task for when your brain is at its peak',freq:'daily',tips:'Ego depletion: willpower depletes throughout the day. Doing hard work when energy is full = dramatically better results.'},
+  {emoji:'🏁',name:'Finish work on time',cat:'Productivity',desc:'Stop working at the time you decided — don\'t drag on indefinitely',freq:'daily',tips:'Parkinson\'s Law: work expands to fill available time. Setting a deadline increases efficiency.'},
+  {emoji:'🤖',name:'Automate one repetitive task',cat:'Productivity',desc:'Find 1 recurring task and use a template or tool to save time',freq:'daily',tips:'Every hour invested in automation saves dozens of hours later — the highest ROI in productivity.'},
+  {emoji:'📌',name:'Review work notes',cat:'Productivity',desc:'Look back at notes from meetings, calls or past ideas',freq:'daily',tips:'Ideas not revisited are lost. Regular note reviews turn information into action.'},
+  {emoji:'🏷️',name:'Name files clearly',cat:'Productivity',desc:'New files: date + clear name — no "Untitled" or "New Document"',freq:'daily',tips:'Clear file names save search time later — a small habit with big long-term payoff.'},
+  {emoji:'⏳',name:'Estimate time before starting',cat:'Productivity',desc:'Before beginning any task, estimate how long it will take',freq:'daily',tips:'Planning fallacy: people consistently underestimate time. Estimation improves with deliberate practice.'},
+  {emoji:'🚧',name:'Block focused work time',cat:'Productivity',desc:'Block 1–2 hours daily for deep work — no meetings, no messages',freq:'daily',tips:'Protected time is the most valuable asset of highly productive people — guard it like an important meeting.'},
+  {emoji:'☑️',name:'Write a checklist before starting',cat:'Productivity',desc:'Before any complex project or task — write out the steps as a checklist',freq:'daily',tips:'Checklists reduce errors by 47% in surgical environments — the principle applies to all kinds of work.'},
+  {emoji:'🎯',name:'Do only one thing at a time',cat:'Productivity',desc:'Close unrelated tabs — focus on only one task',freq:'daily',tips:'Multitasking reduces IQ by 10 points — equivalent to one sleepless night. Single-tasking always wins.'},
+  {emoji:'🔒',name:'Shut down the workday',cat:'Productivity',desc:'End-of-day ritual: close tabs, note what\'s left, shut down the computer',freq:'daily',tips:'A shutdown ritual creates a clear boundary between work and rest — leading to better sleep and recovery.'},
+
+  // 🤝 RELATIONSHIPS (30)
+  {emoji:'💬',name:'Check in with someone',cat:'Relationships',desc:'Send a short message to check on a friend, family member or colleague',freq:'daily',tips:'Regular small connections matter more than big occasional gatherings — daily drips keep relationships warm.'},
+  {emoji:'📞',name:'Call a family member',cat:'Relationships',desc:'Call and hear their voice — not just a text message',freq:'daily',tips:'Voice creates 60% deeper connection than text — research shows calling reduces loneliness more effectively than messaging.'},
+  {emoji:'🙏',name:'Thank someone sincerely',cat:'Relationships',desc:'Express genuine thanks — specific, not generic',freq:'daily',tips:'Expressing gratitude increases happiness for both the giver and receiver — a true win-win of human connection.'},
+  {emoji:'👂',name:'Listen without interrupting',cat:'Relationships',desc:'In one conversation today — only listen, don\'t cut in',freq:'daily',tips:'Active listening is the rarest and most valued skill — people who feel heard will trust you more deeply.'},
+  {emoji:'💪',name:'Send encouragement',cat:'Relationships',desc:'Text someone going through a hard time with words of support',freq:'daily',tips:'Encouragement at the right moment can change someone\'s entire day — and costs you only a few minutes.'},
+  {emoji:'🍽️',name:'Share a meal with family',cat:'Relationships',desc:'Eat at least one meal together — no phones at the table',freq:'daily',tips:'Regular family meals are linked to fewer behavioral issues in children and higher overall family happiness.'},
+  {emoji:'🗣️',name:'State one need clearly',cat:'Relationships',desc:'Instead of hinting — say directly what you need',freq:'daily',tips:'Clear communication is the foundation of every healthy relationship — mind-reading is never reliable.'},
+  {emoji:'🌟',name:'Give a genuine compliment',cat:'Relationships',desc:'Notice and say something good you see in someone around you — specifically',freq:'daily',tips:'A specific compliment ("you handled that so well") creates deeper connection than a vague one ("great job").'},
+  {emoji:'💛',name:'Forgive a small thing',cat:'Relationships',desc:'Let go of 1 small thing someone did that upset you',freq:'daily',tips:'Forgiveness frees you — not the other person. Holding onto anger harms the one who holds it more.'},
+  {emoji:'🤲',name:'Do something to help someone',cat:'Relationships',desc:'Help out — even something small like holding a door or forwarding a document',freq:'daily',tips:'Prosocial behavior produces a stronger feeling of happiness than doing something good for yourself — science confirms it.'},
+  {emoji:'💭',name:'Remember something someone likes',cat:'Relationships',desc:'Notice and write down a preference or interest of someone close to you',freq:'daily',tips:'Remembering small details about people — their favorite drink, a current project — signals that you truly care.'},
+  {emoji:'👋',name:'Greet someone first',cat:'Relationships',desc:'Take the initiative to say hello — to a colleague, neighbor or acquaintance',freq:'daily',tips:'People who greet others first are remembered more and create a positive atmosphere around them.'},
+  {emoji:'❓',name:'Ask a family member what they need',cat:'Relationships',desc:'"Is there anything I can help you with?" — and mean it',freq:'daily',tips:'Asking directly is more likely to get a real answer than waiting for someone to speak up — many people don\'t like asking for help.'},
+  {emoji:'📆',name:'Schedule time with a friend',cat:'Relationships',desc:'Book a specific time — don\'t just say "let\'s meet soon"',freq:'daily',tips:'A specific plan increases the likelihood of actually meeting from 20% to 80% — vague plans rarely happen.'},
+  {emoji:'🏠',name:'Do one shared household task',cat:'Relationships',desc:'Clean, cook or organize — without being asked',freq:'daily',tips:'Proactively sharing household duties — without waiting to be asked — is one of the most powerful acts of love and respect.'},
+  {emoji:'🎂',name:'Remember birthdays and important occasions',cat:'Relationships',desc:'Send wishes on the right day — before anyone reminds you',freq:'daily',tips:'Remembering important dates for others is a clear sign you genuinely care — hard not to be touched by it.'},
+  {emoji:'💬',name:'Say one word of direct encouragement',cat:'Relationships',desc:'Tell someone directly today: "I believe in you"',freq:'daily',tips:'Direct encouragement has far greater impact than a like or sticker — words truly carry power.'},
+  {emoji:'🙇',name:'Apologize when needed',cat:'Relationships',desc:'Acknowledge your mistake and apologize sincerely — no "but"',freq:'daily',tips:'A proper apology rebuilds trust faster than any other action — and takes real courage.'},
+  {emoji:'🤝',name:'Offer help clearly',cat:'Relationships',desc:'"Can I help you with X?" — specific, not vague',freq:'daily',tips:'Offering specific help is more likely to be accepted than general offers — and prevents taking over for others.'},
+  {emoji:'🚶',name:'Walk with someone',cat:'Relationships',desc:'Invite someone for a walk — conversations while walking feel more natural',freq:'daily',tips:'Side-by-side activity like walking creates deeper conversations than sitting face-to-face — less pressure, more openness.'},
+  {emoji:'☕',name:'Invite someone for coffee',cat:'Relationships',desc:'Ask a colleague, friend or acquaintance to grab a coffee',freq:'daily',tips:'A coffee chat is one of the cheapest ways to connect — and keeps your network alive naturally.'},
+  {emoji:'👁️',name:'Make eye contact while talking',cat:'Relationships',desc:'Maintain eye contact — don\'t glance at your phone while someone is speaking',freq:'daily',tips:'Eye contact releases oxytocin — the bonding hormone — and communicates genuine respect and attention.'},
+  {emoji:'📩',name:'Reply to important messages',cat:'Relationships',desc:'Don\'t leave important messages on "read" for more than 24 hours',freq:'daily',tips:'Timely replies are a sign of respect — leaving someone on read too long makes them feel undervalued.'},
+  {emoji:'🔗',name:'Connect with someone new',cat:'Relationships',desc:'Meet someone new — say hello, ask questions, exchange contact info',freq:'daily',tips:'A growing network opens more opportunities than you realize — most come from connections, not skills alone.'},
+  {emoji:'🫂',name:'Listen to something difficult',cat:'Relationships',desc:'When someone shares something heavy — just listen, don\'t rush to advise',freq:'daily',tips:'Sometimes people need to be heard, not advised. Non-judgmental listening is the greatest gift you can offer.'},
+  {emoji:'🌱',name:'Nurture an old relationship',cat:'Relationships',desc:'Reach out to someone you haven\'t spoken to in a while — sincerely',freq:'daily',tips:'Relationships are like plants — neglected ones wilt. Reaching out again is never too late.'},
+  {emoji:'📢',name:'Clarify expectations at work',cat:'Relationships',desc:'Be clear about what you expect — with colleagues, clients or partners',freq:'daily',tips:'Miscommunication is the #1 cause of work conflict — clear expectations prevent most problems before they start.'},
+  {emoji:'🕊️',name:'Resolve a small misunderstanding',cat:'Relationships',desc:'Clarify 1 unresolved thing instead of letting it hang',freq:'daily',tips:'Small misunderstandings resolved early never become big conflicts — don\'t let the snowball grow.'},
+  {emoji:'🎮',name:'Screen-free time with family',cat:'Relationships',desc:'One activity together without screens — play, cook, tell stories',freq:'daily',tips:'Screen-free quality time creates memories and deeper bonds than watching Netflix together without talking.'},
+  {emoji:'❤️',name:'Say something specific you love',cat:'Relationships',desc:'Say "I love you because..." or "I appreciate you because..." — be specific',freq:'daily',tips:'Specific words of love touch the heart more than a generic "I love you" — specificity creates depth.'}
+];
+
+function getLibrary(){return lang==='en'?HABIT_LIBRARY_EN:HABIT_LIBRARY;}
+
+function getLibCats(){
+  const cats = lang==='en'
+    ? [{key:'all'},{key:'Health'},{key:'Learning'},{key:'Mindfulness'},{key:'Finance'},{key:'Productivity'},{key:'Relationships'}]
+    : [{key:'all'},{key:'Sức khỏe'},{key:'Học tập'},{key:'Tinh thần'},{key:'Tài chính'},{key:'Năng suất'},{key:'Quan hệ'}];
+  const labels = [tt('libCatAll'),tt('libCatHealth'),tt('libCatStudy'),tt('libCatMind'),tt('libCatFinance'),tt('libCatProd'),tt('libCatRelation')];
+  return cats.map((c,i)=>({key:c.key,label:labels[i]}));
+}
 
 let libActiveCat = 'all';
 let libSelectedHabit = null;
@@ -1781,12 +1984,13 @@ window.setLibCat = key => {
 };
 
 function renderLibList() {
+  const lib = getLibrary();
   const existingNames = habits.map(h => h.name.toLowerCase());
-  const filtered = libActiveCat === 'all' ? HABIT_LIBRARY : HABIT_LIBRARY.filter(h => h.cat === libActiveCat);
+  const filtered = libActiveCat === 'all' ? lib : lib.filter(h => h.cat === libActiveCat);
   document.getElementById('libList').innerHTML = filtered.map((h) => {
-    const idx = HABIT_LIBRARY.indexOf(h);
+    const idx = lib.indexOf(h);
     const added = existingNames.includes(h.name.toLowerCase());
-    return `<div class="lib-item${added?' added':''}" >
+    return `<div class="lib-item${added?' added':''}">
       <div class="lib-item-top">
         <div class="lib-emoji">${h.emoji}</div>
         <div class="lib-name">${h.name}</div>
@@ -1799,10 +2003,105 @@ function renderLibList() {
       </div>
     </div>`;
   }).join('');
+  initDnD();
+}
+
+// ── DRAG & DROP ──
+let _dragId=null,_dragEl=null,_touchY=0,_touchDragEl=null;
+
+function initDnD(){
+  const list=document.getElementById('hlist');
+  const cards=[...list.querySelectorAll('.hcard')];
+
+  cards.forEach(card=>{
+    // ── Desktop drag events ──
+    card.addEventListener('dragstart',e=>{
+      // Only allow drag from handle
+      if(!e.target.classList.contains('drag-handle')&&!e.target.closest('.drag-handle'))return e.preventDefault();
+      _dragId=card.dataset.id;
+      _dragEl=card;
+      setTimeout(()=>card.classList.add('dragging'),0);
+      e.dataTransfer.effectAllowed='move';
+    });
+    card.addEventListener('dragend',()=>{
+      card.classList.remove('dragging');
+      list.querySelectorAll('.hcard').forEach(c=>c.classList.remove('drag-over'));
+      _dragEl=null;_dragId=null;
+    });
+    card.addEventListener('dragover',e=>{
+      e.preventDefault();
+      if(!_dragEl||card===_dragEl)return;
+      list.querySelectorAll('.hcard').forEach(c=>c.classList.remove('drag-over'));
+      card.classList.add('drag-over');
+    });
+    card.addEventListener('dragleave',()=>card.classList.remove('drag-over'));
+    card.addEventListener('drop',e=>{
+      e.preventDefault();
+      card.classList.remove('drag-over');
+      if(!_dragId||card.dataset.id===_dragId)return;
+      const fromIdx=habits.findIndex(h=>h.id===_dragId);
+      const toIdx=habits.findIndex(h=>h.id===card.dataset.id);
+      if(fromIdx<0||toIdx<0)return;
+      const [moved]=habits.splice(fromIdx,1);
+      habits.splice(toIdx,0,moved);
+      saveData();render();
+    });
+
+    // ── Touch drag events (mobile) ──
+    const handle=card.querySelector('.drag-handle');
+    if(!handle)return;
+    handle.addEventListener('touchstart',e=>{
+      e.preventDefault();
+      _dragId=card.dataset.id;
+      _dragEl=card;
+      _touchY=e.touches[0].clientY;
+      _touchDragEl=card.cloneNode(true);
+      _touchDragEl.style.cssText=`position:fixed;left:${card.getBoundingClientRect().left}px;top:${card.getBoundingClientRect().top}px;width:${card.offsetWidth}px;z-index:999;opacity:.85;pointer-events:none;transform:scale(.97);box-shadow:0 12px 40px rgba(0,0,0,.25);border-radius:18px;transition:none`;
+      document.body.appendChild(_touchDragEl);
+      card.style.opacity='.35';
+    },{passive:false});
+
+    handle.addEventListener('touchmove',e=>{
+      e.preventDefault();
+      if(!_touchDragEl)return;
+      const dy=e.touches[0].clientY-_touchY;
+      const rect=_dragEl.getBoundingClientRect();
+      _touchDragEl.style.top=(rect.top+dy)+'px';
+      // Find which card we're hovering over
+      list.querySelectorAll('.hcard').forEach(c=>c.classList.remove('drag-over'));
+      const underEl=document.elementFromPoint(e.touches[0].clientX,e.touches[0].clientY);
+      const overCard=underEl?.closest('.hcard');
+      if(overCard&&overCard!==_dragEl)overCard.classList.add('drag-over');
+    },{passive:false});
+
+    handle.addEventListener('touchend',e=>{
+      if(!_touchDragEl){_dragId=null;_dragEl=null;return;}
+      // Find drop target
+      _touchDragEl.style.display='none';
+      const underEl=document.elementFromPoint(e.changedTouches[0].clientX,e.changedTouches[0].clientY);
+      _touchDragEl.style.display='';
+      const overCard=underEl?.closest('.hcard');
+      _touchDragEl.remove();
+      _touchDragEl=null;
+      if(_dragEl)_dragEl.style.opacity='';
+      list.querySelectorAll('.hcard').forEach(c=>c.classList.remove('drag-over'));
+      if(overCard&&overCard.dataset.id&&overCard.dataset.id!==_dragId){
+        const fromIdx=habits.findIndex(h=>h.id===_dragId);
+        const toIdx=habits.findIndex(h=>h.id===overCard.dataset.id);
+        if(fromIdx>=0&&toIdx>=0){
+          const [moved]=habits.splice(fromIdx,1);
+          habits.splice(toIdx,0,moved);
+          saveData();render();
+        }
+      }
+      _dragId=null;_dragEl=null;
+    });
+  });
 }
 
 window.openLibEdit = idx => {
-  const h = HABIT_LIBRARY[idx];
+  const h = getLibrary()[idx];
+  if(!h) return;
   libSelectedHabit = h;
   libEditE = h.emoji;
   libEditCat = h.cat;
