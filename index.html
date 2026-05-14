@@ -166,6 +166,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .divln{height:1px;background:#f0e8c0;margin:0 12px}
 
 /* DRAG HANDLE */
+.drag-handle{width:28px;height:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3.5px;cursor:grab;opacity:.4;transition:opacity .2s;flex-shrink:0;padding:2px;border-radius:6px;touch-action:none}
+.drag-handle:hover{opacity:.8;background:#f5edd0}
+.drag-handle:active{cursor:grabbing;opacity:1}
+.drag-handle span{display:block;width:14px;height:2px;background:#8b6a00;border-radius:1px}
+.hcard{transition:box-shadow .2s,transform .15s}
+.hcard.dragging{opacity:.45;transform:scale(.98);box-shadow:0 8px 32px rgba(196,122,0,.25)!important}
+.hcard.drag-over{box-shadow:0 0 0 2.5px #f4a100,0 6px 24px rgba(196,122,0,.18)!important;transform:translateY(-2px)}
+
 /* STREAK RESCUE & BULK VAC */
 .rescue-bar{display:flex;gap:8px;padding:0 14px 12px;flex-wrap:wrap}
 .rescue-btn{flex:1;min-width:140px;padding:10px 12px;border-radius:14px;border:1.5px solid #ff9800;background:linear-gradient(135deg,#fff8e1,#fff3cd);color:#c47a00;font-family:inherit;font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;box-shadow:0 2px 8px rgba(196,122,0,.12)}
@@ -1581,6 +1589,7 @@ function render(){
           <div class="hstreak">${tt('streak',s)}</div>
         </div>
         <div class="hacts">
+          <div class="drag-handle" title="Kéo để sắp xếp"><span></span><span></span><span></span></div>
           <button class="ibtn vac${onV?' on':''}" onclick="togVac('${h.id}')" title="${tt('vacation')}">🏖</button>
           <button class="ibtn" onclick="openEdit('${h.id}')">✏️</button>
           <button class="ibtn del" onclick="delHabit('${h.id}')">🗑</button>
@@ -2332,6 +2341,151 @@ function updateBulkVacBtn(){
     if(lbl) lbl.textContent = lang==='en' ? 'Day off today' : 'Nghỉ phép hôm nay';
     if(sub) sub.textContent = lang==='en' ? '(All habits)' : '(Tất cả các thói quen)';
   }
+}
+
+
+
+
+// ── DRAG & DROP SẮP XẾP THÓI QUEN ──
+// Dùng event delegation trên #hlist + patch render sau khi tất cả JS đã load
+window.addEventListener('DOMContentLoaded', function(){
+  // Patch render
+  var _origRender = window.render;
+  window.render = function(){
+    _origRender.apply(this, arguments);
+    bindDragToCards();
+  };
+});
+
+function getDragCard(el){
+  while(el && !el.classList.contains('hcard')) el = el.parentElement;
+  return el;
+}
+
+var _dragId = null;
+
+function bindDragToCards(){
+  var list = document.getElementById('hlist');
+  if(!list) return;
+  list.querySelectorAll('.hcard').forEach(function(card){
+    // Chỉ set draggable, không thêm listener trùng
+    card.setAttribute('draggable','false'); // mặc định tắt
+  });
+}
+
+// Dùng mousedown/touchstart trên drag-handle để bật draggable rồi trigger drag
+document.addEventListener('mousedown', function(e){
+  var handle = e.target.closest && e.target.closest('.drag-handle');
+  if(!handle) return;
+  var card = getDragCard(handle);
+  if(!card) return;
+  card.setAttribute('draggable','true');
+}, true);
+
+document.addEventListener('dragstart', function(e){
+  var card = getDragCard(e.target);
+  if(!card || !card.getAttribute('draggable')) return;
+  _dragId = card.dataset.id;
+  card.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', _dragId);
+});
+
+document.addEventListener('dragover', function(e){
+  var card = getDragCard(e.target);
+  if(!card) return;
+  var dragCard = document.querySelector('#hlist .hcard.dragging');
+  if(!dragCard || card === dragCard) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('#hlist .hcard').forEach(function(c){ c.classList.remove('drag-over'); });
+  card.classList.add('drag-over');
+});
+
+document.addEventListener('drop', function(e){
+  var card = getDragCard(e.target);
+  if(!card) return;
+  e.preventDefault();
+  var toId = card.dataset.id;
+  if(_dragId && toId && _dragId !== toId){
+    doReorder(_dragId, toId, e.clientY, card);
+  }
+});
+
+document.addEventListener('dragend', function(e){
+  document.querySelectorAll('#hlist .hcard').forEach(function(c){
+    c.classList.remove('dragging');
+    c.classList.remove('drag-over');
+    c.setAttribute('draggable','false');
+  });
+  _dragId = null;
+});
+
+// ── TOUCH cho mobile ──
+var _touchId = null, _touchClone = null, _touchOffX = 0, _touchOffY = 0;
+
+document.addEventListener('touchstart', function(e){
+  var handle = e.target.closest && e.target.closest('.drag-handle');
+  if(!handle) return;
+  e.preventDefault();
+  var card = getDragCard(handle);
+  if(!card) return;
+  _touchId = card.dataset.id;
+  var rect = card.getBoundingClientRect();
+  var t = e.touches[0];
+  _touchOffX = t.clientX - rect.left;
+  _touchOffY = t.clientY - rect.top;
+  _touchClone = card.cloneNode(true);
+  _touchClone.style.cssText = 'position:fixed;z-index:9999;width:'+rect.width+'px;left:'+rect.left+'px;top:'+rect.top+'px;opacity:.65;pointer-events:none;border-radius:18px;box-shadow:0 12px 40px rgba(196,122,0,.4);transition:none';
+  document.body.appendChild(_touchClone);
+  card.classList.add('dragging');
+}, {passive:false});
+
+document.addEventListener('touchmove', function(e){
+  if(!_touchClone) return;
+  e.preventDefault();
+  var t = e.touches[0];
+  _touchClone.style.left = (t.clientX - _touchOffX) + 'px';
+  _touchClone.style.top  = (t.clientY - _touchOffY) + 'px';
+  _touchClone.style.display = 'none';
+  var under = document.elementFromPoint(t.clientX, t.clientY);
+  _touchClone.style.display = '';
+  var overCard = getDragCard(under);
+  document.querySelectorAll('#hlist .hcard').forEach(function(c){ c.classList.remove('drag-over'); });
+  if(overCard && overCard.dataset.id !== _touchId) overCard.classList.add('drag-over');
+}, {passive:false});
+
+document.addEventListener('touchend', function(e){
+  if(!_touchClone) return;
+  var t = e.changedTouches[0];
+  _touchClone.style.display = 'none';
+  var under = document.elementFromPoint(t.clientX, t.clientY);
+  _touchClone.remove(); _touchClone = null;
+  document.querySelectorAll('#hlist .hcard').forEach(function(c){
+    c.classList.remove('dragging'); c.classList.remove('drag-over');
+  });
+  var overCard = getDragCard(under);
+  if(overCard && overCard.dataset.id && overCard.dataset.id !== _touchId){
+    doReorder(_touchId, overCard.dataset.id, t.clientY, overCard);
+  }
+  _touchId = null;
+});
+
+function doReorder(fromId, toId, clientY, toCard){
+  var fromIdx = habits.findIndex(function(h){ return h.id === fromId; });
+  var toIdx   = habits.findIndex(function(h){ return h.id === toId; });
+  if(fromIdx < 0 || toIdx < 0 || fromIdx === toIdx) return;
+  var rect = toCard.getBoundingClientRect();
+  var insertBefore = clientY < rect.top + rect.height / 2;
+  var moved = habits.splice(fromIdx, 1)[0];
+  var newTo = habits.findIndex(function(h){ return h.id === toId; });
+  habits.splice(insertBefore ? newTo : newTo + 1, 0, moved);
+  saveData();
+  render();
+  var toast = document.getElementById('xpToast');
+  toast.textContent = lang === 'en' ? '↕️ Habits reordered!' : '↕️ Đã sắp xếp lại!';
+  toast.classList.add('on');
+  setTimeout(function(){ toast.classList.remove('on'); }, 1800);
 }
 
 
