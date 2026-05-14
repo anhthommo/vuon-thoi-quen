@@ -328,9 +328,11 @@ html.dark .lib-edit-sub{color:#94a3b8}
 .hcard{transition:box-shadow .2s,opacity .2s,transform .2s}
 .hcard.dragging{opacity:.45;transform:scale(.97);box-shadow:0 8px 32px rgba(196,122,0,.35)!important}
 .hcard.drag-over{box-shadow:0 0 0 2.5px #f4a100,0 8px 32px rgba(196,122,0,.2)!important;transform:translateY(-2px)}
-.drag-handle{cursor:grab;font-size:18px;color:#c8b07a;padding:4px 2px;user-select:none;touch-action:none;line-height:1;flex-shrink:0}
-.drag-handle:active{cursor:grabbing}
+.drag-handle{cursor:grab;font-size:20px;color:#c8b07a;padding:8px 6px;user-select:none;touch-action:none;line-height:1;flex-shrink:0;border-radius:8px;transition:background .15s}
+.drag-handle:hover{background:rgba(244,161,0,.12);color:#f4a100}
+.drag-handle:active{cursor:grabbing;background:rgba(244,161,0,.2)}
 html.dark .drag-handle{color:#475569}
+html.dark .drag-handle:hover{background:rgba(244,161,0,.15);color:#f4a100}
 
 /* ── DARK MODE ── */
 html.dark{color-scheme:dark}
@@ -1485,7 +1487,7 @@ function render(){
     }).join('');
     const tags=[h.cat?`<span class="tp tcat">${catLabel(h.cat)}</span>`:'',h.freq&&h.freq!=='daily'?`<span class="tp tfrq">${h.freq==='weekly'?h.weeklyN+'x/'+(lang==='en'?'week':'tuần'):tt('custom')}</span>`:'',`<span class="tp trem" onclick="openReminderModal('${h.id}')" title="Bấm để đặt giờ nhắc riêng">⏰ ${h.reminderTime||stats.ntime||'21:00'}</span>`,h.goal>0?`<span class="tp tgl">🎯 ${h.goal} ${h.goalUnit||''}</span>`:'',onV?`<span class="tp tvac">${tt('vacation')}</span>`:''].filter(Boolean).join('');
     const moodRow=`<div class="mlbl">${tt('moodRow')}</div><div class="mrow">${MOODS.map(m=>`<div class="mbtn${mood===m?' on':''}" onclick="pickMoodD('${h.id}','${t}','${m}')">${m}</div>`).join('')}</div>`;
-    return`<div class="hcard" data-id="${h.id}" draggable="true">
+    return`<div class="hcard" data-id="${h.id}">`+`
       <div class="hstrip"></div>
       ${onV?`<div class="vacbanner">${tt('vacToday')}</div>`:''}
       <div class="htop">
@@ -2006,97 +2008,101 @@ function renderLibList() {
   initDnD();
 }
 
-// ── DRAG & DROP ──
-let _dragId=null,_dragEl=null,_touchY=0,_touchDragEl=null;
+// ── DRAG & DROP (Pointer Events) ──
+let _dnd={active:false,id:null,srcEl:null,ghost:null,srcIdx:-1,lastOver:null};
 
 function initDnD(){
   const list=document.getElementById('hlist');
-  const cards=[...list.querySelectorAll('.hcard')];
 
-  cards.forEach(card=>{
-    // ── Desktop drag events ──
-    card.addEventListener('dragstart',e=>{
-      // Only allow drag from handle
-      if(!e.target.classList.contains('drag-handle')&&!e.target.closest('.drag-handle'))return e.preventDefault();
-      _dragId=card.dataset.id;
-      _dragEl=card;
-      setTimeout(()=>card.classList.add('dragging'),0);
-      e.dataTransfer.effectAllowed='move';
-    });
-    card.addEventListener('dragend',()=>{
-      card.classList.remove('dragging');
-      list.querySelectorAll('.hcard').forEach(c=>c.classList.remove('drag-over'));
-      _dragEl=null;_dragId=null;
-    });
-    card.addEventListener('dragover',e=>{
-      e.preventDefault();
-      if(!_dragEl||card===_dragEl)return;
-      list.querySelectorAll('.hcard').forEach(c=>c.classList.remove('drag-over'));
-      card.classList.add('drag-over');
-    });
-    card.addEventListener('dragleave',()=>card.classList.remove('drag-over'));
-    card.addEventListener('drop',e=>{
-      e.preventDefault();
-      card.classList.remove('drag-over');
-      if(!_dragId||card.dataset.id===_dragId)return;
-      const fromIdx=habits.findIndex(h=>h.id===_dragId);
-      const toIdx=habits.findIndex(h=>h.id===card.dataset.id);
-      if(fromIdx<0||toIdx<0)return;
+  list.querySelectorAll('.drag-handle').forEach(handle=>{
+    handle.addEventListener('pointerdown',startDrag,{passive:false});
+  });
+}
+
+function startDrag(e){
+  e.preventDefault();
+  const card=e.currentTarget.closest('.hcard');
+  if(!card)return;
+  const id=card.dataset.id;
+  const list=document.getElementById('hlist');
+  const rect=card.getBoundingClientRect();
+
+  // Ghost (visual clone following pointer)
+  const ghost=card.cloneNode(true);
+  ghost.style.cssText=`
+    position:fixed;left:${rect.left}px;top:${rect.top}px;
+    width:${rect.width}px;z-index:9999;
+    opacity:.82;pointer-events:none;
+    transform:scale(1.02) rotate(0.8deg);
+    box-shadow:0 16px 48px rgba(0,0,0,.28);
+    border-radius:18px;transition:none;
+    border:2px solid #f4a100;
+  `;
+  document.body.appendChild(ghost);
+
+  card.style.opacity='0.3';
+  card.style.transition='none';
+
+  _dnd={active:true,id,srcEl:card,ghost,
+    srcIdx:habits.findIndex(h=>h.id===id),
+    offsetY:e.clientY-rect.top,
+    offsetX:e.clientX-rect.left,
+    lastOver:null};
+
+  document.addEventListener('pointermove',onDrag,{passive:false});
+  document.addEventListener('pointerup',endDrag);
+  document.addEventListener('pointercancel',endDrag);
+}
+
+function onDrag(e){
+  if(!_dnd.active)return;
+  e.preventDefault();
+
+  // Move ghost
+  _dnd.ghost.style.top=(e.clientY-_dnd.offsetY)+'px';
+  _dnd.ghost.style.left=(e.clientX-_dnd.offsetX)+'px';
+
+  // Find card under pointer (hide ghost temporarily)
+  _dnd.ghost.style.display='none';
+  const under=document.elementFromPoint(e.clientX,e.clientY);
+  _dnd.ghost.style.display='';
+  const overCard=under?.closest('.hcard[data-id]');
+
+  // Highlight drop target
+  document.querySelectorAll('.hcard.drag-over').forEach(c=>c.classList.remove('drag-over'));
+  if(overCard&&overCard!==_dnd.srcEl){
+    overCard.classList.add('drag-over');
+    _dnd.lastOver=overCard;
+  }else{
+    _dnd.lastOver=null;
+  }
+}
+
+function endDrag(){
+  if(!_dnd.active)return;
+  document.removeEventListener('pointermove',onDrag);
+  document.removeEventListener('pointerup',endDrag);
+  document.removeEventListener('pointercancel',endDrag);
+
+  // Remove ghost & restore card
+  _dnd.ghost?.remove();
+  if(_dnd.srcEl){_dnd.srcEl.style.opacity='';_dnd.srcEl.style.transition='';}
+  document.querySelectorAll('.hcard.drag-over').forEach(c=>c.classList.remove('drag-over'));
+
+  // Reorder if valid drop
+  if(_dnd.lastOver){
+    const toId=_dnd.lastOver.dataset.id;
+    const fromIdx=habits.findIndex(h=>h.id===_dnd.id);
+    const toIdx=habits.findIndex(h=>h.id===toId);
+    if(fromIdx>=0&&toIdx>=0&&fromIdx!==toIdx){
       const [moved]=habits.splice(fromIdx,1);
       habits.splice(toIdx,0,moved);
-      saveData();render();
-    });
-
-    // ── Touch drag events (mobile) ──
-    const handle=card.querySelector('.drag-handle');
-    if(!handle)return;
-    handle.addEventListener('touchstart',e=>{
-      e.preventDefault();
-      _dragId=card.dataset.id;
-      _dragEl=card;
-      _touchY=e.touches[0].clientY;
-      _touchDragEl=card.cloneNode(true);
-      _touchDragEl.style.cssText=`position:fixed;left:${card.getBoundingClientRect().left}px;top:${card.getBoundingClientRect().top}px;width:${card.offsetWidth}px;z-index:999;opacity:.85;pointer-events:none;transform:scale(.97);box-shadow:0 12px 40px rgba(0,0,0,.25);border-radius:18px;transition:none`;
-      document.body.appendChild(_touchDragEl);
-      card.style.opacity='.35';
-    },{passive:false});
-
-    handle.addEventListener('touchmove',e=>{
-      e.preventDefault();
-      if(!_touchDragEl)return;
-      const dy=e.touches[0].clientY-_touchY;
-      const rect=_dragEl.getBoundingClientRect();
-      _touchDragEl.style.top=(rect.top+dy)+'px';
-      // Find which card we're hovering over
-      list.querySelectorAll('.hcard').forEach(c=>c.classList.remove('drag-over'));
-      const underEl=document.elementFromPoint(e.touches[0].clientX,e.touches[0].clientY);
-      const overCard=underEl?.closest('.hcard');
-      if(overCard&&overCard!==_dragEl)overCard.classList.add('drag-over');
-    },{passive:false});
-
-    handle.addEventListener('touchend',e=>{
-      if(!_touchDragEl){_dragId=null;_dragEl=null;return;}
-      // Find drop target
-      _touchDragEl.style.display='none';
-      const underEl=document.elementFromPoint(e.changedTouches[0].clientX,e.changedTouches[0].clientY);
-      _touchDragEl.style.display='';
-      const overCard=underEl?.closest('.hcard');
-      _touchDragEl.remove();
-      _touchDragEl=null;
-      if(_dragEl)_dragEl.style.opacity='';
-      list.querySelectorAll('.hcard').forEach(c=>c.classList.remove('drag-over'));
-      if(overCard&&overCard.dataset.id&&overCard.dataset.id!==_dragId){
-        const fromIdx=habits.findIndex(h=>h.id===_dragId);
-        const toIdx=habits.findIndex(h=>h.id===overCard.dataset.id);
-        if(fromIdx>=0&&toIdx>=0){
-          const [moved]=habits.splice(fromIdx,1);
-          habits.splice(toIdx,0,moved);
-          saveData();render();
-        }
-      }
-      _dragId=null;_dragEl=null;
-    });
-  });
+      saveData();
+      render();
+      return;
+    }
+  }
+  _dnd={active:false,id:null,srcEl:null,ghost:null,srcIdx:-1,lastOver:null};
 }
 
 window.openLibEdit = idx => {
