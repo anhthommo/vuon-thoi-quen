@@ -278,6 +278,7 @@ html.dark body{background:#111827;color:#f8fafc}
 html.dark .auth-tool{background:rgba(15,23,42,.58);border-color:rgba(148,163,184,.45);color:#f8fafc}
 html.dark .auth-card,html.dark .xpwrap,html.dark .tabs,html.dark .hcard,html.dark .scard,html.dark .fcard,html.dark .dcard,html.dark .modal{background:#182235;border-color:#334155;box-shadow:0 14px 40px rgba(0,0,0,.35)}
 html.dark .atab,html.dark .sc,html.dark .hemo,html.dark .ibtn,html.dark .mbtn,html.dark .abtn,html.dark .ntime,html.dark .field input,html.dark .field textarea,html.dark .afield input,html.dark .eopt,html.dark .dowopt,html.dark .mcancel{background:#0f172a;border-color:#334155;color:#f8fafc}
+html.dark .fopt,html.dark .copt{background:#0f172a;border-color:#334155;color:#cbd5e1}
 html.dark .atab.on,html.dark .fopt.on,html.dark .copt.on,html.dark .dowopt.on,html.dark .eopt.on,html.dark .mbtn.on{background:#2b3a20;border-color:#f4a100;color:#ffe8a3}
 html.dark .tabs{border-bottom-color:#334155}
 html.dark .tab{color:#cbd5e1}
@@ -298,6 +299,19 @@ html.dark .rwdn{background:linear-gradient(135deg,#123524,#164e32);border-color:
 html.dark .msbox{background:linear-gradient(135deg,#1f2937,#111827);border-color:#f4a100}
 html.dark .msrw{background:#0f172a;color:#bbf7d0;border-color:#166534}
 html.dark .overlay{background:rgba(2,6,23,.76)}
+html.dark .vacbanner{background:#1f2937;border-color:#475569;color:#fbbf24}
+html.dark .tcat{background:#123524;color:#6ee7b7;border-color:#166534}
+html.dark .tfrq{background:#0f2340;color:#93c5fd;border-color:#1d4ed8}
+html.dark .tgl{background:#3b0f1f;color:#f9a8d4;border-color:#9d174d}
+html.dark .trem{background:#2d2400;color:#fde68a;border-color:#a16207}
+html.dark .tvac{background:#2d1800;color:#fdba74;border-color:#c2410c}
+html.dark .toggle{background:#334155}
+html.dark .bkstatus.ok{background:#123524;color:#6ee7b7}
+html.dark .bkstatus.err{background:#3b1620;color:#fecaca}
+html.dark .bkstatus.ing{background:#0f2340;color:#93c5fd}
+html.dark .bgdesc{color:#94a3b8}
+html.dark .rwdays-dn{color:#6ee7b7}
+html.dark .sc b{color:#fbbf24}
 </style>
 </head>
 <body>
@@ -1163,6 +1177,9 @@ function last7(){const now=new Date();return Array.from({length:7},(_,i)=>{const
 function isSchd(h,d){if(h.freq==='daily')return true;if(h.freq==='custom')return(h.dow||[0,1,2,3,4,5,6]).includes(d.dow);return true;}
 function getStreakUntil(h,start=new Date(),limit=365){
   let s=0,d=new Date(start.getFullYear(),start.getMonth(),start.getDate());
+  // Nếu ngày bắt đầu chưa tick và không phải nghỉ phép → bỏ qua, đếm từ ngày trước
+  const startKey=dateKeyLocal(d),startSc=isSchd(h,{dow:d.getDay()});
+  if(startSc&&!h.done?.[startKey]&&!h.vacation?.[startKey]){d=addLocalDays(d,-1);}
   for(let i=0;i<limit;i++){
     const k=dateKeyLocal(d),sc=isSchd(h,{dow:d.getDay()});
     if(!sc){d=addLocalDays(d,-1);continue;}
