@@ -470,12 +470,12 @@ html.dark .sc b{color:#fbbf24}
     <div style="background:linear-gradient(135deg,#1a3a1a,#2d5a1b 50%,#f4a100);border-radius:18px;padding:16px 18px;margin-bottom:14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 4px 20px rgba(196,122,0,.2)" onclick="openHabitLibrary()">
       <div style="font-size:32px;line-height:1;flex-shrink:0">🌿</div>
       <div style="flex:1">
-        <div style="font-size:15px;font-weight:900;color:#fff;margin-bottom:3px">Thư viện thói quen</div>
-        <div style="font-size:12px;color:rgba(255,255,255,.8);font-weight:600">60 thói quen gợi ý • 6 nhóm • Thêm ngay!</div>
+        <div id="libBannerTitle" style="font-size:15px;font-weight:900;color:#fff;margin-bottom:3px">Thư viện thói quen</div>
+        <div id="libBannerSub" style="font-size:12px;color:rgba(255,255,255,.8);font-weight:600">180 thói quen gợi ý • 6 nhóm • Thêm ngay!</div>
       </div>
       <div style="font-size:22px;color:#fff">→</div>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><div style="flex:1;height:1px;background:#f0d060"></div><span style="font-size:11px;font-weight:800;color:#9a7a00">HOẶC TỰ TẠO MỚI</span><div style="flex:1;height:1px;background:#f0d060"></div></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><div style="flex:1;height:1px;background:#f0d060"></div><span id="libBannerOr" style="font-size:11px;font-weight:800;color:#9a7a00">HOẶC TỰ TẠO MỚI</span><div style="flex:1;height:1px;background:#f0d060"></div></div>
     <div class="fcard">
       <div class="fhed">🌻 Trồng thói quen mới</div>
       <div class="field"><label>Biểu tượng</label><div class="egrid" id="epick"></div><div class="egrid-toggle" id="epickToggle" onclick="toggleEgrid('epick','epickToggle')">▾ Xem thêm icon</div></div>
@@ -619,25 +619,25 @@ html.dark .sc b{color:#fbbf24}
   <div class="lib-sheet">
     <div class="lib-header">
       <div class="lib-drag"></div>
-      <div class="lib-title">🌿 Thư viện thói quen</div>
-      <div class="lib-sub">Chọn thói quen phù hợp và chỉnh sửa trước khi thêm</div>
+      <div class="lib-title" id="libModalTitle">🌿 Thư viện thói quen</div>
+      <div class="lib-sub" id="libModalSub">Chọn thói quen phù hợp và chỉnh sửa trước khi thêm</div>
       <div class="lib-cats" id="libCats"></div>
     </div>
     <div class="lib-list" id="libList"></div>
-    <button class="lib-close-btn" onclick="closeHabitLibrary()">✕ Đóng</button>
+    <button class="lib-close-btn" id="libCloseBtn" onclick="closeHabitLibrary()">✕ Đóng</button>
   </div>
 </div>
 
 <!-- Edit Before Add Modal -->
 <div class="lib-edit-overlay" id="libEditOverlay">
   <div class="lib-edit-box">
-    <div class="lib-edit-title">✏️ Xem lại trước khi thêm</div>
-    <div class="lib-edit-sub">Bạn có thể chỉnh sửa trước khi lưu vào vườn</div>
-    <div class="field"><label>Biểu tượng</label><div class="egrid" id="libEPick"></div><div class="egrid-toggle" id="libEPickToggle" onclick="toggleEgrid('libEPick','libEPickToggle')">▾ Xem thêm icon</div></div>
-    <div class="field"><label>Tên thói quen *</label><input id="libName" maxlength="50"></div>
-    <div class="field"><label>Mô tả ngắn</label><input id="libDesc" maxlength="60"></div>
-    <div class="field"><label>Giờ nhắc riêng</label><input id="libReminder" type="time" value="21:00"></div>
-    <div class="field"><label>Danh mục</label><div class="copts" id="libCatPick">
+    <div class="lib-edit-title" id="libEditTitle">✏️ Xem lại trước khi thêm</div>
+    <div class="lib-edit-sub" id="libEditSub">Bạn có thể chỉnh sửa trước khi lưu vào vườn</div>
+    <div class="field"><label id="libLabelIcon">Biểu tượng</label><div class="egrid" id="libEPick"></div><div class="egrid-toggle" id="libEPickToggle" onclick="toggleEgrid('libEPick','libEPickToggle')">▾ Xem thêm icon</div></div>
+    <div class="field"><label id="libLabelName">Tên thói quen *</label><input id="libName" maxlength="50"></div>
+    <div class="field"><label id="libLabelDesc">Mô tả ngắn</label><input id="libDesc" maxlength="60"></div>
+    <div class="field"><label id="libLabelReminder">Giờ nhắc riêng</label><input id="libReminder" type="time" value="21:00"></div>
+    <div class="field"><label id="libLabelCat">Danh mục</label><div class="copts" id="libCatPick">
       <div class="copt" data-c="Sức khỏe" onclick="pickLibCat(this)">💪 Sức khỏe</div>
       <div class="copt" data-c="Học tập" onclick="pickLibCat(this)">📚 Học tập</div>
       <div class="copt" data-c="Tinh thần" onclick="pickLibCat(this)">🧘 Tinh thần</div>
@@ -645,12 +645,12 @@ html.dark .sc b{color:#fbbf24}
       <div class="copt" data-c="Năng suất" onclick="pickLibCat(this)">⚡ Năng suất</div>
       <div class="copt" data-c="Quan hệ" onclick="pickLibCat(this)">🤝 Quan hệ</div>
     </div></div>
-    <div class="field"><label>Quà sau 5 ngày</label><input id="libR5" maxlength="60" placeholder="VD: Uống trà sữa yêu thích"></div>
-    <div class="field"><label>Quà sau 7 ngày</label><input id="libR7" maxlength="60" placeholder="VD: Xem 1 tập phim"></div>
-    <div class="field"><label>Quà sau 15 ngày</label><input id="libR15" maxlength="60" placeholder="VD: Mua thứ mình muốn"></div>
+    <div class="field"><label id="libLabelR5">Quà sau 5 ngày</label><input id="libR5" maxlength="60"></div>
+    <div class="field"><label id="libLabelR7">Quà sau 7 ngày</label><input id="libR7" maxlength="60"></div>
+    <div class="field"><label id="libLabelR15">Quà sau 15 ngày</label><input id="libR15" maxlength="60"></div>
     <div class="mbtns">
-      <button class="mcancel" onclick="closeLibEdit()">Hủy</button>
-      <button class="msave" onclick="confirmAddFromLib()">🌻 Thêm vào vườn!</button>
+      <button class="mcancel" id="libCancelBtn" onclick="closeLibEdit()">Hủy</button>
+      <button class="msave" id="libConfirmBtn" onclick="confirmAddFromLib()">🌻 Thêm vào vườn!</button>
     </div>
   </div>
 </div>
@@ -826,7 +826,12 @@ const I18N={
     alerts:{needLogin:'Vui lòng nhập đầy đủ email và mật khẩu!',needName:'Vui lòng nhập tên!',needEmail:'Vui lòng nhập email!',weak:'Mật khẩu ít nhất 6 ký tự!',mismatch:'Mật khẩu xác nhận không khớp!',forgotEmail:'Nhập email vào ô trên trước!',resetSent:'✅ Email đặt lại mật khẩu đã được gửi! Kiểm tra hộp thư.',notFound:'Không tìm thấy tài khoản với email này.',logout:'Đăng xuất khỏi tài khoản?',ios:'Cài trên iOS: Safari → Chia sẻ 📤 → Thêm vào Màn hình chính',nameHabit:'Vui lòng nhập tên thói quen!',editName:'Nhập tên nhé!',deleteHabit:(n)=>`Xóa "${n}"?\nDữ liệu sẽ mất vĩnh viễn.`,mysqlMissing:'Chưa cấu hình MYSQL_URL trong code!',oneSignal:'OneSignal chưa cấu hình. Thay YOUR_ONESIGNAL_APP_ID trong code!',notifUnsupported:'Trình duyệt không hỗ trợ thông báo!',importConfirm:'Nhập sẽ THAY THẾ dữ liệu hiện tại bằng dữ liệu từ file.\nTiếp tục?',importOk:'✅ Nhập dữ liệu thành công!\n\nDữ liệu đã được lưu lên cloud — đăng nhập trên thiết bị khác sẽ thấy ngay.',invalidFile:'❌ File không hợp lệ!',clearAll:'Xóa TOÀN BỘ dữ liệu? Không thể hoàn tác!'},
     syncLoad:'☁️ Đang tải dữ liệu...',syncLoaded:'✅ Dữ liệu đã đồng bộ!',syncing:'☁️ Đang đồng bộ...',synced:'✅ Đã đồng bộ!',syncLoadErr:'❌ Lỗi tải dữ liệu: ',syncErr:'❌ Lỗi đồng bộ. Kiểm tra Firebase!',
     csv:['Thói quen','Ngày','Hoàn thành','Tâm trạng','Ghi chú'],yes:'Có',no:'Không',backuping:'⏳ Đang backup...',backupOk:'✅ Backup thành công! ',backupFail:'❌ Không kết nối được. Kiểm tra MYSQL_URL!',notifBody:n=>`Còn ${n} thói quen chưa tick! Đừng phá streak 💪`,habitNotifBody:n=>`Đến giờ ${n} rồi. Tick ngay để giữ streak nhé! 💪`,habitNotifGroup:n=>`${n} thói quen đến giờ cần tick!`,
-    milestone:(d,h)=>[`${d} ngày liên tiếp! 🎊`,`"${h.emoji} ${h.name}" đạt streak ${d} ngày!`],addXp:'thêm thói quen mới',streakXp:d=>`streak ${d} ngày`
+    milestone:(d,h)=>[`${d} ngày liên tiếp! 🎊`,`"${h.emoji} ${h.name}" đạt streak ${d} ngày!`],addXp:'thêm thói quen mới',streakXp:d=>`streak ${d} ngày`,
+    libTitle:'🌿 Thư viện thói quen',libSub:'180 thói quen gợi ý • 6 nhóm • Thêm ngay!',libOr:'HOẶC TỰ TẠO MỚI',libClose:'✕ Đóng',libAdded:'✓ Đã có',libAddBtn:'＋ Thêm',libViewGarden:'🌿 Xem thư viện gợi ý',
+    libEditTitle:'✏️ Xem lại trước khi thêm',libEditSub:'Bạn có thể chỉnh sửa trước khi lưu vào vườn',libConfirm:'🌻 Thêm vào vườn!',
+    libCatAll:'🌿 Tất cả',libCatHealth:'💪 Sức khỏe',libCatStudy:'📚 Học tập',libCatMind:'🧘 Tinh thần',libCatFinance:'💰 Tài chính',libCatProd:'⚡ Năng suất',libCatRelation:'🤝 Quan hệ',
+    iconMore:'▾ Xem thêm icon',iconLess:'▴ Thu gọn',
+    libToast:n=>`✅ Đã thêm "${n}" vào vườn!`
   },
   en:{
     app:'Habit Garden',loading:'Loading your habit garden...',tagline:'Sign in once — your data follows you<br>across every device ✨',
@@ -855,7 +860,12 @@ const I18N={
     alerts:{needLogin:'Please enter both email and password!',needName:'Please enter your name!',needEmail:'Please enter your email!',weak:'Password must be at least 6 characters!',mismatch:'Password confirmation does not match!',forgotEmail:'Enter your email above first!',resetSent:'✅ Password reset email sent! Check your inbox.',notFound:'No account found with this email.',logout:'Log out of this account?',ios:'Install on iOS: Safari → Share 📤 → Add to Home Screen',nameHabit:'Please enter a habit name!',editName:'Please enter a name!',deleteHabit:(n)=>`Delete "${n}"?\nThis data will be lost permanently.`,mysqlMissing:'MYSQL_URL is not configured in code!',oneSignal:'OneSignal is not configured. Replace YOUR_ONESIGNAL_APP_ID in code!',notifUnsupported:'This browser does not support notifications!',importConfirm:'Import will REPLACE your current data with the file data.\nContinue?',importOk:'✅ Data imported successfully!\n\nYour data was saved to the cloud — sign in on another device to see it.',invalidFile:'❌ Invalid file!',clearAll:'Delete ALL data? This cannot be undone!'},
     syncLoad:'☁️ Loading data...',syncLoaded:'✅ Data synced!',syncing:'☁️ Syncing...',synced:'✅ Synced!',syncLoadErr:'❌ Failed to load data: ',syncErr:'❌ Sync failed. Check Firebase!',
     csv:['Habit','Date','Completed','Mood','Note'],yes:'Yes',no:'No',backuping:'⏳ Backing up...',backupOk:'✅ Backup successful! ',backupFail:'❌ Could not connect. Check MYSQL_URL!',notifBody:n=>`${n} habits still need a tick today! Keep your streak 💪`,habitNotifBody:n=>`Time for ${n}. Tick it to keep your streak! 💪`,habitNotifGroup:n=>`${n} habits are due now!`,
-    milestone:(d,h)=>[`${d} days in a row! 🎊`,`"${h.emoji} ${h.name}" reached a ${d}-day streak!`],addXp:'new habit added',streakXp:d=>`${d}-day streak`
+    milestone:(d,h)=>[`${d} days in a row! 🎊`,`"${h.emoji} ${h.name}" reached a ${d}-day streak!`],addXp:'new habit added',streakXp:d=>`${d}-day streak`,
+    libTitle:'🌿 Habit Library',libSub:'180 suggested habits • 6 groups • Add instantly!',libOr:'OR CREATE YOUR OWN',libClose:'✕ Close',libAdded:'✓ Added',libAddBtn:'＋ Add',libViewGarden:'🌿 Browse habit library',
+    libEditTitle:'✏️ Review before adding',libEditSub:'You can edit before saving to your garden',libConfirm:'🌻 Add to garden!',
+    libCatAll:'🌿 All',libCatHealth:'💪 Health',libCatStudy:'📚 Learning',libCatMind:'🧘 Mindfulness',libCatFinance:'💰 Finance',libCatProd:'⚡ Productivity',libCatRelation:'🤝 Relationships',
+    iconMore:'▾ More icons',iconLess:'▴ Collapse',
+    libToast:n=>`✅ "${n}" added to your garden!`
   }
 };
 
@@ -923,6 +933,32 @@ function applyLang(){
   setTxt('#moodHed',tt('moodTitle'));document.querySelectorAll('#moodModal .field label').forEach((el,i)=>el.textContent=[tt('moodToday'),tt('note')][i]);setTxt('#moodModal .mcancel',tt('skip'));setTxt('#moodModal .msave',tt('saveShort'));setTxt('.msclose',tt('continue'));
   setPH('#iName',tt('pName'));setPH('#iDesc',tt('pDesc'));setPH('#iGN',tt('pGoal'));setPH('#iGU',tt('pUnit'));setPH('#iR5',tt('pR5'));setPH('#iR7',tt('pR7'));setPH('#iR15',tt('pR15'));setPH('#moodNote',tt('pMood'));
   const addReminder=document.getElementById('iReminderTime');if(addReminder&&!addReminder.value)addReminder.value=stats.ntime||'21:00';
+  // Library i18n
+  setTxt('#libBannerTitle',tt('libTitle').replace('🌿 ',''));
+  setTxt('#libBannerSub',tt('libSub'));
+  setTxt('#libBannerOr',tt('libOr'));
+  setTxt('#libModalTitle',tt('libTitle'));
+  setTxt('#libModalSub',lang==='en'?'Choose a habit and edit before adding':'Chọn thói quen phù hợp và chỉnh sửa trước khi thêm');
+  setTxt('#libCloseBtn',tt('libClose'));
+  setTxt('#libEditTitle',tt('libEditTitle'));
+  setTxt('#libEditSub',tt('libEditSub'));
+  setTxt('#libConfirmBtn',tt('libConfirm'));
+  setTxt('#libCancelBtn',tt('cancel'));
+  setTxt('#libLabelIcon',tt('icon'));
+  setTxt('#libLabelName',tt('habitName'));
+  setTxt('#libLabelDesc',tt('habitDesc'));
+  setTxt('#libLabelReminder',tt('habitReminder'));
+  setTxt('#libLabelCat',tt('category').replace('📂 ',''));
+  setTxt('#libLabelR5',tt('r5'));setTxt('#libLabelR7',tt('r7'));setTxt('#libLabelR15',tt('r15'));
+  setPH('#libR5',tt('pR5'));setPH('#libR7',tt('pR7'));setPH('#libR15',tt('pR15'));
+  document.querySelectorAll('#libCatPick .copt').forEach(el=>el.textContent=catLabel(el.dataset.c));
+  // Egrid toggle buttons
+  document.querySelectorAll('.egrid-toggle').forEach(btn=>{
+    const expanded=btn.previousElementSibling?.classList.contains('expanded');
+    btn.textContent=expanded?tt('iconLess'):tt('iconMore');
+  });
+  // Re-render lib list if open (to update Added/Add button text)
+  if(document.getElementById('habitLibraryOverlay')?.classList.contains('on'))renderLibList();
   render();renderBadges();updateXP();applyTheme();
 }
 window.toggleTheme=()=>{theme=theme==='dark'?'light':'dark';localStorage.setItem('vh_theme',theme);applyTheme();};
@@ -1421,7 +1457,7 @@ function render(){
   const td=habits.filter(h=>h.done?.[t]).length,ms=habits.reduce((m,h)=>Math.max(m,getStreak(h)),0);
   document.getElementById('sH').textContent=habits.length;document.getElementById('sD').textContent=td;document.getElementById('sS').textContent=ms;
   document.getElementById('bsub').textContent=habits.length===0?tt('firstHabit'):td===habits.length&&habits.length>0?tt('allDone'):tt('left',habits.length-td);
-  if(!habits.length){list.innerHTML=`<div class="empty-box"><div class="empty-ico">🌻</div><div class="empty-txt">${tt('noHabitsTitle')}</div><div class="empty-sub">${tt('noHabitsSub')}</div><button onclick="goTab('add');setTimeout(openHabitLibrary,200)" style="margin-top:16px;padding:10px 22px;background:linear-gradient(135deg,#2d5a1b,#f4a100);color:#fff;border:none;border-radius:20px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer">🌿 Xem thư viện gợi ý</button></div>`;return;}
+  if(!habits.length){list.innerHTML=`<div class="empty-box"><div class="empty-ico">🌻</div><div class="empty-txt">${tt('noHabitsTitle')}</div><div class="empty-sub">${tt('noHabitsSub')}</div><button onclick="goTab('add');setTimeout(openHabitLibrary,200)" style="margin-top:16px;padding:10px 22px;background:linear-gradient(135deg,#2d5a1b,#f4a100);color:#fff;border:none;border-radius:20px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer">${tt('libViewGarden')}</button></div>`;return;}
   list.innerHTML=habits.map(h=>{
     const s=getStreak(h),onV=h.vacation?.[t],mood=h.moods?.[t],note=h.notes?.[t];
     const flowers=days.map(d=>{
@@ -1706,15 +1742,15 @@ const HABIT_LIBRARY = [
   {emoji:'❤️',name:'Nói lời yêu thương cụ thể',cat:'Quan hệ',desc:'Nói "Em yêu anh vì..." hoặc "Con biết ơn ba/mẹ vì..." — cụ thể',freq:'daily',tips:'Lời yêu thương cụ thể chạm đến trái tim hơn "anh yêu em" chung chung — specificity creates depth.'}
 ];
 
-const LIB_CATS = [
-  {key:'all',label:'🌿 Tất cả'},
-  {key:'Sức khỏe',label:'💪 Sức khỏe'},
-  {key:'Học tập',label:'📚 Học tập'},
-  {key:'Tinh thần',label:'🧘 Tinh thần'},
-  {key:'Tài chính',label:'💰 Tài chính'},
-  {key:'Năng suất',label:'⚡ Năng suất'},
-  {key:'Quan hệ',label:'🤝 Quan hệ'}
-];
+function getLibCats(){return[
+  {key:'all',label:tt('libCatAll')},
+  {key:'Sức khỏe',label:tt('libCatHealth')},
+  {key:'Học tập',label:tt('libCatStudy')},
+  {key:'Tinh thần',label:tt('libCatMind')},
+  {key:'Tài chính',label:tt('libCatFinance')},
+  {key:'Năng suất',label:tt('libCatProd')},
+  {key:'Quan hệ',label:tt('libCatRelation')}
+];}
 
 let libActiveCat = 'all';
 let libSelectedHabit = null;
@@ -1732,7 +1768,8 @@ window.closeHabitLibrary = () => {
 };
 
 function renderLibCats() {
-  document.getElementById('libCats').innerHTML = LIB_CATS.map(c =>
+  const cats = getLibCats();
+  document.getElementById('libCats').innerHTML = cats.map(c =>
     `<div class="lib-cat${libActiveCat===c.key?' on':''}" onclick="setLibCat('${c.key}')">${c.label}</div>`
   ).join('');
 }
@@ -1746,19 +1783,19 @@ window.setLibCat = key => {
 function renderLibList() {
   const existingNames = habits.map(h => h.name.toLowerCase());
   const filtered = libActiveCat === 'all' ? HABIT_LIBRARY : HABIT_LIBRARY.filter(h => h.cat === libActiveCat);
-  document.getElementById('libList').innerHTML = filtered.map((h, i) => {
+  document.getElementById('libList').innerHTML = filtered.map((h) => {
     const idx = HABIT_LIBRARY.indexOf(h);
     const added = existingNames.includes(h.name.toLowerCase());
     return `<div class="lib-item${added?' added':''}" >
       <div class="lib-item-top">
         <div class="lib-emoji">${h.emoji}</div>
         <div class="lib-name">${h.name}</div>
-        ${added ? '<span class="lib-added-badge">✓ Đã có</span>' : ''}
+        ${added ? `<span class="lib-added-badge">${tt('libAdded')}</span>` : ''}
       </div>
       <div class="lib-desc">${h.tips}</div>
       <div class="lib-meta">
         <span class="lib-tag">${h.cat}</span>
-        ${!added ? `<button class="lib-add-btn" onclick="openLibEdit(${idx})">＋ Thêm</button>` : ''}
+        ${!added ? `<button class="lib-add-btn" onclick="openLibEdit(${idx})">${tt('libAddBtn')}</button>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -1826,7 +1863,7 @@ window.confirmAddFromLib = () => {
   renderLibList(); // refresh để mark "đã có"
   // Toast thông báo
   const t = document.getElementById('xpToast');
-  t.textContent = `✅ Đã thêm "${name}" vào vườn!`;
+  t.textContent = tt('libToast')(name);
   t.classList.add('on');
   setTimeout(() => t.classList.remove('on'), 2500);
 };
@@ -1837,13 +1874,13 @@ window.toggleEgrid = (gridId, btnId) => {
   const btn  = document.getElementById(btnId);
   if(!grid || !btn) return;
   const expanded = grid.classList.toggle('expanded');
-  btn.textContent = expanded ? '▴ Thu gọn' : '▾ Xem thêm icon';
+  btn.textContent = expanded ? tt('iconLess') : tt('iconMore');
 };
 function resetEgrid(gridId, btnId){
   const grid = document.getElementById(gridId);
   const btn  = document.getElementById(btnId);
   if(grid) grid.classList.remove('expanded');
-  if(btn)  btn.textContent = '▾ Xem thêm icon';
+  if(btn)  btn.textContent = tt('iconMore');
 }
 
 // INIT
