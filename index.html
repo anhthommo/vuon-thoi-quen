@@ -758,7 +758,15 @@ const auth  = getAuth(fbApp);
 const db    = getFirestore(fbApp);
 
 // ── CONSTANTS ──
-const EMOJIS=['📚','🏃','🧘','💪','🎨','🎸','🍎','💧','📝','🌿','🎯','🌙','☕','🎵','🧠','✍️'];
+const EMOJIS=['📚','🏃','🧘','💪','🎨','🎸','🍎','💧','📝','🌿','🎯','🌙','☕','🎵','🧠','✍️',
+  '🚶','🤸','🌅','🛌','🥦','🏋️','🦷','☀️','🍱','🧍','🍵','🫁','🚴','🧂','🍬','🍳','🧴','👁️','🪥','⚖️','🪑','🚿','🥕','🥤','🛏️','🧘','🩺',
+  '📖','🌍','✏️','🎧','🃏','💻','🔍','🎺','📺','📝','🗂️','❓','📂','🧑‍🏫','🔖','📰','🏁','🧫','📗','🔤','🗣️','🧩','🗺️','💡','🧑‍💼','📅','🔧','🗃️','🐛','📋',
+  '🙏','🌬️','📔','📵','🎵','🌳','💚','🧹','☕','🪷','🌄','🔁','😰','✨','🌊','🪑','🚶','🌱','🎨','⏸️','🍃','💛','🌿','⭐','🫀','🍵','📝','🌛',
+  '📒','🏦','💳','🚫','📊','📅','📖','🎯','☕','📋','🗃️','✂️','📈','🔢','🛍️','🔍','🚫','⏰','🤔','🏫','💰','🍱','🔄','📊','♻️','🆘','📆','🍳','🔗','🗓️',
+  '📅','🥇','🗃️','🧹','⏱️','📧','🎯','🔕','📓','💾','⚡','🚀','🗑️','✅','🕐','🔪','📵','📁','➡️','🗑️','🦁','🏁','🤖','📌','🏷️','⏳','🚧','☑️','🎯','🔒',
+  '💬','📞','🙏','👂','💪','🍽️','🗣️','🌟','💛','🤲','💭','👋','❓','📆','🏠','🎂','💬','🙇','🤝','🚶','☕','👁️','📩','🔗','🫂','🌱','📢','🕊️','🎮','❤️',
+  '🌻','🦋','🌺','🌸','🍀','🌼','🌻','🦄','🐝','🦊','🐬','🦅','🏆','🥈','🎖️','🏅','💎','🔮','⚗️','🎭','🎪','🎠','🎡','🎢','🛡️','⚔️','🗡️','🧭','🔭','🎲'];
+
 const DOWS_VI=['CN','T2','T3','T4','T5','T6','T7'];
 const DOWS_EN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 let DOWS=DOWS_VI;
@@ -1016,12 +1024,40 @@ onAuthStateChanged(auth,async user=>{
 });
 
 // ── FIRESTORE ──
+// ── RECALC XP (tự động sửa XP bị hack) ──
+function recalcXP(){
+  // Tính XP đúng từ dữ liệu thật
+  let correct = 0;
+  habits.forEach(h => {
+    // +10 XP mỗi ngày đã tick
+    correct += Object.values(h.done || {}).filter(Boolean).length * 10;
+    // +XP milestone đã đạt hợp lệ
+    const aw = h.milestoneAwarded || {};
+    if(aw[5])  correct += 50;
+    if(aw[7])  correct += 80;
+    if(aw[15]) correct += 200;
+    if(aw[30]) correct += 500;
+    // +10 XP khi mới thêm thói quen (addXp)
+    correct += 10;
+  });
+  // Nếu XP hiện tại lệch quá 20% so với XP đúng → tự sửa
+  const current = stats.xp || 0;
+  const diff = Math.abs(current - correct);
+  const threshold = Math.max(correct * 0.2, 30); // cho phép lệch 20% hoặc 30 XP
+  if(diff > threshold){
+    console.log(`[XP Fix] Phát hiện XP lệch: hiện tại=${current}, đúng=${correct} → tự sửa`);
+    stats.xp = correct;
+    saveData(); // lưu lên Firebase luôn
+  }
+}
+
 async function loadData(uid){
   try{
     showSync('saving',tt('syncLoad'));
     const snap=await getDoc(doc(db,'users',uid));
     if(snap.exists()){const d=snap.data();habits=d.habits||[];stats={...stats,...(d.stats||{})};}
     showSync('ok',tt('syncLoaded'));setTimeout(hideSync,2000);
+    recalcXP(); // ← tự kiểm tra và sửa XP sai ngay khi load
     render();renderBadges();updateXP();
     document.getElementById('notifTog').classList.toggle('on',!!stats.notif);
     document.getElementById('notifTime').value=stats.ntime||'21:00';
@@ -1240,16 +1276,49 @@ window.saveEdit=()=>{
 window.delHabit=id=>{const h=habits.find(x=>x.id==id);if(!confirm(tt('alerts').deleteHabit(h?.name)))return;habits=habits.filter(x=>x.id!=id);saveData();render();};
 window.togVac=id=>{const h=habits.find(x=>x.id==id);if(!h)return;const t=today();if(!h.vacation)h.vacation={};h.vacation[t]=!h.vacation[t];saveData();render();};
 
+const MILESTONES=[{d:5,ico:'🌻',xp:50},{d:7,ico:'🎉',xp:80},{d:15,ico:'🏆',xp:200},{d:30,ico:'⭐',xp:500}];
+
 window.toggleDay=(id,key)=>{
   const h=habits.find(x=>x.id==id);if(!h)return;if(key!==today())return;if(h.vacation?.[key])return;
   const was=!h.done[key];h.done[key]=was;
-  if(was){stats.done=(stats.done||0)+1;addXP(10,'');const s=getStreak(h);if(s>(stats.ms||0))stats.ms=s;checkMilestone(h,s);}
-  else{stats.done=Math.max(0,(stats.done||0)-1);stats.xp=Math.max(0,(stats.xp||0)-10);updateXP();}
+  if(was){
+    stats.done=(stats.done||0)+1;
+    addXP(10,'');
+    const s=getStreak(h);
+    if(s>(stats.ms||0))stats.ms=s;
+    checkMilestone(h,s);
+  } else {
+    // Bỏ tick: trừ 10 XP tick + trừ XP milestone nếu vừa đạt
+    stats.done=Math.max(0,(stats.done||0)-1);
+    let xpToRemove=10;
+    // Kiểm tra xem streak trước khi bỏ tick có đúng mốc milestone không
+    // Streak hiện tại sau bỏ tick = s-1, nên streak khi tick = s (tức là getStreak sau khi restore done)
+    h.done[key]=true; // tạm restore để tính streak lúc còn tick
+    const sWas=getStreak(h);
+    h.done[key]=false; // bỏ lại
+    const awardedKey='milestoneAwarded';
+    if(!h[awardedKey])h[awardedKey]={};
+    MILESTONES.forEach(m=>{
+      if(sWas===m.d && h[awardedKey][m.d]){
+        xpToRemove+=m.xp;
+        delete h[awardedKey][m.d]; // cho phép tặng lại nếu đạt lại
+      }
+    });
+    stats.xp=Math.max(0,(stats.xp||0)-xpToRemove);
+    updateXP();
+  }
   saveData();render();if(was)openMood(id,key);
 };
 function checkMilestone(h,s){
-  [{d:5,ico:'🌻',xp:50,r:h.r5},{d:7,ico:'🎉',xp:80,r:h.r7},{d:15,ico:'🏆',xp:200,r:h.r15},{d:30,ico:'⭐',xp:500,r:'30 ngày phi thường!'}].forEach(m=>{
-    if(s===m.d){addXP(m.xp,tt('streakXp',m.d));const ms=tt('milestone',m.d,h);setTimeout(()=>showMsp(ms[0],ms[1],m.r,m.xp,m.ico),300);}
+  if(!h.milestoneAwarded)h.milestoneAwarded={};
+  MILESTONES.forEach(m=>{
+    if(s===m.d && !h.milestoneAwarded[m.d]){
+      h.milestoneAwarded[m.d]=true; // đánh dấu đã tặng mốc này
+      const r=m.d===5?h.r5:m.d===7?h.r7:m.d===15?h.r15:'30 ngày phi thường!';
+      addXP(m.xp,tt('streakXp',m.d));
+      const ms=tt('milestone',m.d,h);
+      setTimeout(()=>showMsp(ms[0],ms[1],r,m.xp,m.ico),300);
+    }
   });
 }
 window.openMood=(id,key)=>{moodId=id;moodDay=key;selMood='😊';const h=habits.find(x=>x.id==id);document.getElementById('moodHed').textContent=(h?.emoji||'🌻')+' '+h?.name+' — '+tt('note');document.querySelectorAll('#moodPicker .mbtn').forEach(el=>el.classList.toggle('on',el.dataset.m===(h?.moods?.[key]||'😊')));selMood=h?.moods?.[key]||'😊';document.getElementById('moodNote').value=h?.notes?.[key]||'';document.getElementById('moodModal').classList.add('on');};
@@ -1438,77 +1507,197 @@ window.saveReminderModal=()=>{
 
 // ── HABIT LIBRARY ──
 const HABIT_LIBRARY = [
-  // 💪 SỨC KHỎE
-  {emoji:'💧',name:'Uống đủ 2 lít nước',cat:'Sức khỏe',desc:'Đặt bình nước 500ml — uống đủ 4 lần mỗi ngày',freq:'daily',tips:'Sức khỏe từ trong ra ngoài. Uống nước đều giúp da đẹp, não hoạt động tốt hơn 20%.'},
-  {emoji:'🏃',name:'Đi bộ 30 phút',cat:'Sức khỏe',desc:'Ra ngoài hoặc đi bộ tại chỗ — không cần gym',freq:'daily',tips:'Chỉ 30 phút đi bộ mỗi ngày giảm 35% nguy cơ bệnh tim và cải thiện tâm trạng rõ rệt.'},
-  {emoji:'🌅',name:'Thức dậy lúc 6 giờ sáng',cat:'Sức khỏe',desc:'Đặt báo thức, không nhấn snooze, ra khỏi giường ngay',freq:'daily',tips:'Người dậy sớm có xu hướng năng suất hơn, ít stress hơn và ngủ ngon hơn buổi tối.'},
-  {emoji:'🛌',name:'Ngủ trước 23 giờ',cat:'Sức khỏe',desc:'Tắt điện thoại lúc 22h30 để chuẩn bị ngủ',freq:'daily',tips:'Ngủ đủ 7-8 tiếng giúp não xử lý ký ức, tái tạo tế bào và kiểm soát cảm xúc tốt hơn.'},
-  {emoji:'🥗',name:'Ăn rau xanh mỗi bữa',cat:'Sức khỏe',desc:'Thêm rau vào bữa trưa và tối mỗi ngày',freq:'daily',tips:'Rau xanh cung cấp chất xơ, vitamin và chất chống oxy hóa — nền tảng của sức khỏe lâu dài.'},
-  {emoji:'🧘',name:'Vươn vai buổi sáng',cat:'Sức khỏe',desc:'5 phút stretching nhẹ sau khi thức dậy',freq:'daily',tips:'Kéo giãn buổi sáng kích hoạt tuần hoàn máu, giảm cứng khớp và tạo năng lượng khởi đầu ngày mới.'},
-  {emoji:'🚴',name:'Tập thể dục 45 phút',cat:'Sức khỏe',desc:'Gym, đạp xe, bơi, hoặc bài tập tại nhà',freq:'daily',tips:'45 phút vận động mỗi ngày tăng endorphin — hormone hạnh phúc — giúp bạn vui hơn, khỏe hơn.'},
-  {emoji:'🚭',name:'Không ăn vặt sau 20 giờ',cat:'Sức khỏe',desc:'Dừng ăn sau 8 giờ tối để tiêu hóa nghỉ ngơi',freq:'daily',tips:'Nhịn ăn tối muộn giúp kiểm soát cân nặng, cải thiện giấc ngủ và giảm axit dạ dày.'},
-  {emoji:'☀️',name:'Ra nắng 15 phút',cat:'Sức khỏe',desc:'Tiếp xúc ánh nắng buổi sáng để hấp thụ vitamin D',freq:'daily',tips:'Vitamin D từ ánh nắng tự nhiên giúp xương chắc, miễn dịch tốt và tâm trạng ổn định.'},
-  {emoji:'🦷',name:'Dùng chỉ nha khoa',cat:'Sức khỏe',desc:'Dùng chỉ nha khoa tối trước khi đánh răng',freq:'daily',tips:'70% bệnh nha chu bắt đầu từ mảng bám giữa kẽ răng mà bàn chải thường không với tới.'},
+  // 💪 SỨC KHỎE (30)
+  {emoji:'💧',name:'Uống 8 cốc nước',cat:'Sức khỏe',desc:'Uống đều trong ngày — đặt bình nước cạnh tầm tay',freq:'daily',tips:'Cơ thể mất nước chỉ 1-2% đã làm giảm hiệu suất não bộ đáng kể. Uống nước đủ là nền tảng sức khỏe.'},
+  {emoji:'🚶',name:'Đi bộ 20 phút',cat:'Sức khỏe',desc:'Đi bộ nhẹ quanh nhà, công viên, hoặc trong giờ nghỉ trưa',freq:'daily',tips:'20 phút đi bộ mỗi ngày giảm 30% nguy cơ tim mạch và cải thiện tâm trạng rõ rệt sau chỉ 10 phút.'},
+  {emoji:'🤸',name:'Giãn cơ buổi sáng',cat:'Sức khỏe',desc:'5–10 phút kéo giãn nhẹ ngay khi thức dậy',freq:'daily',tips:'Kéo giãn buổi sáng kích hoạt lưu thông máu, giảm cứng khớp và tạo năng lượng cho cả ngày.'},
+  {emoji:'🌙',name:'Ngủ trước 23:00',cat:'Sức khỏe',desc:'Tắt điện thoại lúc 22:30 để cơ thể chuẩn bị nghỉ ngơi',freq:'daily',tips:'Ngủ đủ 7–8 tiếng trước nửa đêm giúp não xử lý ký ức và tái tạo tế bào hiệu quả nhất.'},
+  {emoji:'🥦',name:'Ăn thêm rau hoặc trái cây',cat:'Sức khỏe',desc:'Thêm ít nhất 1 phần rau/trái cây vào bữa ăn hôm nay',freq:'daily',tips:'Chất xơ và vitamin từ rau quả giảm nguy cơ ung thư đến 20% theo nghiên cứu của WHO.'},
+  {emoji:'🏋️',name:'Tập sức mạnh 10 phút',cat:'Sức khỏe',desc:'Squat, plank, push-up — không cần dụng cụ',freq:'daily',tips:'10 phút tập kháng lực mỗi ngày giúp tăng mật độ xương, cải thiện trao đổi chất và tư thế.'},
+  {emoji:'🦷',name:'Dùng chỉ nha khoa',cat:'Sức khỏe',desc:'Dùng chỉ nha khoa trước khi đánh răng tối',freq:'daily',tips:'70% mảng bám nằm giữa kẽ răng — nơi bàn chải không tới được. Chỉ nha khoa bảo vệ nướu hiệu quả nhất.'},
+  {emoji:'☀️',name:'Ra nắng 5 phút',cat:'Sức khỏe',desc:'Ra ban công hoặc cửa sổ đón nắng buổi sáng',freq:'daily',tips:'Ánh nắng buổi sáng điều chỉnh đồng hồ sinh học, tăng vitamin D và cải thiện chất lượng giấc ngủ tối.'},
+  {emoji:'🍱',name:'Ăn một bữa lành mạnh',cat:'Sức khỏe',desc:'Chú ý ít nhất 1 bữa: đủ đạm, rau, tinh bột tốt',freq:'daily',tips:'Một bữa ăn cân bằng mỗi ngày đã tạo ra nền tảng dinh dưỡng đủ để cơ thể phục hồi và phát triển.'},
+  {emoji:'🧍',name:'Đứng dậy vận động 5 phút',cat:'Sức khỏe',desc:'Cứ 1–2 giờ ngồi thì đứng dậy đi lại vài phút',freq:'daily',tips:'Ngồi liên tục hơn 2 giờ làm tăng nguy cơ tiểu đường và tim mạch, ngay cả khi bạn tập thể dục đều.'},
+  {emoji:'🍵',name:'Uống nước ấm sau khi thức dậy',cat:'Sức khỏe',desc:'1 ly nước ấm trước khi ăn sáng để kích hoạt tiêu hóa',freq:'daily',tips:'Nước ấm buổi sáng kích thích nhu động ruột, giải độc nhẹ và giúp cơ thể thoát khỏi trạng thái mất nước sau ngủ.'},
+  {emoji:'🫁',name:'Tập thở bụng',cat:'Sức khỏe',desc:'Hít sâu bằng bụng, thở ra chậm — 5 phút',freq:'daily',tips:'Thở bụng sâu kích hoạt hệ phó giao cảm, giảm nhịp tim và huyết áp trong vài phút.'},
+  {emoji:'🚴',name:'Đạp xe hoặc vận động cardio',cat:'Sức khỏe',desc:'Đạp xe, nhảy dây, bơi lội, hoặc aerobic tại nhà',freq:'daily',tips:'Cardio đều đặn tăng dung tích phổi, sức bền tim mạch và giúp bạn ngủ sâu hơn về đêm.'},
+  {emoji:'🧂',name:'Ăn ít muối hơn',cat:'Sức khỏe',desc:'Tránh thêm muối vào thức ăn — nêm nếm nhẹ hơn hôm nay',freq:'daily',tips:'Ăn nhiều muối là nguyên nhân hàng đầu gây tăng huyết áp — căn bệnh thầm lặng của hàng triệu người.'},
+  {emoji:'🍬',name:'Giảm đồ ngọt hôm nay',cat:'Sức khỏe',desc:'Bỏ qua 1 món ngọt hoặc nước có đường hôm nay',freq:'daily',tips:'Đường tinh luyện gây viêm mãn tính, dao động đường huyết và làm bạn mệt mỏi sau bữa ăn.'},
+  {emoji:'🍳',name:'Ăn sáng đủ chất',cat:'Sức khỏe',desc:'Bữa sáng có đạm + tinh bột tốt để no lâu và tỉnh táo',freq:'daily',tips:'Bữa sáng đủ chất giúp ổn định đường huyết, giảm thèm ăn vặt buổi chiều và tăng khả năng tập trung.'},
+  {emoji:'🧴',name:'Bôi kem chống nắng',cat:'Sức khỏe',desc:'SPF 30+ mỗi sáng — ngay cả ngày흐리 hay ở trong nhà',freq:'daily',tips:'UV xuyên qua cửa kính và mây. Kem chống nắng hàng ngày là biện pháp chống lão hóa hiệu quả nhất.'},
+  {emoji:'👁️',name:'Nghỉ mắt 20-20-20',cat:'Sức khỏe',desc:'Cứ 20 phút nhìn màn hình thì nhìn xa 6m trong 20 giây',freq:'daily',tips:'Quy tắc 20-20-20 giảm đáng kể mỏi mắt do màn hình — vấn đề của 90% người làm việc văn phòng.'},
+  {emoji:'🪥',name:'Đánh răng trước khi ngủ',cat:'Sức khỏe',desc:'Đánh răng đúng 2 phút — không bỏ qua dù mệt',freq:'daily',tips:'Vi khuẩn trong miệng nhân đôi trong khi ngủ. Đánh răng tối là thói quen bảo vệ sức khỏe toàn thân.'},
+  {emoji:'⚖️',name:'Theo dõi cân nặng',cat:'Sức khỏe',desc:'Cân vào buổi sáng sau khi thức dậy — ghi lại',freq:'daily',tips:'Theo dõi cân nặng mỗi ngày (không phán xét) giúp nhận biết xu hướng và điều chỉnh sớm hơn.'},
+  {emoji:'🪑',name:'Chỉnh tư thế ngồi',cat:'Sức khỏe',desc:'Lưng thẳng, vai thả lỏng, màn hình ngang tầm mắt',freq:'daily',tips:'Tư thế xấu gây đau lưng mãn tính — căn bệnh phổ biến nhất của người làm việc văn phòng thế kỷ 21.'},
+  {emoji:'🚿',name:'Rửa mặt hoặc tắm nhanh',cat:'Sức khỏe',desc:'Vệ sinh cơ bản mỗi sáng để tươi tỉnh bắt đầu ngày mới',freq:'daily',tips:'Thói quen vệ sinh buổi sáng tạo tín hiệu cho não rằng "ngày mới đã bắt đầu" — tăng sự tỉnh táo.'},
+  {emoji:'🥕',name:'Chuẩn bị snack lành mạnh',cat:'Sức khỏe',desc:'Hạt, trái cây, sữa chua — thay thế đồ ăn vặt không lành mạnh',freq:'daily',tips:'Snack lành mạnh sẵn trong tầm tay giảm 60% khả năng bạn chọn đồ ăn vặt không tốt khi đói bụng.'},
+  {emoji:'🥤',name:'Không uống nước ngọt',cat:'Sức khỏe',desc:'Thay nước ngọt bằng nước lọc, trà không đường hoặc nước ép',freq:'daily',tips:'1 lon nước ngọt chứa 10 muỗng cà phê đường. Cắt nước ngọt là thay đổi dinh dưỡng hiệu quả nhất.'},
+  {emoji:'🛏️',name:'Dọn giường ngủ',cat:'Sức khỏe',desc:'Dọn giường ngay sau khi thức dậy — chỉ mất 2 phút',freq:'daily',tips:'Dọn giường buổi sáng là chiến thắng đầu tiên trong ngày — tạo đà và cảm giác kiểm soát cuộc sống.'},
+  {emoji:'🧘',name:'Tập yoga 10 phút',cat:'Sức khỏe',desc:'Bài yoga buổi sáng nhẹ nhàng để thức dậy cơ thể',freq:'daily',tips:'Yoga kết hợp kéo giãn, hít thở và thiền — giải quyết cả sức khỏe thể chất lẫn tinh thần cùng lúc.'},
+  {emoji:'🧴',name:'Mang bình nước theo người',cat:'Sức khỏe',desc:'Luôn có bình nước bên cạnh — dễ uống hơn khi thấy',freq:'daily',tips:'Người có bình nước bên cạnh uống nhiều hơn 60% so với người không mang theo — môi trường quyết định hành vi.'},
+  {emoji:'📵',name:'Nghỉ màn hình 15 phút',cat:'Sức khỏe',desc:'Tắt tất cả màn hình và nghỉ ngơi hoàn toàn giữa ngày',freq:'daily',tips:'Não cần thời gian không kích thích để củng cố trí nhớ và phục hồi khả năng tập trung.'},
+  {emoji:'🍽️',name:'Đi bộ sau bữa ăn',cat:'Sức khỏe',desc:'10 phút đi bộ nhẹ sau bữa trưa hoặc tối',freq:'daily',tips:'Đi bộ nhẹ sau ăn giảm đường huyết đến 30% và hỗ trợ tiêu hóa tốt hơn nằm nghỉ sau ăn.'},
+  {emoji:'🩺',name:'Kiểm tra sức khỏe cá nhân',cat:'Sức khỏe',desc:'Tự hỏi cơ thể hôm nay cảm thấy thế nào — ghi chú nếu có dấu hiệu lạ',freq:'daily',tips:'Lắng nghe cơ thể mỗi ngày giúp phát hiện sớm các vấn đề trước khi chúng trở nên nghiêm trọng.'},
 
-  // 📚 HỌC TẬP
-  {emoji:'📖',name:'Đọc sách 20 phút',cat:'Học tập',desc:'Mỗi ngày đọc ít nhất 10 trang sách bạn đang đọc',freq:'daily',tips:'20 phút/ngày = hơn 20 cuốn sách mỗi năm. Đọc sách là đầu tư sinh lời nhất cho bản thân.'},
-  {emoji:'🗣️',name:'Học 10 từ tiếng Anh',cat:'Học tập',desc:'Dùng Anki, Duolingo hoặc flashcard — 10 phút',freq:'daily',tips:'Học 10 từ/ngày = 3.650 từ/năm. Vốn từ vựng là nền tảng của khả năng giao tiếp.'},
-  {emoji:'✍️',name:'Viết tay 1 trang',cat:'Học tập',desc:'Ghi chú học được, ý tưởng, hoặc tóm tắt bài học',freq:'daily',tips:'Viết tay giúp não xử lý thông tin sâu hơn đánh máy 40% — công cụ học tập bị đánh giá thấp nhất.'},
-  {emoji:'🎧',name:'Nghe podcast học thuật',cat:'Học tập',desc:'30 phút podcast về chủ đề bạn muốn giỏi lên',freq:'daily',tips:'Tận dụng thời gian di chuyển, rửa bát, tập thể dục để học — tích lũy không có điểm dừng.'},
-  {emoji:'💻',name:'Luyện kỹ năng kỹ thuật',cat:'Học tập',desc:'Code, thiết kế, Excel, hoặc kỹ năng chuyên môn — 30 phút',freq:'daily',tips:'Deliberate practice — luyện tập có chủ đích — là cách duy nhất để thực sự thành thạo kỹ năng.'},
-  {emoji:'🧪',name:'Ôn lại ghi chú cũ',cat:'Học tập',desc:'Mở lại ghi chú tuần trước và đọc 10 phút',freq:'daily',tips:'Spaced repetition — ôn lại đúng lúc — giúp kiến thức lưu vào trí nhớ dài hạn lên đến 90%.'},
-  {emoji:'🎯',name:'Học 1 điều mới mỗi ngày',cat:'Học tập',desc:'Tìm hiểu 1 khái niệm, sự kiện hoặc kỹ năng mới',freq:'daily',tips:'Trí tò mò là đặc điểm chung của những người thành công. Học liên tục là lợi thế bền vững nhất.'},
-  {emoji:'📝',name:'Làm bài tập thực hành',cat:'Học tập',desc:'Áp dụng lý thuyết vào bài tập thực tế mỗi ngày',freq:'daily',tips:'Học thông qua làm — learning by doing — giúp nhớ lâu hơn nghe hoặc đọc đơn thuần 70%.'},
-  {emoji:'🌐',name:'Đọc 1 bài báo tiếng Anh',cat:'Học tập',desc:'Tìm bài trên Medium, BBC, hoặc chủ đề yêu thích',freq:'daily',tips:'Đọc báo tiếng Anh vừa học ngoại ngữ vừa cập nhật thông tin thế giới — hiệu quả kép.'},
-  {emoji:'🎓',name:'Ôn thi hoặc học khóa online',cat:'Học tập',desc:'Dành 45 phút cho khóa học trực tuyến đang theo',freq:'daily',tips:'Nhất quán quan trọng hơn cường độ. 45 phút/ngày đều đặn hơn 5 giờ vào cuối tuần.'},
+  // 📚 HỌC TẬP (30)
+  {emoji:'📖',name:'Đọc 10 trang sách',cat:'Học tập',desc:'Mỗi ngày đọc đều — không cần đọc nhiều, cần đọc đều',freq:'daily',tips:'10 trang/ngày = 3.650 trang/năm = khoảng 12–15 cuốn sách. Nhất quán quan trọng hơn số lượng.'},
+  {emoji:'🌍',name:'Học ngoại ngữ 15 phút',cat:'Học tập',desc:'Duolingo, Anki, hoặc xem video có phụ đề — 15 phút',freq:'daily',tips:'15 phút/ngày đủ để đạt trình độ giao tiếp cơ bản trong 1 năm — nếu thực sự đều đặn mỗi ngày.'},
+  {emoji:'✏️',name:'Ghi 3 ý chính đã học',cat:'Học tập',desc:'Sau khi học xong, viết lại 3 điều quan trọng nhất',freq:'daily',tips:'Phương pháp retrieval practice: tự nhớ lại kiến thức giúp ghi nhớ lâu hơn đọc lại gấp 4 lần.'},
+  {emoji:'🎧',name:'Nghe podcast học tập',cat:'Học tập',desc:'30 phút podcast chuyên môn trong lúc di chuyển hoặc tập thể dục',freq:'daily',tips:'Tận dụng "thời gian chết" để học — người học podcast đều đặn tích lũy 200+ giờ học mỗi năm.'},
+  {emoji:'🃏',name:'Ôn flashcard',cat:'Học tập',desc:'Ôn bộ thẻ ghi nhớ — Anki, Quizlet hoặc thẻ viết tay',freq:'daily',tips:'Spaced repetition qua flashcard là phương pháp khoa học nhất để ghi nhớ dài hạn — 90% sau 30 ngày.'},
+  {emoji:'💻',name:'Luyện code 20 phút',cat:'Học tập',desc:'LeetCode, dự án cá nhân, hoặc học một tính năng mới',freq:'daily',tips:'Code đều đặn 20 phút/ngày = 120 giờ/năm. Kỹ năng lập trình compound như lãi suất.'},
+  {emoji:'🔍',name:'Tra cứu một khái niệm mới',cat:'Học tập',desc:'Tìm hiểu 1 thuật ngữ, khái niệm hoặc câu hỏi tò mò hôm nay',freq:'daily',tips:'Curiosity-driven learning — học theo sự tò mò — giúp não ghi nhớ sâu hơn học theo áp lực.'},
+  {emoji:'✍️',name:'Viết 100 từ',cat:'Học tập',desc:'Viết tự do — nhật ký, ý tưởng, tóm tắt — 100 từ mỗi ngày',freq:'daily',tips:'Viết đều đặn cải thiện tư duy phân tích, khả năng diễn đạt và sự rõ ràng trong suy nghĩ.'},
+  {emoji:'📺',name:'Xem một bài học ngắn',cat:'Học tập',desc:'Video YouTube, khóa học online — 1 bài dưới 20 phút',freq:'daily',tips:'1 bài học/ngày = 365 bài/năm. Học theo từng đơn vị nhỏ dễ duy trì hơn học theo buổi dài.'},
+  {emoji:'📝',name:'Làm một bài tập nhỏ',cat:'Học tập',desc:'Áp dụng kiến thức vào bài tập thực tế — dù nhỏ',freq:'daily',tips:'Learning by doing: não nhớ 75% những gì ta làm, so với chỉ 10% những gì ta đọc.'},
+  {emoji:'🗂️',name:'Ôn lại ghi chú cũ',cat:'Học tập',desc:'Mở ghi chú tuần hoặc tháng trước — đọc lại 10 phút',freq:'daily',tips:'Ôn lại đúng thời điểm (spaced repetition) tăng khả năng nhớ dài hạn từ 20% lên 90%.'},
+  {emoji:'❓',name:'Đặt một câu hỏi hay',cat:'Học tập',desc:'Hỏi bản thân hoặc người khác 1 câu hỏi mình thực sự tò mò',freq:'daily',tips:'Feynman Technique: câu hỏi tốt là dấu hiệu của sự hiểu biết — người giỏi hỏi nhiều hơn trả lời.'},
+  {emoji:'📂',name:'Sắp xếp tài liệu học',cat:'Học tập',desc:'Dọn lại folder, ghi chú, bookmark — 10 phút',freq:'daily',tips:'Môi trường học tập gọn gàng giảm cognitive load — giúp não tập trung vào việc học thay vì tìm kiếm.'},
+  {emoji:'🧑‍🏫',name:'Dạy lại một ý cho người khác',cat:'Học tập',desc:'Giải thích 1 điều bạn học hôm nay cho ai đó hoặc cho chính mình',freq:'daily',tips:'Protégé Effect: dạy người khác giúp bạn hiểu sâu hơn và nhớ lâu hơn 90% kiến thức đó.'},
+  {emoji:'🔖',name:'Lưu một nguồn học chất lượng',cat:'Học tập',desc:'Bookmark, lưu vào Notion hoặc ghi chú 1 bài viết/video hay',freq:'daily',tips:'Xây dựng kho tài liệu cá nhân theo chủ đề giúp bạn học có hệ thống và không bị lạc lối.'},
+  {emoji:'📰',name:'Đọc một bài viết chuyên môn',cat:'Học tập',desc:'Blog, Medium, tạp chí ngành — 1 bài chất lượng',freq:'daily',tips:'Đọc chuyên sâu trong lĩnh vực mình theo đuổi giúp bạn đi trước đồng nghiệp không đọc.'},
+  {emoji:'🏁',name:'Hoàn thành một mục tiêu học nhỏ',cat:'Học tập',desc:'Kết thúc 1 chương, 1 module, 1 bài tập — đánh dấu xong',freq:'daily',tips:'Tiến độ rõ ràng kích thích dopamine — não thưởng cho mỗi nhiệm vụ hoàn thành, giúp duy trì động lực.'},
+  {emoji:'🧫',name:'Làm một thử nghiệm nhỏ',cat:'Học tập',desc:'Thử áp dụng 1 ý tưởng mới vào thực tế — dù nhỏ',freq:'daily',tips:'Thử nghiệm nhỏ giúp học nhanh hơn lý thuyết — bạn biết ngay điều gì hiệu quả và điều gì không.'},
+  {emoji:'📗',name:'Đọc sách không hư cấu',cat:'Học tập',desc:'Sách kiến thức, kỹ năng, lịch sử, khoa học — 15 phút',freq:'daily',tips:'Non-fiction mở rộng thế giới quan và cung cấp công cụ tư duy mà không trường nào dạy bạn.'},
+  {emoji:'🔤',name:'Học 5 từ mới',cat:'Học tập',desc:'5 từ mới — ngoại ngữ hoặc từ chuyên ngành bạn đang học',freq:'daily',tips:'5 từ/ngày = 1.825 từ/năm. Vốn từ vựng là nền tảng của mọi kỹ năng giao tiếp và học tập.'},
+  {emoji:'🗣️',name:'Luyện nói 5 phút',cat:'Học tập',desc:'Nói to — giải thích khái niệm, kể chuyện, luyện phát âm',freq:'daily',tips:'Luyện nói to giúp xác định lỗ hổng kiến thức nhanh hơn đọc thầm — bạn sẽ biết mình thực sự hiểu chưa.'},
+  {emoji:'🧩',name:'Luyện tư duy logic',cat:'Học tập',desc:'Giải câu đố, toán học, sudoku hoặc bài tập tư duy',freq:'daily',tips:'Luyện tư duy logic như tập gym cho não — giúp giải quyết vấn đề nhanh hơn trong mọi lĩnh vực.'},
+  {emoji:'🗺️',name:'Xem lại lộ trình học',cat:'Học tập',desc:'Nhìn lại mục tiêu học tập và tiến độ hiện tại — 5 phút',freq:'daily',tips:'Người có lộ trình học rõ ràng đạt mục tiêu nhanh hơn 40% so với người học tự phát không có kế hoạch.'},
+  {emoji:'💡',name:'Ghi một ví dụ thực tế',cat:'Học tập',desc:'Tìm 1 ví dụ trong cuộc sống thực cho kiến thức vừa học',freq:'daily',tips:'Abstract to concrete: ví dụ thực tế giúp não tạo liên kết mạnh hơn — kiến thức trở nên dễ nhớ hơn.'},
+  {emoji:'🧑‍💼',name:'Học từ một chuyên gia',cat:'Học tập',desc:'Xem phỏng vấn, theo dõi người giỏi trong lĩnh vực bạn muốn',freq:'daily',tips:'Học từ người giỏi hơn bạn rút ngắn con đường — tránh sai lầm mà họ đã trải qua và học được.'},
+  {emoji:'📅',name:'Đặt lịch học cố định',cat:'Học tập',desc:'Chọn khung giờ học cụ thể và giữ nó mỗi ngày',freq:'daily',tips:'Học vào cùng một khung giờ mỗi ngày giúp não hình thành thói quen tự động — không cần dùng ý chí.'},
+  {emoji:'🔧',name:'Học một công cụ mới',cat:'Học tập',desc:'Khám phá 1 tính năng hoặc công cụ bạn chưa dùng thành thạo',freq:'daily',tips:'Công cụ tốt nhân đôi năng suất. Người giỏi công cụ luôn làm được nhiều hơn người giỏi kỹ năng đơn thuần.'},
+  {emoji:'🗃️',name:'Tóm tắt bằng sơ đồ',cat:'Học tập',desc:'Vẽ mind map hoặc sơ đồ cho chủ đề vừa học',freq:'daily',tips:'Visual learning: 65% người học tốt hơn qua hình ảnh — sơ đồ giúp thấy mối liên hệ giữa các ý.'},
+  {emoji:'🐛',name:'Kiểm tra lỗi sai',cat:'Học tập',desc:'Xem lại bài làm sai cũ — tìm nguyên nhân và sửa',freq:'daily',tips:'Học từ lỗi sai hiệu quả hơn học từ điều đúng — não ghi nhớ sâu hơn khi trải qua cảm xúc sửa lỗi.'},
+  {emoji:'📋',name:'Làm bài kiểm tra ngắn',cat:'Học tập',desc:'Quiz nhỏ để kiểm tra mình thực sự hiểu đến đâu',freq:'daily',tips:'Testing effect: tự kiểm tra thường xuyên tăng khả năng nhớ lâu dài hơn đọc lại tài liệu gấp đôi.'},
 
-  // 🧘 TINH THẦN
-  {emoji:'🧘',name:'Thiền 10 phút buổi sáng',cat:'Tinh thần',desc:'Ngồi yên, thở sâu, quan sát suy nghĩ — không phán xét',freq:'daily',tips:'Thiền định thay đổi cấu trúc não sau 8 tuần: giảm lo âu, tăng khả năng tập trung và lòng trắc ẩn.'},
-  {emoji:'📓',name:'Viết nhật ký 5 phút',cat:'Tinh thần',desc:'Ghi lại 3 điều xảy ra hôm nay và cảm xúc của bạn',freq:'daily',tips:'Viết nhật ký giúp xử lý cảm xúc, giảm stress và tăng sự tự nhận thức — liệu pháp rẻ nhất thế giới.'},
-  {emoji:'🙏',name:'Thực hành biết ơn',cat:'Tinh thần',desc:'Ghi 3 điều bạn biết ơn hôm nay — dù nhỏ nhất',freq:'daily',tips:'Nghiên cứu Harvard: người thực hành biết ơn mỗi ngày hạnh phúc hơn 25% và ngủ ngon hơn.'},
-  {emoji:'📵',name:'Không dùng điện thoại 1 giờ',cat:'Tinh thần',desc:'Thời gian không màn hình trước khi ngủ hoặc sau khi dậy',freq:'daily',tips:'Ánh sáng xanh từ điện thoại ức chế melatonin, làm khó ngủ và tăng lo âu mãn tính.'},
-  {emoji:'🌿',name:'Dành 10 phút với thiên nhiên',cat:'Tinh thần',desc:'Ra ban công, công viên, hoặc nhìn ra cửa sổ có cây xanh',freq:'daily',tips:'Tiếp xúc thiên nhiên chỉ 10 phút/ngày giảm cortisol (hormone stress) đáng kể theo nhiều nghiên cứu.'},
-  {emoji:'💆',name:'Thở sâu 4-7-8',cat:'Tinh thần',desc:'Hít vào 4 giây, giữ 7 giây, thở ra 8 giây — làm 5 lần',freq:'daily',tips:'Kỹ thuật thở 4-7-8 kích hoạt hệ thần kinh phó giao cảm — giảm lo âu nhanh hơn thuốc.'},
-  {emoji:'🎨',name:'Làm gì đó sáng tạo',cat:'Tinh thần',desc:'Vẽ, nấu ăn, viết thơ, chơi nhạc cụ — 20 phút',freq:'daily',tips:'Hoạt động sáng tạo giúp não thoát khỏi chế độ lo âu và kích thích dopamine — tự nhiên và bền vững.'},
-  {emoji:'🚿',name:'Tắm nước lạnh 30 giây',cat:'Tinh thần',desc:'Kết thúc bằng 30 giây nước lạnh để tăng tỉnh táo',freq:'daily',tips:'Tắm lạnh kích hoạt norepinephrine tăng 300% — cải thiện tâm trạng, sự tập trung và khả năng chịu đựng.'},
-  {emoji:'😊',name:'Mỉm cười với gương',cat:'Tinh thần',desc:'Nhìn vào gương và mỉm cười 1 phút sau khi thức dậy',freq:'daily',tips:'Facial feedback hypothesis: cơ mặt khi cười gửi tín hiệu về não, làm não thực sự cảm thấy vui hơn.'},
-  {emoji:'🌙',name:'Đọc sách trước khi ngủ',cat:'Tinh thần',desc:'Thay điện thoại bằng sách 20 phút trước khi ngủ',freq:'daily',tips:'Đọc sách trước ngủ giảm stress đến 68% — hiệu quả hơn nghe nhạc, đi bộ hoặc uống trà.'},
+  // 🧘 TINH THẦN (30)
+  {emoji:'🧘',name:'Thiền 5 phút',cat:'Tinh thần',desc:'Ngồi yên, nhắm mắt, chỉ chú ý đến hơi thở — không làm gì khác',freq:'daily',tips:'Thiền 5 phút/ngày trong 8 tuần thay đổi cấu trúc não: giảm lo âu, tăng khả năng tập trung.'},
+  {emoji:'🙏',name:'Viết 3 điều biết ơn',cat:'Tinh thần',desc:'Ghi 3 điều nhỏ bạn biết ơn hôm nay — dù đơn giản nhất',freq:'daily',tips:'Nghiên cứu Harvard: thực hành biết ơn hàng ngày tăng mức hạnh phúc 25% và cải thiện giấc ngủ.'},
+  {emoji:'🌬️',name:'Hít thở sâu 3 phút',cat:'Tinh thần',desc:'Hít vào 4 giây, giữ 4 giây, thở ra 4 giây — lặp lại',freq:'daily',tips:'Hít thở có kiểm soát kích hoạt dây thần kinh phế vị, giảm cortisol và nhịp tim trong vài phút.'},
+  {emoji:'📔',name:'Viết nhật ký cảm xúc',cat:'Tinh thần',desc:'Ghi lại cảm xúc và suy nghĩ trong ngày — không cần hoàn hảo',freq:'daily',tips:'Viết nhật ký cảm xúc giúp xử lý stress, tăng tự nhận thức và giảm triệu chứng lo âu.'},
+  {emoji:'📵',name:'Không điện thoại trước khi ngủ',cat:'Tinh thần',desc:'Tắt hoặc cất điện thoại ít nhất 30 phút trước khi ngủ',freq:'daily',tips:'Ánh sáng xanh ức chế melatonin 50% — khiến bạn khó ngủ và ngủ không sâu giấc.'},
+  {emoji:'🎵',name:'Nghe một bài nhạc thư giãn',cat:'Tinh thần',desc:'10 phút nhạc nhẹ, thiên nhiên, hoặc nhạc cụ yêu thích',freq:'daily',tips:'Nhạc 60 bpm đồng bộ với nhịp tim khi nghỉ ngơi, giúp não chuyển sang trạng thái thư giãn nhanh.'},
+  {emoji:'🌳',name:'Ra ngoài hít thở',cat:'Tinh thần',desc:'5–10 phút ra ngoài — ban công, sân, hoặc đường phố',freq:'daily',tips:'Không khí ngoài trời và thay đổi môi trường reset não bộ hiệu quả hơn nghỉ ngơi trong phòng kín.'},
+  {emoji:'💚',name:'Tự nói một câu tử tế',cat:'Tinh thần',desc:'Nói với bản thân điều bạn cần nghe hôm nay',freq:'daily',tips:'Self-compassion — tự thương bản thân — dự đoán sức khỏe tâm lý tốt hơn lòng tự trọng truyền thống.'},
+  {emoji:'🧹',name:'Dọn một góc nhỏ',cat:'Tinh thần',desc:'Dọn gọn 1 chỗ — bàn, ngăn kéo, góc phòng',freq:'daily',tips:'Môi trường gọn gàng giảm lo âu, tăng khả năng tập trung và tạo cảm giác kiểm soát cuộc sống.'},
+  {emoji:'☕',name:'Nghỉ ngơi có chủ đích',cat:'Tinh thần',desc:'Nghỉ 10–15 phút thực sự — không điện thoại, không việc',freq:'daily',tips:'Não cần nghỉ để củng cố ký ức và phục hồi. Nghỉ có chủ đích hiệu quả hơn làm liên tục không nghỉ.'},
+  {emoji:'🪷',name:'Ngồi yên không làm gì',cat:'Tinh thần',desc:'Ngồi im 5 phút — không điện thoại, không âm nhạc, không suy nghĩ công việc',freq:'daily',tips:'Default Mode Network — trạng thái não khi không làm gì — cần thiết cho sáng tạo và tự nhận thức.'},
+  {emoji:'🌄',name:'Ngắm ánh sáng buổi sáng',cat:'Tinh thần',desc:'Nhìn ra cửa sổ hoặc ra ngoài trong 5 phút đầu sau khi thức dậy',freq:'daily',tips:'Ánh sáng tự nhiên buổi sáng điều chỉnh đồng hồ sinh học, tăng serotonin và cải thiện tâm trạng cả ngày.'},
+  {emoji:'🔁',name:'Ghi một suy nghĩ lặp lại',cat:'Tinh thần',desc:'Viết ra suy nghĩ đang quẩn quanh để giải phóng tâm trí',freq:'daily',tips:'Externalizing thoughts — đưa suy nghĩ ra ngoài đầu — giảm lo âu và giúp nhìn vấn đề khách quan hơn.'},
+  {emoji:'😰',name:'Đặt tên cho nỗi lo',cat:'Tinh thần',desc:'Gọi tên cảm xúc đang cảm thấy: "Tôi đang lo vì..." ',freq:'daily',tips:'Labeling emotions giảm hoạt động amygdala (trung tâm sợ hãi) — đặt tên nỗi lo làm nó nhỏ lại.'},
+  {emoji:'✨',name:'Soi lại một điều đã làm tốt',cat:'Tinh thần',desc:'Nhớ lại 1 điều bạn đã làm tốt hôm nay — dù nhỏ',freq:'daily',tips:'Ghi nhận thành tích nhỏ mỗi ngày xây dựng self-efficacy — niềm tin vào năng lực bản thân.'},
+  {emoji:'🌊',name:'Nghe âm thanh thiên nhiên',cat:'Tinh thần',desc:'10 phút tiếng mưa, sóng biển, rừng — trên YouTube hoặc app',freq:'daily',tips:'Âm thanh thiên nhiên giảm cortisol và kích hoạt hệ thần kinh phó giao cảm — nghỉ ngơi thực sự.'},
+  {emoji:'🪑',name:'Tạo góc nghỉ nhỏ',cat:'Tinh thần',desc:'Thiết lập 1 góc nhỏ chỉ dùng để nghỉ ngơi — không làm việc',freq:'daily',tips:'Không gian chuyên biệt cho nghỉ ngơi giúp não liên kết nơi đó với thư giãn — dễ xả stress hơn.'},
+  {emoji:'🚶',name:'Đi ra ngoài vài phút',cat:'Tinh thần',desc:'Bước ra khỏi phòng, ra hành lang hoặc sân — hít không khí',freq:'daily',tips:'Thay đổi môi trường vật lý ngay lập tức thay đổi trạng thái tâm lý — đơn giản nhưng rất hiệu quả.'},
+  {emoji:'📵',name:'Một giờ không mạng xã hội',cat:'Tinh thần',desc:'Tắt mạng xã hội ít nhất 1 giờ mỗi ngày',freq:'daily',tips:'Giảm mạng xã hội 1 giờ/ngày cải thiện sức khỏe tâm thần rõ rệt — đặc biệt ở người trẻ.'},
+  {emoji:'🪴',name:'Chăm một cây nhỏ',cat:'Tinh thần',desc:'Tưới cây, lau lá, hoặc chăm sóc cây trong nhà',freq:'daily',tips:'Chăm cây tạo cảm giác kết nối với sinh vật sống, trách nhiệm và sự hiện diện — giảm lo âu tự nhiên.'},
+  {emoji:'🎨',name:'Làm một việc sáng tạo',cat:'Tinh thần',desc:'Vẽ, viết, nấu ăn, chụp ảnh — 15 phút',freq:'daily',tips:'Hoạt động sáng tạo kích thích dopamine và đưa não vào trạng thái flow — hạnh phúc nhất.'},
+  {emoji:'⏸️',name:'Dừng lại trước khi phản ứng',cat:'Tinh thần',desc:'Khi muốn phản ứng ngay — dừng 3 giây, thở, rồi mới nói',freq:'daily',tips:'Khoảng cách giữa kích thích và phản ứng là nơi tự do sống. Dừng lại 3 giây thay đổi kết quả hoàn toàn.'},
+  {emoji:'🍃',name:'Viết điều đang cần buông',cat:'Tinh thần',desc:'Ghi ra 1 điều bạn đang giữ mà nên buông bỏ',freq:'daily',tips:'Buông bỏ có chủ đích giảm cognitive load — não bạn tiêu tốn năng lượng để giữ mọi việc chưa giải quyết.'},
+  {emoji:'💛',name:'Tự tha thứ một lỗi nhỏ',cat:'Tinh thần',desc:'Nhắc bản thân: lỗi lầm là bình thường, bạn đang học',freq:'daily',tips:'Self-forgiveness ngăn vòng xoáy tự chỉ trích — làm giảm năng suất và sức khỏe tâm lý lâu dài.'},
+  {emoji:'🌿',name:'Chuẩn bị ngày mai nhẹ nhàng',cat:'Tinh thần',desc:'Chuẩn bị đồ, lên danh sách ngắn — để sáng mai không hối hả',freq:'daily',tips:'Chuẩn bị trước tối giảm stress buổi sáng — giúp ngày mới bắt đầu bình tĩnh thay vì vội vã.'},
+  {emoji:'⭐',name:'Đọc một câu truyền cảm hứng',cat:'Tinh thần',desc:'1 câu quote, đoạn sách, hoặc câu chuyện ngắn truyền động lực',freq:'daily',tips:'Input chất lượng tạo ra output chất lượng — những gì bạn đọc và nghe mỗi ngày định hình tư duy bạn.'},
+  {emoji:'🫀',name:'Quét cơ thể',cat:'Tinh thần',desc:'Nằm yên, chú ý từng phần cơ thể từ đầu đến chân — 5 phút',freq:'daily',tips:'Body scan meditation giúp nhận ra căng thẳng cơ bắp mà bạn không hay biết — và giải phóng nó.'},
+  {emoji:'🍵',name:'Uống chậm một tách trà',cat:'Tinh thần',desc:'Pha trà, ngồi yên, uống từng ngụm không làm gì khác',freq:'daily',tips:'Ritual uống trà chậm rãi là hình thức thiền nhỏ — giúp hiện diện với khoảnh khắc hiện tại.'},
+  {emoji:'📝',name:'Viết danh sách đang kiểm soát được',cat:'Tinh thần',desc:'Ghi 3–5 điều trong cuộc sống bạn đang kiểm soát được',freq:'daily',tips:'Tập trung vào điều trong tầm kiểm soát giảm lo âu và tăng cảm giác năng động — nguyên tắc của Stoicism.'},
+  {emoji:'🌛',name:'Kết thúc ngày bằng một câu nhẹ',cat:'Tinh thần',desc:'Trước khi ngủ, tự nói: "Tôi đã cố gắng hết sức hôm nay"',freq:'daily',tips:'Kết thúc ngày với chánh niệm thay vì lo lắng giúp ngủ nhanh hơn và ngủ sâu giấc hơn.'},
 
-  // 💰 TÀI CHÍNH
-  {emoji:'📊',name:'Ghi chép chi tiêu hôm nay',cat:'Tài chính',desc:'Ghi lại mọi khoản chi — dù nhỏ nhất trong ngày',freq:'daily',tips:'Theo dõi chi tiêu là bước đầu tiên kiểm soát tiền bạc. Không thể quản lý thứ bạn không đo lường.'},
-  {emoji:'🏦',name:'Chuyển tiết kiệm mỗi ngày',cat:'Tài chính',desc:'Chuyển một khoản cố định sang tài khoản tiết kiệm',freq:'daily',tips:'Nguyên tắc "trả cho bản thân trước": dù 20.000đ/ngày, sau 10 năm bạn có hơn 73 triệu.'},
-  {emoji:'📈',name:'Đọc tin tức tài chính 10 phút',cat:'Tài chính',desc:'Theo dõi thị trường, lạm phát, xu hướng kinh tế',freq:'daily',tips:'Hiểu kinh tế vĩ mô giúp bạn đưa ra quyết định đầu tư và tiêu dùng thông minh hơn.'},
-  {emoji:'🛒',name:'Kiểm tra giỏ hàng trước khi mua',cat:'Tài chính',desc:'Chờ 24 giờ trước khi mua bất kỳ thứ gì không cần thiết',freq:'daily',tips:'Nguyên tắc 24 giờ loại bỏ 80% mua sắm bốc đồng — tiết kiệm hàng triệu đồng mỗi tháng.'},
-  {emoji:'💡',name:'Tìm 1 cách tiết kiệm mỗi ngày',cat:'Tài chính',desc:'Nấu ăn thay vì gọi đồ, đi xe buýt, tắt điện dư...',freq:'daily',tips:'Nhỏ giọt tạo đại dương. Tiết kiệm 50.000đ/ngày = 18 triệu/năm mà không cần tăng lương.'},
-  {emoji:'📚',name:'Đọc 1 trang sách tài chính',cat:'Tài chính',desc:'Rich Dad Poor Dad, Nhà Đầu Tư Thông Minh, hoặc tương đương',freq:'daily',tips:'Kiến thức tài chính là kỹ năng không được dạy ở trường nhưng quyết định 80% sự giàu có của bạn.'},
-  {emoji:'🎯',name:'Xem lại mục tiêu tài chính',cat:'Tài chính',desc:'Đọc lại mục tiêu tiết kiệm/đầu tư trong 1-5 phút',freq:'daily',tips:'Xem lại mục tiêu mỗi ngày giữ cho bạn đi đúng hướng và tránh các quyết định tài chính ngắn hạn.'},
-  {emoji:'💳',name:'Không mua gì ngoài kế hoạch',cat:'Tài chính',desc:'Chỉ mua những thứ trong danh sách lập từ trước',freq:'daily',tips:'Lập kế hoạch mua sắm trước giúp bạn tiết kiệm trung bình 25% so với mua ngẫu hứng.'},
-  {emoji:'📉',name:'Theo dõi danh mục đầu tư',cat:'Tài chính',desc:'Kiểm tra danh mục cổ phiếu/quỹ/coin — không hoảng loạn',freq:'daily',tips:'Đầu tư thành công không phải về chọn đúng cổ phiếu mà về kỷ luật không bán khi thị trường giảm.'},
-  {emoji:'🤝',name:'Tìm cơ hội tăng thu nhập',cat:'Tài chính',desc:'Dành 15 phút nghĩ/thực hiện 1 ý tưởng tăng thu nhập',freq:'daily',tips:'Tiết kiệm có giới hạn nhưng thu nhập thì không. Đầu tư vào bản thân là ROI cao nhất.'},
+  // 💰 TÀI CHÍNH (30)
+  {emoji:'📒',name:'Ghi chi tiêu hôm nay',cat:'Tài chính',desc:'Ghi lại mọi khoản chi trong ngày — dù nhỏ nhất',freq:'daily',tips:'Không thể quản lý thứ bạn không đo lường. Ghi chi tiêu là bước đầu tiên kiểm soát tài chính.'},
+  {emoji:'🏦',name:'Bỏ tiết kiệm nhỏ',cat:'Tài chính',desc:'Chuyển một khoản dù nhỏ vào hũ tiết kiệm mỗi ngày',freq:'daily',tips:'"Trả cho bản thân trước" — dù 10.000đ/ngày, thói quen tiết kiệm quan trọng hơn số tiền.'},
+  {emoji:'💳',name:'Kiểm tra ví và tài khoản',cat:'Tài chính',desc:'Nhìn qua số dư — biết mình đang đứng ở đâu',freq:'daily',tips:'Người kiểm tra tài khoản thường xuyên ít bị ngạc nhiên bởi chi tiêu và phản ứng tốt hơn với vấn đề.'},
+  {emoji:'🚫',name:'Không mua món không cần',cat:'Tài chính',desc:'Bỏ qua ít nhất 1 món muốn mua nhưng không thực sự cần',freq:'daily',tips:'Phân biệt want vs need là kỹ năng tài chính quan trọng nhất — phần lớn chi tiêu không cần thiết là impulse.'},
+  {emoji:'📊',name:'Cập nhật ngân sách',cat:'Tài chính',desc:'So sánh chi tiêu thực tế với kế hoạch — điều chỉnh nếu cần',freq:'daily',tips:'Ngân sách không phải hạn chế tự do — nó là kế hoạch chi tiêu có chủ đích theo giá trị của bạn.'},
+  {emoji:'📅',name:'Kiểm tra hóa đơn sắp đến',cat:'Tài chính',desc:'Xem hóa đơn, đăng ký, nợ nào đến hạn trong 7 ngày tới',freq:'daily',tips:'Thanh toán đúng hạn tiết kiệm phí phạt và bảo vệ điểm tín dụng — công cụ vô hình nhưng rất giá trị.'},
+  {emoji:'📖',name:'Đọc 5 phút về tài chính',cat:'Tài chính',desc:'Blog, sách, podcast tài chính — 5 phút mỗi ngày',freq:'daily',tips:'Kiến thức tài chính là kỹ năng không ai dạy ở trường nhưng quyết định phần lớn sự thịnh vượng.'},
+  {emoji:'🎯',name:'Xem lại mục tiêu tiết kiệm',cat:'Tài chính',desc:'Đọc lại mục tiêu tài chính và tiến độ hiện tại — 2 phút',freq:'daily',tips:'Nhìn thấy mục tiêu mỗi ngày duy trì động lực tốt hơn đặt mục tiêu rồi quên — out of sight, out of mind.'},
+  {emoji:'☕',name:'Tự pha đồ uống',cat:'Tài chính',desc:'Pha cà phê, trà tại nhà thay vì mua ngoài',freq:'daily',tips:'Tự pha cà phê tiết kiệm 40.000–80.000đ/lần. Nhỏ hàng ngày = lớn hàng năm theo nguyên lý lãi kép.'},
+  {emoji:'📋',name:'Tổng kết chi tiêu tuần',cat:'Tài chính',desc:'Xem lại chi tiêu 7 ngày qua — tìm 1 điều có thể cải thiện',freq:'daily',tips:'Review tuần giúp nhận ra pattern chi tiêu xấu sớm hơn — trước khi tích lũy thành vấn đề lớn.'},
+  {emoji:'🗃️',name:'Lưu hóa đơn quan trọng',cat:'Tài chính',desc:'Chụp ảnh hoặc lưu hóa đơn bảo hành, hợp đồng quan trọng',freq:'daily',tips:'Hóa đơn được lưu đúng cách tiết kiệm tiền khi cần bảo hành và bảo vệ quyền lợi người tiêu dùng.'},
+  {emoji:'✂️',name:'Cắt một khoản phí thừa',cat:'Tài chính',desc:'Tìm 1 đăng ký, dịch vụ không dùng và hủy hoặc giảm',freq:'daily',tips:'Subscription creep — phí đăng ký tích lũy — trung bình người dùng trả cho 3–5 dịch vụ không dùng đến.'},
+  {emoji:'📈',name:'Theo dõi tài sản ròng',cat:'Tài chính',desc:'Tài sản trừ nợ = tài sản ròng — cập nhật định kỳ',freq:'daily',tips:'Tài sản ròng là số đo tài chính quan trọng nhất — không phải thu nhập. Track nó để biết mình đang tiến lên.'},
+  {emoji:'🔢',name:'Đặt hạn mức chi tiêu ngày',cat:'Tài chính',desc:'Quyết định hôm nay tối đa tiêu bao nhiêu — và giữ vững',freq:'daily',tips:'Daily spending limit tạo ra ranh giới rõ ràng — giúp não không phải quyết định lại mỗi lần chi tiêu.'},
+  {emoji:'🛍️',name:'Lên danh sách trước khi mua',cat:'Tài chính',desc:'Viết danh sách cần mua trước khi đi chợ/siêu thị',freq:'daily',tips:'Mua sắm có danh sách giảm chi tiêu ngoài kế hoạch 23% — theo nghiên cứu về hành vi tiêu dùng.'},
+  {emoji:'🔍',name:'So sánh giá trước khi mua',cat:'Tài chính',desc:'Kiểm tra ít nhất 2–3 nơi trước khi mua món đắt tiền',freq:'daily',tips:'So sánh giá trước khi mua tiết kiệm trung bình 15–30% — đặc biệt với mua sắm online.'},
+  {emoji:'🚫',name:'Ngày không tiêu tiền',cat:'Tài chính',desc:'Thử 1 ngày không chi tiêu gì ngoài thiết yếu',freq:'daily',tips:'No-spend day giúp nhận ra bao nhiêu chi tiêu là thói quen vô thức — và đặt lại mindset tiêu dùng.'},
+  {emoji:'⏰',name:'Chuyển tiền tiết kiệm đầu ngày',cat:'Tài chính',desc:'Chuyển khoản tiết kiệm ngay buổi sáng — không để cuối tháng',freq:'daily',tips:'Pay yourself first: tiết kiệm trước khi chi tiêu — không phải tiết kiệm phần dư. Đây là nguyên tắc nền.'},
+  {emoji:'🤔',name:'Ghi lý do trước khi mua món lớn',cat:'Tài chính',desc:'Viết 3 lý do tại sao mình cần mua — trước khi quyết định',freq:'daily',tips:'Bước dừng lại và lý giải giảm impulse buying và giúp bạn ra quyết định tài chính sáng suốt hơn.'},
+  {emoji:'🏫',name:'Học một khái niệm đầu tư',cat:'Tài chính',desc:'Compound interest, ETF, chỉ số P/E — 1 khái niệm mỗi ngày',freq:'daily',tips:'Đầu tư mà không hiểu là đánh bạc. Học 1 khái niệm/ngày = 365 khái niệm/năm — đủ để đầu tư thông minh.'},
+  {emoji:'💰',name:'Kiểm tra nợ và thẻ tín dụng',cat:'Tài chính',desc:'Xem số dư nợ và ngày thanh toán thẻ tín dụng',freq:'daily',tips:'Lãi suất thẻ tín dụng 18–30%/năm là gánh nặng tài chính lớn nhất — kiểm soát nó là ưu tiên số 1.'},
+  {emoji:'🍱',name:'Mang cơm hoặc đồ ăn tự chuẩn bị',cat:'Tài chính',desc:'Nấu và mang đồ ăn — tiết kiệm ít nhất 50.000đ mỗi bữa',freq:'daily',tips:'Mang cơm trưa tiết kiệm 1–1.5 triệu/tháng — một trong những cắt giảm chi tiêu hiệu quả nhất.'},
+  {emoji:'🔄',name:'Làm tròn khoản tiết kiệm',cat:'Tài chính',desc:'Sau mỗi giao dịch, làm tròn lên và chuyển phần dư vào tiết kiệm',freq:'daily',tips:'Round-up saving: tích tiểu thành đại — phương pháp tiết kiệm tự động không gây đau đớn.'},
+  {emoji:'📊',name:'Kiểm tra một khoản thu',cat:'Tài chính',desc:'Xác nhận một khoản tiền vào — lương, freelance, hoàn tiền',freq:'daily',tips:'Theo dõi nguồn thu giúp nhận ra xu hướng thu nhập và phát hiện khoản bị bỏ sót hoặc chậm trễ.'},
+  {emoji:'♻️',name:'Bán hoặc cho món không dùng',cat:'Tài chính',desc:'Tìm 1 thứ không dùng — bán online hoặc tặng cho ai cần',freq:'daily',tips:'Declutter tạo ra tiền mặt, giảm chi phí bảo quản và giúp nhà cửa gọn gàng hơn — ba lợi ích một lúc.'},
+  {emoji:'🆘',name:'Xem lại quỹ khẩn cấp',cat:'Tài chính',desc:'Kiểm tra quỹ khẩn cấp — đủ 3–6 tháng chi tiêu chưa',freq:'daily',tips:'Quỹ khẩn cấp là lớp bảo vệ đầu tiên — không có nó, mọi kế hoạch tài chính đều dễ sụp đổ khi có sự cố.'},
+  {emoji:'📆',name:'Lên lịch thanh toán hóa đơn',cat:'Tài chính',desc:'Đặt nhắc nhở thanh toán tất cả hóa đơn tháng này',freq:'daily',tips:'Thanh toán đúng hạn tự động là cách đơn giản nhất để bảo vệ điểm tín dụng và tránh phí phạt.'},
+  {emoji:'🍳',name:'Nấu một bữa tại nhà',cat:'Tài chính',desc:'Tự nấu ít nhất 1 bữa hôm nay thay vì đặt đồ ăn',freq:'daily',tips:'Nấu tại nhà rẻ hơn đặt đồ ăn 3–5 lần và lành mạnh hơn — kép lợi cho cả sức khỏe và tài chính.'},
+  {emoji:'🔗',name:'Cập nhật khoản cho vay hoặc mượn',cat:'Tài chính',desc:'Ghi lại tiền mượn người khác hoặc người khác mượn bạn',freq:'daily',tips:'Theo dõi khoản cho vay mượn bảo vệ mối quan hệ và ngăn mất tiền vì quên — tiền bạc dễ gây hiểu lầm.'},
+  {emoji:'🗓️',name:'Xem lại mục tiêu tài chính tháng',cat:'Tài chính',desc:'Nhìn lại mục tiêu tháng này và tiến độ hiện tại',freq:'daily',tips:'Mục tiêu tài chính cụ thể, có thời hạn tăng xác suất đạt được lên 42% so với mục tiêu mơ hồ.'},
 
-  // ⚡ NĂNG SUẤT
-  {emoji:'📋',name:'Lập danh sách việc cần làm',cat:'Năng suất',desc:'Viết ra 3 việc quan trọng nhất cần hoàn thành hôm nay',freq:'daily',tips:'MIT — Most Important Tasks — không phải làm nhiều nhất mà là làm đúng việc quan trọng nhất.'},
-  {emoji:'🍅',name:'Làm việc theo Pomodoro',cat:'Năng suất',desc:'25 phút tập trung tuyệt đối, 5 phút nghỉ — làm 4 chu kỳ',freq:'daily',tips:'Kỹ thuật Pomodoro tăng năng suất 30-40% bằng cách tận dụng cửa sổ tập trung tự nhiên của não.'},
-  {emoji:'🚫',name:'Không kiểm tra email trước 10 giờ',cat:'Năng suất',desc:'Làm việc quan trọng nhất trước khi mở email/tin nhắn',freq:'daily',tips:'Email là phản ứng với ưu tiên của người khác. Buổi sáng nên dành cho ưu tiên của chính bạn.'},
-  {emoji:'🧹',name:'Dọn dẹp bàn làm việc',cat:'Năng suất',desc:'Cuối ngày dọn gọn bàn để sáng hôm sau bắt đầu sạch sẽ',freq:'daily',tips:'Môi trường lộn xộn làm giảm khả năng tập trung và tăng cortisol theo nghiên cứu Princeton.'},
-  {emoji:'⏰',name:'Làm ngay trong 2 phút',cat:'Năng suất',desc:'Nếu việc làm được trong 2 phút — làm ngay, đừng để dành',freq:'daily',tips:'Nguyên tắc 2 phút của David Allen: những việc nhỏ tích lại tạo ra gánh nặng tinh thần khổng lồ.'},
-  {emoji:'🔕',name:'Tắt thông báo khi làm việc',cat:'Năng suất',desc:'Để điện thoại ở chế độ im lặng trong giờ làm việc sâu',freq:'daily',tips:'Mỗi lần bị gián đoạn mất trung bình 23 phút để não quay lại trạng thái tập trung sâu.'},
-  {emoji:'🌄',name:'Lên kế hoạch ngày hôm sau',cat:'Năng suất',desc:'Trước khi ngủ, viết ra 3 việc sẽ làm vào sáng mai',freq:'daily',tips:'Lên kế hoạch tối hôm trước giúp não "ủ" ý tưởng trong khi ngủ — sáng dậy đã biết làm gì.'},
-  {emoji:'💪',name:'Làm việc khó trước tiên',cat:'Năng suất',desc:'Bắt đầu ngày bằng việc bạn sợ hoặc ngại nhất',freq:'daily',tips:'Eat the frog: hoàn thành việc khó nhất vào buổi sáng khi ý chí mạnh nhất giúp mọi thứ sau dễ hơn.'},
-  {emoji:'📵',name:'Deep work 90 phút',cat:'Năng suất',desc:'Một khối công việc sâu, không gián đoạn mỗi ngày',freq:'daily',tips:'Cal Newport: 90 phút deep work mỗi ngày tạo ra nhiều giá trị hơn 8 giờ làm việc bị gián đoạn.'},
-  {emoji:'✅',name:'Tổng kết ngày làm việc',cat:'Năng suất',desc:'Nhìn lại những gì đã làm và chưa làm — 5 phút',freq:'daily',tips:'Review cuối ngày giúp bạn học từ từng ngày, điều chỉnh và cải thiện liên tục — compound growth.'},
+  // ⚡ NĂNG SUẤT (30)
+  {emoji:'📅',name:'Lên kế hoạch ngày mai',cat:'Năng suất',desc:'Trước khi ngủ, viết 3 việc quan trọng nhất ngày mai',freq:'daily',tips:'Lên kế hoạch tối hôm trước giúp não "ủ" ý tưởng trong khi ngủ — sáng dậy đã biết bắt đầu từ đâu.'},
+  {emoji:'🥇',name:'Hoàn thành việc quan trọng nhất',cat:'Năng suất',desc:'Làm xong MIT — Most Important Task — trước 12 giờ trưa',freq:'daily',tips:'1 việc quan trọng hoàn thành tốt hơn 10 việc làm vội. Ưu tiên đúng là kỹ năng năng suất số 1.'},
+  {emoji:'🗃️',name:'Dọn bàn làm việc',cat:'Năng suất',desc:'Dọn sạch bàn trước hoặc sau giờ làm — bắt đầu mới mỗi ngày',freq:'daily',tips:'Môi trường lộn xộn tăng cortisol và giảm khả năng tập trung — theo nghiên cứu Princeton Neuroscience.'},
+  {emoji:'🧹',name:'Dọn phòng',cat:'Năng suất',desc:'Dọn dẹp nhanh không gian sống — 10 phút mỗi ngày',freq:'daily',tips:'Không gian sống gọn gàng giảm cognitive overload — giúp não tập trung vào việc quan trọng hơn.'},
+  {emoji:'⏱️',name:'Tập trung 25 phút',cat:'Năng suất',desc:'Pomodoro — 25 phút tập trung tuyệt đối, không gián đoạn',freq:'daily',tips:'Pomodoro Technique tăng năng suất 25–30% bằng cách tận dụng cửa sổ tập trung tự nhiên của não.'},
+  {emoji:'📧',name:'Dọn inbox 10 phút',cat:'Năng suất',desc:'Xử lý email tồn đọng — xóa, trả lời, hoặc lên lịch',freq:'daily',tips:'Inbox rỗng giảm lo lắng ngầm và giúp bạn tập trung vào công việc thay vì lo "còn gì chưa đọc không".'},
+  {emoji:'🎯',name:'Viết 3 ưu tiên',cat:'Năng suất',desc:'Sáng ngủ dậy, viết 3 việc phải làm xong hôm nay',freq:'daily',tips:'3 ưu tiên rõ ràng giúp não không bị overwhelmed với danh sách dài — và tập trung vào điều thực sự quan trọng.'},
+  {emoji:'🔕',name:'Tắt thông báo 1 giờ',cat:'Năng suất',desc:'Tắt tất cả thông báo và làm việc sâu không gián đoạn',freq:'daily',tips:'Mỗi lần gián đoạn mất trung bình 23 phút để quay lại trạng thái tập trung sâu — 1 giờ không bị ngắt = gold.'},
+  {emoji:'📓',name:'Tổng kết cuối ngày',cat:'Năng suất',desc:'5 phút review: đã làm gì, chưa làm gì, học được gì',freq:'daily',tips:'Daily shutdown giúp não "đóng cửa" công việc — ngủ ngon hơn và tránh lo việc cả đêm.'},
+  {emoji:'💾',name:'Sắp xếp một file hoặc thư mục',cat:'Năng suất',desc:'Dọn desktop, Downloads, hoặc 1 thư mục lộn xộn',freq:'daily',tips:'Digital clutter tiêu tốn thời gian tìm kiếm — mỗi file đúng chỗ tiết kiệm vài phút mỗi ngày.'},
+  {emoji:'⚡',name:'Làm trước 2 phút',cat:'Năng suất',desc:'Việc nào làm được dưới 2 phút — làm ngay, không để dành',freq:'daily',tips:'Getting Things Done: việc nhỏ để dành tích lũy thành gánh nặng tinh thần — làm ngay giải phóng đầu óc.'},
+  {emoji:'🚀',name:'Bắt đầu ngày không mở mạng xã hội',cat:'Năng suất',desc:'Không Facebook, TikTok, Insta trong 1 giờ đầu sau khi dậy',freq:'daily',tips:'Mạng xã hội buổi sáng chuyển não vào chế độ reactive thay vì proactive — mất quyền kiểm soát ngày.'},
+  {emoji:'🗑️',name:'Chọn một việc cần bỏ qua',cat:'Năng suất',desc:'Xóa 1 việc không quan trọng khỏi danh sách hôm nay',freq:'daily',tips:'Bỏ đi quan trọng không kém làm thêm. Essentialists tập trung vào ít hơn nhưng tốt hơn.'},
+  {emoji:'✅',name:'Cập nhật danh sách việc',cat:'Năng suất',desc:'Đánh dấu hoàn thành, thêm việc mới, xóa việc lỗi thời',freq:'daily',tips:'Danh sách việc cần được cập nhật mới đáng tin — danh sách lỗi thời gây lo âu hơn là giúp ích.'},
+  {emoji:'🕐',name:'Bắt đầu đúng giờ',cat:'Năng suất',desc:'Bắt đầu công việc đúng giờ đã định — không trì hoãn',freq:'daily',tips:'Punctuality là dấu hiệu của sự tôn trọng — với người khác và với chính thời gian của bản thân.'},
+  {emoji:'🔪',name:'Chia nhỏ một việc lớn',cat:'Năng suất',desc:'Việc đang chần chừ — chia thành bước nhỏ nhất có thể làm ngay',freq:'daily',tips:'Procrastination thường đến từ việc quá lớn và mơ hồ. Bước đầu tiên rõ ràng là đủ để bắt đầu.'},
+  {emoji:'📵',name:'Đặt điện thoại xa bàn',cat:'Năng suất',desc:'Cất điện thoại vào ngăn kéo hoặc phòng khác khi làm việc sâu',freq:'daily',tips:'Sự hiện diện của điện thoại (dù tắt tiếng) giảm khả năng tập trung 20% — theo nghiên cứu UT Austin.'},
+  {emoji:'📁',name:'Chuẩn bị tài liệu trước cuộc họp',cat:'Năng suất',desc:'Review agenda, chuẩn bị câu hỏi trước 10 phút',freq:'daily',tips:'Chuẩn bị trước giúp họp hiệu quả hơn — người chuẩn bị tốt chiếm thế chủ động và tạo ấn tượng tốt.'},
+  {emoji:'➡️',name:'Chốt bước tiếp theo sau họp',cat:'Năng suất',desc:'Sau mỗi cuộc họp, ghi action item và người chịu trách nhiệm',freq:'daily',tips:'Họp không có action item rõ ràng là họp lãng phí. Next action cụ thể biến thảo luận thành kết quả.'},
+  {emoji:'🗑️',name:'Xóa một việc tồn đọng nhỏ',cat:'Năng suất',desc:'Xử lý 1 việc nhỏ đã trì hoãn quá lâu — dù khó chịu',freq:'daily',tips:'Open loops — việc chưa xong — chiếm không gian trong working memory và gây stress mãn tính.'},
+  {emoji:'🦁',name:'Làm việc khó khi còn tỉnh táo',cat:'Năng suất',desc:'Sắp xếp việc quan trọng nhất vào lúc não bạn tỉnh táo nhất',freq:'daily',tips:'Ego depletion: ý chí cạn dần trong ngày. Làm việc khó khi năng lượng đầy = kết quả tốt hơn rõ rệt.'},
+  {emoji:'🏁',name:'Kết thúc việc đúng lúc',cat:'Năng suất',desc:'Dừng làm việc đúng giờ đã định — không kéo dài vô hạn',freq:'daily',tips:'Parkinson\'s Law: công việc sẽ mở rộng để lấp đầy thời gian có sẵn. Giới hạn thời gian tăng hiệu quả.'},
+  {emoji:'🤖',name:'Tự động hóa một việc lặp lại',cat:'Năng suất',desc:'Tìm 1 việc lặp đi lặp lại và dùng template hoặc công cụ để tiết kiệm thời gian',freq:'daily',tips:'Mỗi giờ đầu tư tự động hóa tiết kiệm hàng chục giờ sau này — ROI cao nhất trong năng suất.'},
+  {emoji:'📌',name:'Đọc lại ghi chú công việc',cat:'Năng suất',desc:'Xem lại ghi chú từ họp, cuộc gọi, hoặc ý tưởng cũ',freq:'daily',tips:'Ý tưởng không được xem lại sẽ mất. Review ghi chú thường xuyên biến thông tin thành hành động.'},
+  {emoji:'🏷️',name:'Đặt tên rõ cho file mới',cat:'Năng suất',desc:'File mới: ngày + tên rõ ràng — không để "Untitled" hay "New Document"',freq:'daily',tips:'Đặt tên file rõ ràng tiết kiệm thời gian tìm kiếm sau này — small habit, big payoff theo thời gian.'},
+  {emoji:'⏳',name:'Ước lượng thời gian trước khi làm',cat:'Năng suất',desc:'Trước khi bắt đầu việc gì, ước lượng mất bao lâu',freq:'daily',tips:'Planning fallacy: người thường underestimate thời gian. Ước lượng cải thiện theo thời gian nếu thực hành.'},
+  {emoji:'🚧',name:'Tạo khung giờ không bị làm phiền',cat:'Năng suất',desc:'Block lịch 1–2 giờ mỗi ngày cho deep work — không họp, không nhắn tin',freq:'daily',tips:'Protected time là tài sản quý nhất của người năng suất cao — bảo vệ nó như bảo vệ lịch họp quan trọng.'},
+  {emoji:'☑️',name:'Viết checklist trước khi bắt đầu',cat:'Năng suất',desc:'Trước dự án hoặc task phức tạp — viết checklist các bước',freq:'daily',tips:'Checklists giảm lỗi 47% trong môi trường phẫu thuật — nguyên tắc đó áp dụng cho mọi loại công việc.'},
+  {emoji:'🎯',name:'Chỉ làm một việc một lúc',cat:'Năng suất',desc:'Đóng tab không liên quan, tập trung vào duy nhất 1 task',freq:'daily',tips:'Multitasking giảm IQ 10 điểm tương đương mất ngủ 1 đêm — single-tasking luôn hiệu quả hơn.'},
+  {emoji:'🔒',name:'Đóng ngày làm việc',cat:'Năng suất',desc:'Nghi thức kết thúc ngày: đóng tab, ghi chú việc còn lại, tắt máy',freq:'daily',tips:'Shutdown ritual tạo ranh giới rõ giữa làm việc và nghỉ ngơi — giúp ngủ ngon và phục hồi tốt hơn.'},
 
-  // 🤝 QUAN HỆ
-  {emoji:'📱',name:'Nhắn tin hỏi thăm gia đình',cat:'Quan hệ',desc:'Gửi tin nhắn hoặc gọi điện cho bố mẹ, anh chị em',freq:'daily',tips:'Các mối quan hệ thân thiết là yếu tố dự đoán hạnh phúc tốt nhất — nghiên cứu 80 năm của Harvard.'},
-  {emoji:'🙂',name:'Làm 1 việc tốt cho người khác',cat:'Quan hệ',desc:'Giúp đỡ đồng nghiệp, khen ngợi ai đó, hoặc nhường chỗ',freq:'daily',tips:'Làm điều tốt cho người khác tạo ra cảm giác hạnh phúc mạnh hơn làm điều tốt cho bản thân.'},
-  {emoji:'👂',name:'Lắng nghe chủ động 1 cuộc trò chuyện',cat:'Quan hệ',desc:'Trong 1 cuộc trò chuyện, chỉ nghe — không ngắt lời, không điện thoại',freq:'daily',tips:'Lắng nghe chủ động là kỹ năng khan hiếm nhất và được đánh giá cao nhất trong mọi mối quan hệ.'},
-  {emoji:'✉️',name:'Gửi lời cảm ơn mỗi ngày',cat:'Quan hệ',desc:'Cảm ơn ai đó thật lòng — tin nhắn, lời nói, hoặc thư tay',freq:'daily',tips:'Biết ơn công khai không chỉ làm người nhận hạnh phúc mà còn tăng hạnh phúc của người cho lên 30%.'},
-  {emoji:'🤲',name:'Không phán xét trong 1 ngày',cat:'Quan hệ',desc:'Để ý và dừng lại mỗi khi muốn phán xét người khác',freq:'daily',tips:'Phán xét ít hơn giúp bạn nhìn thế giới cởi mở hơn, stress ít hơn và các mối quan hệ bền hơn.'},
-  {emoji:'🎁',name:'Ngạc nhiên người thân',cat:'Quan hệ',desc:'Mang về món ăn, nói lời yêu thương, hoặc làm điều bất ngờ',freq:'daily',tips:'Những hành động nhỏ bất ngờ giữ lửa mối quan hệ tốt hơn những buổi hẹn hò lớn nhưng hiếm hoi.'},
-  {emoji:'🤗',name:'Gặp gỡ bạn bè 1 lần/tuần',cat:'Quan hệ',desc:'Cà phê, ăn trưa, hoặc gọi video call với bạn',freq:'daily',tips:'Cô đơn xã hội nguy hiểm cho sức khỏe như hút thuốc 15 điếu/ngày — theo nghiên cứu Brigham Young.'},
-  {emoji:'💬',name:'Hỏi 1 câu hỏi sâu',cat:'Quan hệ',desc:'Hỏi điều thực sự muốn biết về người bạn đang nói chuyện',freq:'daily',tips:'Câu hỏi sâu tạo kết nối thực sự. "Bạn đang ổn không?" khác hẳn "Gần đây bạn thấy cuộc sống thế nào?"'},
-  {emoji:'🤝',name:'Xin lỗi khi làm sai',cat:'Quan hệ',desc:'Đừng để sai sót nhỏ tích thành vết nứt lớn trong mối quan hệ',freq:'daily',tips:'Xin lỗi chân thành và kịp thời là dấu hiệu của người trưởng thành cảm xúc và được tôn trọng nhất.'},
-  {emoji:'🌟',name:'Khen ngợi ai đó thật lòng',cat:'Quan hệ',desc:'Nhận ra và nói ra điều tốt bạn thấy ở người xung quanh',freq:'daily',tips:'Lời khen chân thành cụ thể (không phải xã giao chung chung) tạo ra sự gắn kết và tin tưởng lâu dài.'}
+  // 🤝 QUAN HỆ (30)
+  {emoji:'💬',name:'Nhắn hỏi thăm một người',cat:'Quan hệ',desc:'Gửi tin nhắn ngắn hỏi thăm ai đó — bạn bè, gia đình, đồng nghiệp',freq:'daily',tips:'Kết nối xã hội đều đặn quan trọng hơn các buổi gặp lớn — nhỏ giọt mỗi ngày giữ mối quan hệ ấm áp.'},
+  {emoji:'📞',name:'Gọi cho người thân',cat:'Quan hệ',desc:'Gọi điện nghe giọng — không chỉ nhắn tin',freq:'daily',tips:'Giọng nói tạo kết nối sâu hơn text 60% — nghiên cứu cho thấy gọi điện giảm cô đơn hiệu quả hơn nhắn tin.'},
+  {emoji:'🙏',name:'Cảm ơn một người',cat:'Quan hệ',desc:'Nói lời cảm ơn thật lòng — cụ thể, không chung chung',freq:'daily',tips:'Gratitude expression tăng hạnh phúc cho cả người cho lẫn người nhận — win-win của kết nối con người.'},
+  {emoji:'👂',name:'Lắng nghe không ngắt lời',cat:'Quan hệ',desc:'Trong 1 cuộc trò chuyện hôm nay — chỉ nghe, không xen vào',freq:'daily',tips:'Active listening là kỹ năng hiếm và được trân trọng nhất — người cảm thấy được nghe sẽ tin tưởng bạn hơn.'},
+  {emoji:'💪',name:'Gửi lời động viên',cat:'Quan hệ',desc:'Nhắn tin cổ vũ ai đó đang trải qua giai đoạn khó',freq:'daily',tips:'Lời động viên đúng lúc có thể thay đổi ngày của người khác — và chi phí cho bạn chỉ là vài phút.'},
+  {emoji:'🍽️',name:'Ăn cùng gia đình',cat:'Quan hệ',desc:'Ăn ít nhất 1 bữa cùng nhau — không điện thoại',freq:'daily',tips:'Bữa ăn gia đình thường xuyên liên quan đến ít vấn đề hành vi hơn ở trẻ và hạnh phúc gia đình cao hơn.'},
+  {emoji:'🗣️',name:'Nói rõ một nhu cầu',cat:'Quan hệ',desc:'Thay vì ngầm kỳ vọng — nói thẳng bạn cần gì',freq:'daily',tips:'Communication rõ ràng là nền tảng của mọi mối quan hệ lành mạnh — đọc ý không bao giờ đáng tin cậy.'},
+  {emoji:'🌟',name:'Khen thật lòng',cat:'Quan hệ',desc:'Nhận ra và nói ra điều tốt bạn thấy ở người xung quanh — cụ thể',freq:'daily',tips:'Lời khen cụ thể ("bạn xử lý tình huống đó rất khéo") tạo kết nối mạnh hơn khen chung chung ("giỏi quá").'},
+  {emoji:'💛',name:'Tha thứ một chuyện nhỏ',cat:'Quan hệ',desc:'Buông bỏ 1 điều nhỏ ai đó đã làm khiến bạn không vui',freq:'daily',tips:'Forgiveness giải phóng bạn — không phải người kia. Giữ giận hại sức khỏe của người giận nhiều hơn người bị giận.'},
+  {emoji:'🤲',name:'Làm một việc giúp ai đó',cat:'Quan hệ',desc:'Giúp đỡ — dù nhỏ như cầm cửa, gửi tài liệu, hay nấu thêm phần ăn',freq:'daily',tips:'Prosocial behavior tạo ra cảm giác hạnh phúc mạnh hơn làm điều tốt cho bản thân — khoa học đã chứng minh.'},
+  {emoji:'💭',name:'Ghi nhớ một điều người khác thích',cat:'Quan hệ',desc:'Chú ý và ghi lại sở thích, quan tâm của người thân',freq:'daily',tips:'Ghi nhớ chi tiết nhỏ về người khác — đồ uống yêu thích, dự án đang làm — tạo ra cảm giác được quan tâm thực sự.'},
+  {emoji:'👋',name:'Chào hỏi chủ động',cat:'Quan hệ',desc:'Chủ động chào trước — đồng nghiệp, hàng xóm, người quen',freq:'daily',tips:'Người chào hỏi chủ động được nhớ đến nhiều hơn và tạo không khí tích cực trong môi trường xung quanh.'},
+  {emoji:'❓',name:'Hỏi người thân cần giúp gì',cat:'Quan hệ',desc:'"Gần đây bạn/anh/em cần giúp gì không?" — hỏi thật lòng',freq:'daily',tips:'Hỏi trực tiếp dễ nhận được câu trả lời thật hơn chờ người khác tự nói — nhiều người không dám nhờ vả.'},
+  {emoji:'📆',name:'Lên lịch gặp một người bạn',cat:'Quan hệ',desc:'Đặt lịch cụ thể — không chỉ nói "hẹn gặp sớm thôi"',freq:'daily',tips:'Lịch cụ thể tăng xác suất gặp gỡ thực sự từ 20% lên 80% — vague plans rarely happen.'},
+  {emoji:'🏠',name:'Làm một việc nhà chung',cat:'Quan hệ',desc:'Dọn dẹp, nấu ăn, sắp xếp — không chờ được nhờ',freq:'daily',tips:'Chủ động chia sẻ việc nhà — không cần nhờ — là cách bày tỏ tình yêu và tôn trọng hiệu quả nhất.'},
+  {emoji:'🎂',name:'Nhớ sinh nhật hoặc dịp quan trọng',cat:'Quan hệ',desc:'Gửi lời chúc đúng ngày — trước khi ai nhắc',freq:'daily',tips:'Nhớ ngày quan trọng của người khác là dấu hiệu bạn thực sự quan tâm — khó mà không gây xúc động.'},
+  {emoji:'💬',name:'Nói một câu khích lệ trực tiếp',cat:'Quan hệ',desc:'Nói thẳng với ai đó hôm nay: "Tôi tin bạn làm được"',freq:'daily',tips:'Encouragement trực tiếp có tác động mạnh hơn nhiều so với like hay sticker — lời nói thật sự có sức mạnh.'},
+  {emoji:'🙇',name:'Xin lỗi khi cần',cat:'Quan hệ',desc:'Nhận lỗi và xin lỗi thật lòng — không biện hộ, không "nhưng mà"',freq:'daily',tips:'Xin lỗi đúng cách phục hồi lòng tin nhanh hơn bất kỳ hành động nào khác — và đòi hỏi sự dũng cảm thực sự.'},
+  {emoji:'🤝',name:'Đề nghị giúp đỡ rõ ràng',cat:'Quan hệ',desc:'"Mình có thể giúp bạn X được không?" — cụ thể, không mơ hồ',freq:'daily',tips:'Đề nghị giúp đỡ cụ thể dễ được chấp nhận hơn giúp đỡ chung chung — và tránh gánh vác thay người khác.'},
+  {emoji:'🚶',name:'Đi dạo cùng ai đó',cat:'Quan hệ',desc:'Rủ ai đó cùng đi bộ — trò chuyện khi đi bộ tạo kết nối tự nhiên',freq:'daily',tips:'Side-by-side activity như đi bộ tạo ra cuộc trò chuyện sâu hơn ngồi đối diện — ít áp lực, nhiều thật hơn.'},
+  {emoji:'☕',name:'Mời ai đó uống cà phê',cat:'Quan hệ',desc:'Rủ đồng nghiệp, bạn bè, hoặc người quen uống cà phê',freq:'daily',tips:'Coffee chat là hình thức kết nối không tốn kém nhất — giúp duy trì mạng lưới quan hệ tự nhiên.'},
+  {emoji:'👁️',name:'Nhìn vào mắt khi trò chuyện',cat:'Quan hệ',desc:'Duy trì eye contact — không liếc điện thoại khi ai đó đang nói',freq:'daily',tips:'Eye contact tạo ra oxytocin — hormone kết nối — và truyền đạt sự tôn trọng và quan tâm thực sự.'},
+  {emoji:'📩',name:'Trả lời tin nhắn quan trọng',cat:'Quan hệ',desc:'Không để tin nhắn quan trọng nằm "read" quá 24 giờ',freq:'daily',tips:'Trả lời tin nhắn kịp thời là dấu hiệu tôn trọng — để lâu không trả lời làm người kia cảm thấy không được coi trọng.'},
+  {emoji:'🔗',name:'Kết nối với một người mới',cat:'Quan hệ',desc:'Làm quen với 1 người mới — chào hỏi, hỏi thăm, trao đổi',freq:'daily',tips:'Network mở rộng dần dần — người biết nhiều người thường có nhiều cơ hội hơn mà không nhận ra nguồn gốc.'},
+  {emoji:'🫂',name:'Lắng nghe một chuyện khó',cat:'Quan hệ',desc:'Khi ai đó chia sẻ điều nặng nề — chỉ lắng nghe, không vội khuyên',freq:'daily',tips:'Đôi khi người ta cần được nghe, không cần lời khuyên. Lắng nghe không phán xét là quà tặng quý nhất.'},
+  {emoji:'🌱',name:'Nuôi dưỡng một mối quan hệ cũ',cat:'Quan hệ',desc:'Liên lạc lại với người đã lâu không gặp — thật lòng',freq:'daily',tips:'Mối quan hệ như cây xanh — không được chăm sẽ khô héo. Liên lạc lại không bao giờ là quá muộn.'},
+  {emoji:'📢',name:'Rõ ràng kỳ vọng trong công việc',cat:'Quan hệ',desc:'Nói rõ bạn kỳ vọng gì — với đồng nghiệp, khách hàng, cộng sự',freq:'daily',tips:'Miscommunication là nguyên nhân số 1 của xung đột công việc — kỳ vọng rõ ràng ngăn chặn phần lớn vấn đề.'},
+  {emoji:'🕊️',name:'Giải quyết một hiểu lầm nhỏ',cat:'Quan hệ',desc:'Làm sáng tỏ 1 điều còn khúc mắc thay vì để nó lơ lửng',freq:'daily',tips:'Hiểu lầm nhỏ được giải quyết sớm không bao giờ trở thành xung đột lớn — đừng để tuyết lăn thành tảng.'},
+  {emoji:'🎮',name:'Dành thời gian không màn hình với gia đình',cat:'Quan hệ',desc:'1 hoạt động cùng gia đình không có màn hình — chơi, nấu, kể chuyện',freq:'daily',tips:'Quality time không màn hình tạo ký ức và gắn kết sâu hơn cùng nhau cuộn netflix mà không nói chuyện.'},
+  {emoji:'❤️',name:'Nói lời yêu thương cụ thể',cat:'Quan hệ',desc:'Nói "Em yêu anh vì..." hoặc "Con biết ơn ba/mẹ vì..." — cụ thể',freq:'daily',tips:'Lời yêu thương cụ thể chạm đến trái tim hơn "anh yêu em" chung chung — specificity creates depth.'}
 ];
 
 const LIB_CATS = [
