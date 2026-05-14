@@ -200,7 +200,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .field input,.field textarea{width:100%;padding:10px 13px;border:1.5px solid #f0d060;border-radius:11px;font-family:inherit;font-size:14px;font-weight:600;color:#1a1000;background:#fffbf0;outline:none;transition:border-color .2s,box-shadow .2s}
 .field input:focus,.field textarea:focus{border-color:#f4a100;box-shadow:0 0 0 3px rgba(244,161,0,.12)}
 .field textarea{resize:none;height:70px}
-.egrid{display:flex;flex-wrap:wrap;gap:5px}
+.egrid{display:flex;flex-wrap:wrap;gap:5px;max-height:92px;overflow:hidden;transition:max-height .35s ease}
+.egrid.expanded{max-height:600px}
+.egrid-toggle{margin-top:5px;font-size:11px;font-weight:800;color:#c47a00;cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;border:1.5px solid #f0d060;background:#fffbf0;transition:all .15s}
+.egrid-toggle:hover{background:#fff3b0}
+html.dark .egrid-toggle{background:#0f172a;border-color:#334155;color:#fbbf24}
 .eopt{width:37px;height:37px;border-radius:9px;border:1.5px solid transparent;background:#fffbf0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:19px;transition:all .15s}
 .eopt.on{border-color:#f4a100;background:#fff8dc;box-shadow:0 0 0 3px rgba(244,161,0,.15)}
 .fopts,.copts{display:flex;flex-wrap:wrap;gap:6px}
@@ -474,7 +478,7 @@ html.dark .sc b{color:#fbbf24}
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><div style="flex:1;height:1px;background:#f0d060"></div><span style="font-size:11px;font-weight:800;color:#9a7a00">HOẶC TỰ TẠO MỚI</span><div style="flex:1;height:1px;background:#f0d060"></div></div>
     <div class="fcard">
       <div class="fhed">🌻 Trồng thói quen mới</div>
-      <div class="field"><label>Biểu tượng</label><div class="egrid" id="epick"></div></div>
+      <div class="field"><label>Biểu tượng</label><div class="egrid" id="epick"></div><div class="egrid-toggle" id="epickToggle" onclick="toggleEgrid('epick','epickToggle')">▾ Xem thêm icon</div></div>
       <div class="field"><label>Tên thói quen *</label><input id="iName" placeholder="VD: Học 10 câu tiếng Anh mỗi ngày" maxlength="50"></div>
       <div class="field"><label>Mô tả ngắn</label><input id="iDesc" placeholder="VD: Dùng Duolingo, 10 phút" maxlength="60"></div>
       <div class="field"><label>Giờ nhắc riêng</label><input id="iReminderTime" type="time" value="21:00"></div>
@@ -629,7 +633,7 @@ html.dark .sc b{color:#fbbf24}
   <div class="lib-edit-box">
     <div class="lib-edit-title">✏️ Xem lại trước khi thêm</div>
     <div class="lib-edit-sub">Bạn có thể chỉnh sửa trước khi lưu vào vườn</div>
-    <div class="field"><label>Biểu tượng</label><div class="egrid" id="libEPick"></div></div>
+    <div class="field"><label>Biểu tượng</label><div class="egrid" id="libEPick"></div><div class="egrid-toggle" id="libEPickToggle" onclick="toggleEgrid('libEPick','libEPickToggle')">▾ Xem thêm icon</div></div>
     <div class="field"><label>Tên thói quen *</label><input id="libName" maxlength="50"></div>
     <div class="field"><label>Mô tả ngắn</label><input id="libDesc" maxlength="60"></div>
     <div class="field"><label>Giờ nhắc riêng</label><input id="libReminder" type="time" value="21:00"></div>
@@ -673,7 +677,7 @@ html.dark .sc b{color:#fbbf24}
 <div class="overlay" id="editModal">
   <div class="modal">
     <div class="mhed">✏️ Chỉnh sửa thói quen</div>
-    <div class="field"><label>Biểu tượng</label><div class="egrid" id="epickE"></div></div>
+    <div class="field"><label>Biểu tượng</label><div class="egrid" id="epickE"></div><div class="egrid-toggle" id="epickEToggle" onclick="toggleEgrid('epickE','epickEToggle')">▾ Xem thêm icon</div></div>
     <div class="field"><label>Tên *</label><input id="eName" maxlength="50"></div>
     <div class="field"><label>Mô tả</label><input id="eDesc" maxlength="60"></div>
     <div class="field"><label>Giờ nhắc riêng</label><input id="eReminderTime" type="time"></div>
@@ -1243,6 +1247,7 @@ window.goTab=t=>{
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.getElementById('pg-'+t).classList.add('on');
   if(t==='garden')render();if(t==='badges')renderBadges();if(t==='diary')renderDiary();
+  if(t==='add')resetEgrid('epick','epickToggle');
 };
 
 // ── HABIT CRUD ──
@@ -1261,6 +1266,7 @@ window.openEdit=id=>{
   document.getElementById('eR5').value=h.r5||'';document.getElementById('eR7').value=h.r7||'';document.getElementById('eR15').value=h.r15||'';
   document.getElementById('epickE').innerHTML=EMOJIS.map(e=>`<div class="eopt${e===h.emoji?' on':''}" data-e="${e}" onclick="pickEE(this)">${e}</div>`).join('');
   document.querySelectorAll('#catOptsE .copt').forEach(el=>el.classList.toggle('on',el.dataset.c===editCat));
+  resetEgrid('epickE','epickEToggle');
   applyLang();
   document.getElementById('editModal').classList.add('on');
 };
@@ -1773,6 +1779,7 @@ window.openLibEdit = idx => {
     `<div class="eopt${e===h.emoji?' on':''}" data-e="${e}" onclick="pickLibE(this)">${e}</div>`
   ).join('');
   document.querySelectorAll('#libCatPick .copt').forEach(el => el.classList.toggle('on', el.dataset.c === h.cat));
+  resetEgrid('libEPick','libEPickToggle');
   document.getElementById('libEditOverlay').classList.add('on');
 };
 
@@ -1823,6 +1830,21 @@ window.confirmAddFromLib = () => {
   t.classList.add('on');
   setTimeout(() => t.classList.remove('on'), 2500);
 };
+
+// ── EMOJI GRID TOGGLE ──
+window.toggleEgrid = (gridId, btnId) => {
+  const grid = document.getElementById(gridId);
+  const btn  = document.getElementById(btnId);
+  if(!grid || !btn) return;
+  const expanded = grid.classList.toggle('expanded');
+  btn.textContent = expanded ? '▴ Thu gọn' : '▾ Xem thêm icon';
+};
+function resetEgrid(gridId, btnId){
+  const grid = document.getElementById(gridId);
+  const btn  = document.getElementById(btnId);
+  if(grid) grid.classList.remove('expanded');
+  if(btn)  btn.textContent = '▾ Xem thêm icon';
+}
 
 // INIT
 document.getElementById('epick').innerHTML=EMOJIS.map(e=>`<div class="eopt${e===selE?' on':''}" data-e="${e}" onclick="pickE(this)">${e}</div>`).join('');
