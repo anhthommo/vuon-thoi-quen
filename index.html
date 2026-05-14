@@ -768,9 +768,13 @@ html.dark .sc b{color:#fbbf24}
       <div class="copt" data-c="Công việc" onclick="pickCatE(this)">💼 Công việc</div>
       <div class="copt" data-c="Sáng tạo" onclick="pickCatE(this)">🎨 Sáng tạo</div>
     </div></div>
-    <div class="field"><label>Quà 5 ngày</label><input id="eR5" maxlength="60"></div>
-    <div class="field"><label>Quà 7 ngày</label><input id="eR7" maxlength="60"></div>
-    <div class="field"><label>Quà 15 ngày</label><input id="eR15" maxlength="60"></div>
+    <div class="field"><label>🎁 Quà 5 ngày</label><input id="eR5" maxlength="60"></div>
+    <div class="field"><label>🎉 Quà 7 ngày</label><input id="eR7" maxlength="60"></div>
+    <div class="field"><label>🏆 Quà 15 ngày</label><input id="eR15" maxlength="60"></div>
+    <div class="field"><label>💎 Quà 21 ngày</label><input id="eR21" maxlength="60"></div>
+    <div class="field"><label>⭐ Quà 30 ngày</label><input id="eR30" maxlength="60"></div>
+    <div class="field"><label>🔥 Quà 66 ngày</label><input id="eR66" maxlength="60"></div>
+    <div class="field"><label>👑 Quà 90 ngày</label><input id="eR90" maxlength="60"></div>
     <div class="mbtns"><button class="mcancel" onclick="closeEdit()">Hủy</button><button class="msave" onclick="saveEdit()">Lưu lại</button></div>
   </div>
 </div>
@@ -1028,7 +1032,7 @@ function applyLang(){
   [null,null,null,tt('cloud'),tt('syncNowSub'),tt('enableNotifSub'),tt('notifTimeSub'),tt('mysqlSub'),tt('autoBkSub'),tt('excel'),tt('jsonSub'),tt('importSub'),tt('deleteSub')].forEach((v,i)=>{if(v&&settingsSubs[i])settingsSubs[i].textContent=v;});
   document.querySelectorAll('#pg-settings .abtn').forEach(btn=>{const fn=btn.getAttribute('onclick')||'';if(fn.includes('doLogout'))btn.textContent=tt('logout');if(fn.includes('saveData'))btn.textContent=tt('sync');if(fn.includes('exportCSV'))btn.textContent=tt('exportBtn');if(fn.includes('exportJSON'))btn.textContent=tt('downloadBtn');if(fn.includes('rf'))btn.textContent=tt('importBtn');if(fn.includes('clearAll'))btn.textContent=tt('deleteBtn');});
   setHTML('.ios-guide',tt('iosGuide'));
-  setTxt('#editModal .mhed',tt('editTitle'));document.querySelectorAll('#editModal .field label').forEach((el,i)=>el.textContent=[tt('icon'),tt('name'),tt('desc'),tt('habitReminder'),lang==='en'?'Category':'Danh mục',tt('r5'),tt('r7'),tt('r15')][i]);
+  setTxt('#editModal .mhed',tt('editTitle'));document.querySelectorAll('#editModal .field label').forEach((el,i)=>el.textContent=[tt('icon'),tt('name'),tt('desc'),tt('habitReminder'),lang==='en'?'Category':'Danh mục','🎁 '+(lang==='en'?'Reward 5 days':'Quà 5 ngày'),'🎉 '+(lang==='en'?'Reward 7 days':'Quà 7 ngày'),'🏆 '+(lang==='en'?'Reward 15 days':'Quà 15 ngày'),'💎 '+(lang==='en'?'Reward 21 days':'Quà 21 ngày'),'⭐ '+(lang==='en'?'Reward 30 days':'Quà 30 ngày'),'🔥 '+(lang==='en'?'Reward 66 days':'Quà 66 ngày'),'👑 '+(lang==='en'?'Reward 90 days':'Quà 90 ngày')][i]);
   setTxt('#editModal .mcancel',tt('cancel'));setTxt('#editModal .msave',tt('save'));
   setTxt('#moodHed',tt('moodTitle'));document.querySelectorAll('#moodModal .field label').forEach((el,i)=>el.textContent=[tt('moodToday'),tt('note')][i]);setTxt('#moodModal .mcancel',tt('skip'));setTxt('#moodModal .msave',tt('saveShort'));setTxt('.msclose',tt('continue'));
   setPH('#iName',tt('pName'));setPH('#iDesc',tt('pDesc'));setPH('#iGN',tt('pGoal'));setPH('#iGU',tt('pUnit'));setPH('#iR5',tt('pR5'));setPH('#iR7',tt('pR7'));setPH('#iR15',tt('pR15'));setPH('#moodNote',tt('pMood'));
@@ -1400,6 +1404,7 @@ window.openEdit=id=>{
   document.getElementById('eName').value=h.name;document.getElementById('eDesc').value=h.desc||'';
   document.getElementById('eReminderTime').value=h.reminderTime||stats.ntime||'21:00';
   document.getElementById('eR5').value=h.r5||'';document.getElementById('eR7').value=h.r7||'';document.getElementById('eR15').value=h.r15||'';
+  document.getElementById('eR21').value=h.r21||'';document.getElementById('eR30').value=h.r30||'';document.getElementById('eR66').value=h.r66||'';document.getElementById('eR90').value=h.r90||'';
   document.getElementById('epickE').innerHTML=EMOJIS.map(e=>`<div class="eopt${e===h.emoji?' on':''}" data-e="${e}" onclick="pickEE(this)">${e}</div>`).join('');
   document.querySelectorAll('#catOptsE .copt').forEach(el=>el.classList.toggle('on',el.dataset.c===editCat));
   resetEgrid('epickE','epickEToggle');
@@ -1413,12 +1418,13 @@ window.saveEdit=()=>{
   h.emoji=editE;h.name=name;h.cat=editCat;h.desc=document.getElementById('eDesc').value.trim();
   h.reminderTime=document.getElementById('eReminderTime').value||stats.ntime||'21:00';
   h.r5=document.getElementById('eR5').value.trim()||h.r5;h.r7=document.getElementById('eR7').value.trim()||h.r7;h.r15=document.getElementById('eR15').value.trim()||h.r15;
+  h.r21=document.getElementById('eR21').value.trim()||h.r21;h.r30=document.getElementById('eR30').value.trim()||h.r30;h.r66=document.getElementById('eR66').value.trim()||h.r66;h.r90=document.getElementById('eR90').value.trim()||h.r90;
   saveData();closeEdit();render();
 };
 window.delHabit=id=>{const h=habits.find(x=>x.id==id);if(!confirm(tt('alerts').deleteHabit(h?.name)))return;habits=habits.filter(x=>x.id!=id);saveData();render();};
 window.togVac=id=>{const h=habits.find(x=>x.id==id);if(!h)return;const t=today();if(!h.vacation)h.vacation={};h.vacation[t]=!h.vacation[t];saveData();render();};
 
-const MILESTONES=[{d:5,ico:'🌻',xp:50},{d:7,ico:'🎉',xp:80},{d:15,ico:'🏆',xp:200},{d:30,ico:'⭐',xp:500}];
+const MILESTONES=[{d:5,ico:'🌻',xp:50},{d:7,ico:'🎉',xp:80},{d:15,ico:'🏆',xp:200},{d:21,ico:'💎',xp:300},{d:30,ico:'⭐',xp:500},{d:66,ico:'🔥',xp:800},{d:90,ico:'👑',xp:1200}];
 
 window.toggleDay=(id,key)=>{
   const h=habits.find(x=>x.id==id);if(!h)return;if(key!==today())return;if(h.vacation?.[key])return;
@@ -1453,10 +1459,11 @@ window.toggleDay=(id,key)=>{
 };
 function checkMilestone(h,s){
   if(!h.milestoneAwarded)h.milestoneAwarded={};
+  const rewardMap={5:h.r5,7:h.r7,15:h.r15,21:h.r21||(lang==='en'?'3-week champion!':'3 tuần kiên trì!'),30:h.r30||(lang==='en'?'One month legend!':'Huyền thoại 1 tháng!'),66:h.r66||(lang==='en'?'Habit fully formed!':'Thói quen đã thành hình!'),90:h.r90||(lang==='en'?'90-day master!':'Bậc thầy 90 ngày!')};
   MILESTONES.forEach(m=>{
     if(s===m.d && !h.milestoneAwarded[m.d]){
-      h.milestoneAwarded[m.d]=true; // đánh dấu đã tặng mốc này
-      const r=m.d===5?h.r5:m.d===7?h.r7:m.d===15?h.r15:'30 ngày phi thường!';
+      h.milestoneAwarded[m.d]=true;
+      const r=rewardMap[m.d]||'';
       addXP(m.xp,tt('streakXp',m.d));
       const ms=tt('milestone',m.d,h);
       setTimeout(()=>showMsp(ms[0],ms[1],r,m.xp,m.ico),300);
@@ -1545,10 +1552,36 @@ function sunSVG(b,s){
 }
 
 function rwBlock(h,s){
-  return`<div class="rwsec"><div class="rwtitle">${tt('rewardMilestone')}</div><div class="rwrow">${[{d:5,ico:'🎁',r:h.r5},{d:7,ico:'🎉',r:h.r7},{d:15,ico:'🏆',r:h.r15}].map(m=>{
-    const dn=s>=m.d,nr=s===m.d-1,cl=dn?'rwdn':nr?'rwnr':'rwlk',dc=dn?'rwdays-dn':nr?'rwdays-nr':'rwdays-lk';
-    return`<div class="rwitem ${cl}">${dn?'<div class="rwchk">✅</div>':''}<div class="rwico">${m.ico}</div><div class="rwdays ${dc}">${tt('days',m.d)}</div><div class="rwtxt">${dn?`<b>${m.r}</b>`:nr?`<b style="color:#c47a00">${tt('oneLeft')}</b>`:m.r}</div>${!dn?`<div class="rwprog"><div class="rwprogf" style="width:${Math.min(100,Math.round(s/m.d*100))}%"></div></div>`:''}</div>`;
-  }).join('')}</div></div>`;
+  const allM=[
+    {d:5, ico:'🎁', r:h.r5||(lang==='en'?'Treat yourself!':'Tự thưởng bản thân!')},
+    {d:7, ico:'🎉', r:h.r7||(lang==='en'?'Watch a movie!':'Xem phim thoải mái!')},
+    {d:15,ico:'🏆', r:h.r15||(lang==='en'?'Buy something you want!':'Mua thứ bạn muốn!')},
+    {d:21,ico:'💎', r:h.r21||(lang==='en'?'3-week champion!':'3 tuần kiên trì!')},
+    {d:30,ico:'⭐', r:h.r30||(lang==='en'?'One month legend!':'Huyền thoại 1 tháng!')},
+    {d:66,ico:'🔥', r:h.r66||(lang==='en'?'Habit fully formed!':'Thói quen đã thành hình!')},
+    {d:90,ico:'👑', r:h.r90||(lang==='en'?'90-day master!':'Bậc thầy 90 ngày!')}
+  ];
+  // Các mốc đã đạt
+  const done=allM.filter(m=>s>=m.d);
+  // Các mốc chưa đạt — chỉ lấy 3 mốc tiếp theo
+  const upcoming=allM.filter(m=>s<m.d).slice(0,3);
+  // Hiện mốc đã đạt gần nhất (1 cái) + 3 mốc tiếp theo
+  const lastDone=done.length?[done[done.length-1]]:[];
+  const toShow=[...lastDone,...upcoming];
+  if(!toShow.length) return '';
+  const items=toShow.map(m=>{
+    const dn=s>=m.d,nr=s>=m.d-1&&s<m.d,cl=dn?'rwdn':nr?'rwnr':'rwlk',dc=dn?'rwdays-dn':nr?'rwdays-nr':'rwdays-lk';
+    const daysLeft=m.d-s;
+    const subTxt=dn?`<b>${m.r}</b>`:nr?`<b style="color:#c47a00">${lang==='en'?'1 day left!':'Còn 1 ngày!'}</b>`:`${lang==='en'?daysLeft+' days left':'còn '+daysLeft+' ngày'}`;
+    return`<div class="rwitem ${cl}" style="min-width:72px">
+      ${dn?'<div class="rwchk">✅</div>':''}
+      <div class="rwico">${m.ico}</div>
+      <div class="rwdays ${dc}">${m.d} ${lang==='en'?'days':'ngày'}</div>
+      <div class="rwtxt">${subTxt}</div>
+      ${!dn?`<div class="rwprog"><div class="rwprogf" style="width:${Math.min(100,Math.round(s/m.d*100))}%"></div></div>`:''}
+    </div>`;
+  }).join('');
+  return`<div class="rwsec"><div class="rwtitle">${tt('rewardMilestone')}</div><div class="rwrow" style="overflow-x:auto;flex-wrap:nowrap;gap:6px;padding-bottom:4px">${items}</div></div>`;
 }
 
 // ── RENDER ──
