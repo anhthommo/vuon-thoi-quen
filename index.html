@@ -1589,7 +1589,7 @@ function render(){
           <div class="hstreak">${tt('streak',s)}</div>
         </div>
         <div class="hacts">
-          <div class="drag-handle" title="Kéo để sắp xếp"><span></span><span></span><span></span></div>
+          <div class="drag-handle" title="${lang==='en'?'Drag to reorder':'Kéo để sắp xếp'}"><span></span><span></span><span></span></div>
           <button class="ibtn vac${onV?' on':''}" onclick="togVac('${h.id}')" title="${tt('vacation')}">🏖</button>
           <button class="ibtn" onclick="openEdit('${h.id}')">✏️</button>
           <button class="ibtn del" onclick="delHabit('${h.id}')">🗑</button>
@@ -2398,7 +2398,23 @@ document.addEventListener('dragover', function(e){
   if(!dragCard || card === dragCard) return;
   e.preventDefault();
   e.dataTransfer.dropEffect = 'move';
-  document.querySelectorAll('#hlist .hcard').forEach(function(c){ c.classList.remove('drag-over'); });
+  document.querySelectorAll('#hlist .hcard').forEach(function(c){
+    c.classList.remove('drag-over');
+    c.style.borderTop = '';
+    c.style.borderBottom = '';
+  });
+  // Tính hướng để chọn threshold
+  var fromId2 = _dragId;
+  var fromIdx2 = habits.findIndex(function(h){ return h.id === fromId2; });
+  var toIdx2   = habits.findIndex(function(h){ return h.id === card.dataset.id; });
+  var rect2 = card.getBoundingClientRect();
+  var threshold2 = fromIdx2 < toIdx2 ? rect2.top + rect2.height * 0.35
+                                     : rect2.top + rect2.height * 0.65;
+  if(e.clientY < threshold2){
+    card.style.borderTop = '2.5px solid #f4a100';
+  } else {
+    card.style.borderBottom = '2.5px solid #f4a100';
+  }
   card.classList.add('drag-over');
 });
 
@@ -2417,6 +2433,8 @@ document.addEventListener('dragend', function(e){
     c.classList.remove('dragging');
     c.classList.remove('drag-over');
     c.setAttribute('draggable','false');
+    c.style.borderTop = '';
+    c.style.borderBottom = '';
   });
   _dragId = null;
 });
@@ -2476,7 +2494,11 @@ function doReorder(fromId, toId, clientY, toCard){
   var toIdx   = habits.findIndex(function(h){ return h.id === toId; });
   if(fromIdx < 0 || toIdx < 0 || fromIdx === toIdx) return;
   var rect = toCard.getBoundingClientRect();
-  var insertBefore = clientY < rect.top + rect.height / 2;
+  // Kéo xuống (fromIdx < toIdx): threshold 35% — dễ drop sau card đích hơn
+  // Kéo lên  (fromIdx > toIdx): threshold 65% — dễ drop trước card đích hơn
+  var threshold = fromIdx < toIdx ? rect.top + rect.height * 0.35
+                                  : rect.top + rect.height * 0.65;
+  var insertBefore = clientY < threshold;
   var moved = habits.splice(fromIdx, 1)[0];
   var newTo = habits.findIndex(function(h){ return h.id === toId; });
   habits.splice(insertBefore ? newTo : newTo + 1, 0, moved);
