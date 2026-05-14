@@ -1217,10 +1217,15 @@ window.saveData=function(force=false){
   saveTimer=setTimeout(async()=>{
     showSync('saving',tt('syncing'));
     try{
-      await setDoc(doc(db,'users',cu.uid),{habits,stats,updatedAt:serverTimestamp()});
+      // Loại bỏ undefined trước khi lưu (Firestore không chấp nhận undefined)
+      const clean=JSON.parse(JSON.stringify({habits,stats}));
+      await setDoc(doc(db,'users',cu.uid),{...clean,updatedAt:serverTimestamp()});
       showSync('ok',tt('synced'));setTimeout(hideSync,2000);
       if(stats.autoBk&&MYSQL_URL)silentMySQLBackup();
-    }catch(e){showSync('err',tt('syncErr'));}
+    }catch(e){
+      console.error('[Firebase saveData]',e);
+      showSync('err',tt('syncErr')+' ('+e.code+')');
+    }
   },delay);
 };
 
